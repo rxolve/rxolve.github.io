@@ -1,11 +1,11 @@
 {
-  "name": "gatsby-starter-blog",
+  "name": "rxolve-dev-blog",
   "private": true,
-  "description": "A starter for a blog powered by Gatsby and Markdown",
+  "description": "Welcome",
   "version": "0.1.0",
-  "author": "Kyle Mathews <mathews.kyle@gmail.com>",
+  "author": "Help Kim <rxolve@gmail.com>",
   "bugs": {
-    "url": "https://github.com/gatsbyjs/gatsby/issues"
+    "url": "https://github.com/rxolve/rxolve.github.io/issues"
   },
   "dependencies": {
     "@fontsource/merriweather": "^5.0.8",
@@ -28,14 +28,14 @@
   "devDependencies": {
     "prettier": "^2.8.8"
   },
-  "homepage": "https://github.com/gatsbyjs/gatsby-starter-blog#readme",
+  "homepage": "https://github.com/rxolve/rxolve.github.io",
   "keywords": [
     "gatsby"
   ],
   "license": "0BSD",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gatsbyjs/gatsby-starter-blog.git"
+    "url": "https://github.com/rxolve/rxolve.github.io"
   },
   "scripts": {
     "build": "gatsby build",
