@@ -1,5 +1,3 @@
-import { createText } from './lib/actions';
-
 export default function Page() {
   return (
     <main>

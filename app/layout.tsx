@@ -7,7 +7,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="container-fluid">{children}</body>
+      <body className="container">{children}</body>
     </html>
   );
 }
