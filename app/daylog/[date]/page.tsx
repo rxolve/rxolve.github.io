@@ -1,4 +1,4 @@
-import Log from '/daylog/240101.mdx';
+import dynamic from 'next/dynamic';
 
 type Props = {
   params: {
@@ -6,10 +6,13 @@ type Props = {
   };
 };
 
-export default function Post({ params }: Props) {
+export default function Page({ params }: Props) {
+  const Log = dynamic(() =>
+    import(`/daylog/${params.date}.mdx`).catch(() => import('/daylog/404.mdx')),
+  );
+
   return (
     <>
-      <div>{params.date} mdx</div>
       <Log />
     </>
   );
