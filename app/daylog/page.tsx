@@ -1,36 +1,38 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import { getPostData, getAllPostIds } from '../lib/daylog-posts';
+import { PostData } from '../types/post';
+import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
+import { serialize } from 'next-mdx-remote/serialize';
 
-export default function Page() {
-  const directoryPath = path.join(process.cwd(), 'daylog');
-
-  let files: { name: string; content: string }[] = [];
-
-  try {
-    const filenames = fs.readdirSync(directoryPath);
-    files = filenames
-      .filter((filename) => !['404.mdx'].includes(filename))
-      .map((filename) => {
-        const filePath = path.join(directoryPath, filename);
-        const content = fs.readFileSync(filePath, 'utf-8');
-        return {
-          name: filename,
-          content,
-        };
-      });
-  } catch (err) {
-    console.error('Unable to scan directory:', err);
-  }
-
-  console.log(files);
-
-  return (
-    <div>
-      <ul>
-        {files.map((file, index) => (
-          <li key={index}>{file.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
+interface PostProps {
+  postData: PostData;
+  mdxSource: MDXRemoteSerializeResult;
 }
+
+export async function generateStaticParams() {
+  const paths = getAllPostIds();
+  return paths.map((path) => path.params);
+}
+
+export async function fetchStaticData({ params }: { params: { id: string } }) {
+  const postData = getPostData(params.id);
+  const mdxSource = await serialize(postData.content);
+
+  return {
+    props: {
+      postData,
+      mdxSource,
+    },
+  };
+}
+
+const Post = ({ postData, mdxSource }: PostProps) => {
+  return (
+    <article>
+      <h1>{postData.title}</h1>
+      <p>{postData.date}</p>
+      <MDXRemote {...mdxSource} />
+    </article>
+  );
+};
+
+export default Post;
