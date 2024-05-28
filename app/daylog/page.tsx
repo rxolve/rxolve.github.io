@@ -1,38 +1,36 @@
-import { getPostData, getAllPostIds } from '../lib/daylog-posts';
-import { PostData } from '../types/post';
-import { MDXRemote, MDXRemoteSerializeResult } from 'next-mdx-remote';
-import { serialize } from 'next-mdx-remote/serialize';
+import { getAllPosts } from '../../lib/daylog-posts';
+import { PostMetaData } from '../../types/post';
 
-interface PostProps {
-  postData: PostData;
-  mdxSource: MDXRemoteSerializeResult;
+interface PostsPageProps {
+  posts: PostMetaData[];
 }
 
-export async function generateStaticParams() {
-  const paths = getAllPostIds();
-  return paths.map((path) => path.params);
-}
-
-export async function fetchStaticData({ params }: { params: { id: string } }) {
-  const postData = getPostData(params.id);
-  const mdxSource = await serialize(postData.content);
+export async function fetchStaticData() {
+  console.log('fetchStaticData');
+  const posts = getAllPosts();
 
   return {
     props: {
-      postData,
-      mdxSource,
+      posts,
     },
   };
 }
 
-const Post = ({ postData, mdxSource }: PostProps) => {
+const PostsPage = ({ posts }: PostsPageProps) => {
   return (
-    <article>
-      <h1>{postData.title}</h1>
-      <p>{postData.date}</p>
-      <MDXRemote {...mdxSource} />
-    </article>
+    <div>
+      <h1>All Posts</h1>
+      <ul>
+        {posts?.map((post) => (
+          <li key={post.id}>
+            <a href={`/posts/${post.id}`}>
+              {post.title} ({post.date})
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 };
 
-export default Post;
+export default PostsPage;

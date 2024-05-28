@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { PostData } from '../types/post';
+import { PostData, PostMetaData } from '../types/post';
 
 const postsDirectory = path.join(process.cwd(), 'daylog');
 
@@ -19,14 +19,22 @@ export function getPostData(id: string): PostData {
   };
 }
 
-export function getAllPostIds() {
+export function getAllPosts(): PostMetaData[] {
   const fileNames = fs.readdirSync(postsDirectory);
+  console.log('fileNames', fileNames);
+  const allPostsData = fileNames.map((fileName) => {
+    const id = fileName.replace(/\.mdx$/, '');
+    const fullPath = path.join(postsDirectory, fileName);
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
 
-  return fileNames.map((fileName) => {
+    const { data } = matter(fileContents);
+
     return {
-      params: {
-        id: fileName.replace(/\.mdx$/, ''),
-      },
+      id,
+      title: data.title,
+      date: data.date,
     };
   });
+
+  return allPostsData;
 }
