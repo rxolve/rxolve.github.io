@@ -8,7 +8,6 @@ const postsDirectory = path.join(process.cwd(), 'daylog');
 export function getPostData(id: string): PostData {
   const fullPath = path.join(postsDirectory, `${id}.mdx`);
   const fileContents = fs.readFileSync(fullPath, 'utf8');
-
   const { data, content } = matter(fileContents);
 
   return {
@@ -21,20 +20,30 @@ export function getPostData(id: string): PostData {
 
 export function getAllPosts(): PostMetaData[] {
   const fileNames = fs.readdirSync(postsDirectory);
-  console.log('fileNames', fileNames);
-  const allPostsData = fileNames.map((fileName) => {
-    const id = fileName.replace(/\.mdx$/, '');
-    const fullPath = path.join(postsDirectory, fileName);
-    const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const allPostsData = fileNames
+    .filter((fileName) => fileName !== '404.mdx')
+    .map((fileName) => {
+      const id = fileName.replace(/\.mdx$/, '');
+      const fullPath = path.join(postsDirectory, fileName);
+      const fileContents = fs.readFileSync(fullPath, 'utf8');
+      const { data } = matter(fileContents);
 
-    const { data } = matter(fileContents);
-
-    return {
-      id,
-      title: data.title,
-      date: data.date,
-    };
-  });
+      return {
+        id,
+        ...data,
+      } as PostMetaData;
+    })
+    .filter((post) => post.title)
+    .reverse();
 
   return allPostsData;
+}
+
+export function getAllPostIds() {
+  const fileNames = fs.readdirSync(postsDirectory);
+  return fileNames.map((fileName) => ({
+    params: {
+      id: fileName.replace(/\.mdx$/, ''),
+    },
+  }));
 }

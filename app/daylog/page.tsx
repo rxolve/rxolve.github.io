@@ -1,30 +1,16 @@
 import { getAllPosts } from '../../lib/daylog-posts';
-import { PostMetaData } from '../../types/post';
 
-interface PostsPageProps {
-  posts: PostMetaData[];
-}
-
-export async function fetchStaticData() {
-  console.log('fetchStaticData');
+const PostsPage = async () => {
   const posts = getAllPosts();
 
-  return {
-    props: {
-      posts,
-    },
-  };
-}
-
-const PostsPage = ({ posts }: PostsPageProps) => {
   return (
     <div>
       <h1>All Posts</h1>
       <ul>
-        {posts?.map((post) => (
+        {posts.map((post) => (
           <li key={post.id}>
-            <a href={`/posts/${post.id}`}>
-              {post.title} ({post.date})
+            <a href={`/daylog/${post.date}`}>
+              {post.date} | {post.title}
             </a>
           </li>
         ))}
