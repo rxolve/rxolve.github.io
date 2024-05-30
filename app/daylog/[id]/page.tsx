@@ -1,6 +1,7 @@
-// app/posts/[id]/page.tsx
-import { getPostData, getAllPostIds } from '../../../lib/daylog-posts';
+import { getPostData, getAllPostIds } from '../../../lib/posts';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+
+const folder = 'daylog';
 
 interface PostPageProps {
   params: {
@@ -9,12 +10,12 @@ interface PostPageProps {
 }
 
 export async function generateStaticParams() {
-  const paths = getAllPostIds();
+  const paths = getAllPostIds(folder);
   return paths.map((path) => path.params);
 }
 
 const PostPage = async ({ params }: PostPageProps) => {
-  const postData = getPostData(params.id);
+  const postData = getPostData(folder, params.id);
 
   return (
     <article>

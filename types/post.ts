@@ -6,6 +6,5 @@ export interface PostMetaData {
 }
 
 export interface PostData extends PostMetaData {
-  id: string;
   content: string;
 }
