@@ -15,6 +15,7 @@ export function getPostData(id: string): PostData {
     content,
     title: data.title,
     date: data.date,
+    tags: data.tags,
   };
 }
 

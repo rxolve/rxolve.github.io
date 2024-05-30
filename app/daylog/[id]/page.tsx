@@ -20,6 +20,7 @@ const PostPage = async ({ params }: PostPageProps) => {
     <article>
       <h1>{postData.title}</h1>
       <p>{postData.date}</p>
+      <p>{postData.tags?.join(', ')}</p>
       <MDXRemote source={postData.content} />
     </article>
   );
