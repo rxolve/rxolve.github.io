@@ -13,7 +13,7 @@ export default function Home() {
           <cite>💌 rxolve@gmail.com</cite>
         </div>
         <div>
-          <small>Made with Next.js, Pico CSS, MDX, and Vercel 🚀 © 2024</small>
+          <small>Made with Next.js, Vercel, Pico CSS, MDX, and GPT-4o 🚀</small>
         </div>
       </article>
       {posts.map((post) => (
