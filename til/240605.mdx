@@ -1,0 +1,32 @@
+---
+title: 'Github Pages에 배포하기 1'
+date: '240605'
+---
+
+0. https://rxolve-github-io.vercel.app 에서 https://rxolve.github.io 로 변경하는 작업을 진행했다.
+1. next.config.mjs 에 아래와 같이 설정을 추가한다.
+
+   ```javascript
+     output: 'export',
+     images: {
+       unoptimized: true,
+     },
+
+   ```
+
+2. npm run build 를 해준다. out 폴더 안에 산출물이 생긴다. out 폴더를 gitignore 에 추가한다.
+3. gh-pages 를 설치한다.
+   > npm install --save-dev gh-pages
+4. package.json 에 아래 스크립트를 추가한다.
+   ```json
+   "scripts": {
+    "build": "next build",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out",
+   }
+   ```
+5. npm run deploy 를 실행한다.
+6. 깃헙 rxolve.github.io 프로젝트의 Settings > Pages 에서 Source 를 gh-pages 브랜치로 변경한다.
+7. https://rxolve.github.io 에 접속하면 배포된 페이지를 확인할 수 있었다. 하지만 Pico CSS가 적용되지 않아 매우 볼품 없어 슬프다.
+   - 원인은 \_next/static 폴더의 파일들이 404 에러를 뱉어내고 있다.
+   - 해결은 내일로. 돌아오세요, 피코 선생님.
