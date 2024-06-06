@@ -11,24 +11,24 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # v2에서 v3으로 업데이트
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v3 # v2에서 v3으로 업데이트
         with:
-          node-version: '20'
+          node-version: '20' # Node.js 20 버전으로 업데이트
 
       - name: Install dependencies
         run: npm install
 
       - name: Add node_modules/.bin to PATH
-        run: echo "::add-path::$(npm bin)"
+        run: echo "PATH=$(npm bin):$PATH" >> $GITHUB_ENV
 
       - name: Build project
         run: npm run build
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v4 # v3에서 v4으로 업데이트
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./out
