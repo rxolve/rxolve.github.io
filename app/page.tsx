@@ -1,5 +1,6 @@
 import { getAllPosts } from '@/lib/posts';
 import { MDXRemote } from 'next-mdx-remote/rsc';
+import { mdxComponents } from '@/lib/mdx-components';
 
 export default function Home() {
   const posts = getAllPosts('til');
@@ -19,7 +20,7 @@ export default function Home() {
             <summary>
               {post.date} | {post.title}
             </summary>
-            <MDXRemote source={post.content} />
+            <MDXRemote source={post.content} components={mdxComponents} />
           </details>
         </article>
       ))}
