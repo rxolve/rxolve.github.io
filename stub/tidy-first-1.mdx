@@ -1,0 +1,55 @@
+---
+title: 'Tidy First? ch1. 보호구문'
+date: '240609'
+---
+
+- 보호구문(guard clause)은 함수의 초반에 특정 조건을 검사하고, 그 조건이 충족되지 않을 경우 함수를 즉시 종료하는 방식이다.
+- Before 중첩된 조건문
+
+```typescript
+function processOrder(order: Order | null) {
+  if (order !== null) {
+    if (order.isValid) {
+      if (!order.isProcessed) {
+        // 주문 처리 로직
+        order.process();
+      } else {
+        console.log('Order is already processed.');
+      }
+    } else {
+      console.log('Order is not valid.');
+    }
+  } else {
+    console.log('Order is null.');
+  }
+}
+```
+
+- After 보호구문
+
+```typescript
+function processOrder(order: Order | null) {
+  if (order === null) {
+    console.log('Order is null.');
+    return;
+  }
+  if (!order.isValid) {
+    console.log('Order is not valid.');
+    return;
+  }
+  if (order.isProcessed) {
+    console.log('Order is already processed.');
+    return;
+  }
+  // 주문 처리 로직
+  order.process();
+}
+```
+
+- 얼마나 깔끔한가! 마치 '코드의 세부 사항을 살펴보기 전에 염두에 두어야 할 몇 가지 전제 조건이 있습니다'라고 말하는 것처럼 보인다.
+  - 코드의 가독성이 높아진다.
+  - 함수의 복잡도가 줄어든다.
+  - 새로운 조건을 추가할 때 유연하게 대처할 수 있다.
+- 다만 보호 구문을 남용하면 안된다. 복잡한 코드를 경우에 맞춰 나누려면 세심한 주의가 필요하다.
+- 조건에 딱 부합하는 경우를 만나면 보호구문을 넣어 코드를 정리해보자.
+- !항상! 그리고 !반드시! 작은 단계를 거쳐 코드를 정리하자.
