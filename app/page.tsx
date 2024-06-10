@@ -1,9 +1,9 @@
-import { getAllPosts } from '@/lib/posts';
-import { MDXRemote } from 'next-mdx-remote/rsc';
-import { mdxComponents } from '@/lib/mdx-components';
+import { getAllPosts } from "@/lib/posts";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import { mdxComponents } from "@/lib/mdx-components";
 
 export default function Home() {
-  const posts = getAllPosts('til');
+  const posts = getAllPosts("til");
 
   return (
     <main>

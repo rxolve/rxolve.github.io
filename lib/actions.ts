@@ -1,9 +1,9 @@
-'use server';
+"use server";
 
-import { sql } from '@vercel/postgres';
+import { sql } from "@vercel/postgres";
 
 export async function createText(formData: FormData) {
-  const text: string = formData.get('text') as string;
+  const text: string = formData.get("text") as string;
 
   await sql`
     INSERT INTO test (text)

@@ -1,6 +1,6 @@
-import { getAllPosts } from '../../lib/posts';
+import { getAllPosts } from "../../lib/posts";
 
-const folder = 'daylog';
+const folder = "daylog";
 
 const PostsPage = async () => {
   const posts = getAllPosts(folder);

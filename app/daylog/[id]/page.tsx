@@ -1,7 +1,7 @@
-import { getPostData, getAllPostIds } from '../../../lib/posts';
-import { MDXRemote } from 'next-mdx-remote/rsc';
+import { getPostData, getAllPostIds } from "../../../lib/posts";
+import { MDXRemote } from "next-mdx-remote/rsc";
 
-const folder = 'daylog';
+const folder = "daylog";
 
 interface PostPageProps {
   params: {
@@ -21,7 +21,7 @@ const PostPage = async ({ params }: PostPageProps) => {
     <article>
       <h1>{postData.title}</h1>
       <p>{postData.date}</p>
-      <p>{postData.tags?.join(', ')}</p>
+      <p>{postData.tags?.join(", ")}</p>
       <MDXRemote source={postData.content} />
     </article>
   );
