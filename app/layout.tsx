@@ -1,4 +1,7 @@
-import './globals.css';
+"use client";
+
+import Analytics from "./components/analytics";
+import "./globals.css";
 
 export default function RootLayout({
   children,
@@ -7,6 +10,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Analytics />
+      </head>
       <body className="container">{children}</body>
     </html>
   );
