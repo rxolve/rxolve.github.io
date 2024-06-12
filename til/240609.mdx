@@ -3,20 +3,20 @@ title: "React Syntax Highlighter"
 date: "240609"
 ---
 
-- 어제 만든 머지소트 코드에 하이라이팅이 적용되지 않아 밋밋하다.
-- 지피티 선생님은 prism-react-renderer로 구현해줬지만, 작동하지 않았다.
-- 잘 정리된 블로그를 발견! [MDXComponent에 react-syntax-highlighter 적용하기](https://velog.io/@songhaeunsong/Next.js-%EB%B8%94%EB%A1%9C%EA%B7%B8%EC%97%90-react-syntax-highlighter%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0)
-- 내가 적용한 과정은 다음과 같다.
+- 어제 만든 머지소트 코드에 하이라이팅이 적용되지 않아 밋밋했습니다.
+- 지피티 선생님은 prism-react-renderer로 구현해줬지만, 오늘도 작동하지 않았습니다.
+- 마침 잘 정리된 블로그를 발견! [MDXComponent에 react-syntax-highlighter 적용하기](https://velog.io/@songhaeunsong/Next.js-%EB%B8%94%EB%A1%9C%EA%B7%B8%EC%97%90-react-syntax-highlighter%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0)
+- 제가 적용한 과정은 다음과 같습니다.
 
-1. 라이브러리를 설치한다.
+1. 라이브러리를 설치합니다.
 
    ```bash
     npm i react-syntax-highlighter
     npm i -D @types/react-syntax-highlighter
    ```
 
-2. components 폴더에 CodeBlock 컴포넌트를 생성한다.
-3. lib 폴더에 CodeBlock을 사용해서 MDXRemote에 전달할 컴포넌트 객체를 만든다.
-4. MDXRemote에 components 속성을 추가하고 아까 만든 객체를 전달한다.
+2. components 폴더에 CodeBlock 컴포넌트를 생성합니다.
+3. lib 폴더에 CodeBlock을 사용해서 MDXRemote에 전달할 컴포넌트 객체를 만듭니다.
+4. MDXRemote에 components 속성을 추가하고 아까 만든 객체를 전달합니다.
 
-- 어제의 머지소트 코드가 더 예뻐졌다. 송하은 선생님의 포스팅에 첫번째 하트를 드렸다.
+- 어제의 머지소트 코드가 더 예뻐졌습니다. 송하은 선생님의 포스팅에 첫번째 하트를 밝혔습니다. 🤍
