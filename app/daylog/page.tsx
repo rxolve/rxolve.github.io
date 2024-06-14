@@ -3,7 +3,7 @@ import { getAllPosts } from "../../lib/posts";
 const folder = "daylog";
 
 const PostsPage = async () => {
-  const posts = getAllPosts(folder);
+  const posts = getAllPosts();
 
   return (
     <div>

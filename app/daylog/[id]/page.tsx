@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 }
 
 const PostPage = async ({ params }: PostPageProps) => {
-  const postData = getPostData(folder, params.id);
+  const postData = getPostData(params.id);
 
   return (
     <article>

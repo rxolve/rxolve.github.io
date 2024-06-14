@@ -3,7 +3,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/lib/mdx-components";
 
 export default function Home() {
-  const posts = getAllPosts("til");
+  const posts = getAllPosts();
 
   return (
     <main>

@@ -3,8 +3,9 @@ import path from "path";
 import matter from "gray-matter";
 import { PostData, PostMetaData } from "../types/post";
 
-export function getPostData(folder: string, id: string): PostData {
-  const postsDirectory = path.join(process.cwd(), folder);
+const postsDirectory = path.join(process.cwd(), "daylog");
+
+export function getPostData(id: string): PostData {
   const fullPath = path.join(postsDirectory, `${id}.mdx`);
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
@@ -18,8 +19,7 @@ export function getPostData(folder: string, id: string): PostData {
   };
 }
 
-export function getAllPosts(folder: string): PostData[] {
-  const postsDirectory = path.join(process.cwd(), folder);
+export function getAllPosts(): PostData[] {
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames
     .filter((fileName) => fileName !== "404.mdx")
