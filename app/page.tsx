@@ -1,10 +1,6 @@
-import { getAllPosts } from "@/lib/posts";
-import { MDXRemote } from "next-mdx-remote/rsc";
-import { mdxComponents } from "@/lib/mdx-components";
+import ArticleList from "./components/article-list";
 
-export default function Home() {
-  const posts = getAllPosts();
-
+const Home = () => {
   return (
     <main>
       <article>
@@ -14,16 +10,9 @@ export default function Home() {
           <small>Made with Next.js, Vercel, Pico CSS, MDX, and GPT-4o 🚀</small>
         </div>
       </article>
-      {posts.map((post) => (
-        <article key={post.id}>
-          <details>
-            <summary>
-              {post.date} | {post.title}
-            </summary>
-            <MDXRemote source={post.content} components={mdxComponents} />
-          </details>
-        </article>
-      ))}
+      <ArticleList />
     </main>
   );
-}
+};
+
+export default Home;
