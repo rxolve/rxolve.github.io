@@ -1,19 +1,24 @@
-import { getAllPosts } from "@/lib/posts";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/lib/mdx-components";
+import { PostData } from "@/types/post";
+import TagButton from "./tag-button";
 
-const ArticleList = () => {
-  const posts = getAllPosts();
+interface ArticleListProps {
+  list?: PostData[];
+}
 
+const ArticleList = ({ list }: ArticleListProps) => {
   return (
     <>
-      {posts.map((post) => (
+      {list?.map((post) => (
         <article key={post.id}>
           <details>
             <summary>
-              {post.date} | {post.title}
+              {post.date} {post.title}
             </summary>
             <MDXRemote source={post.content} components={mdxComponents} />
+            {post.tags &&
+              post.tags.map((tag) => <TagButton key={tag} tag={tag} />)}
           </details>
         </article>
       ))}

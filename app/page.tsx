@@ -1,6 +1,13 @@
+import { getAllPosts } from "@/lib/posts";
 import ArticleList from "./components/article-list";
+import TagList from "./components/tag-list";
 
 const Home = () => {
+  const allPosts = getAllPosts();
+  const tagList = Array.from(
+    new Set(allPosts.flatMap((post) => post.tags).filter(Boolean))
+  );
+
   return (
     <main>
       <article>
@@ -10,7 +17,8 @@ const Home = () => {
           <small>Made with Next.js, Vercel, Pico CSS, MDX, and GPT-4o 🚀</small>
         </div>
       </article>
-      <ArticleList />
+      <TagList list={tagList} />
+      <ArticleList list={allPosts} />
     </main>
   );
 };

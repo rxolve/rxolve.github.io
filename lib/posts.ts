@@ -5,7 +5,7 @@ import { PostData, PostMetaData } from "../types/post";
 
 const postsDirectory = path.join(process.cwd(), "daylog");
 
-export function getPostData(id: string): PostData {
+export const getPostData = (id: string): PostData => {
   const fullPath = path.join(postsDirectory, `${id}.mdx`);
   const fileContents = fs.readFileSync(fullPath, "utf8");
   const { data, content } = matter(fileContents);
@@ -17,9 +17,9 @@ export function getPostData(id: string): PostData {
     tags: data.tags,
     content,
   };
-}
+};
 
-export function getAllPosts(): PostData[] {
+export const getAllPosts = (): PostData[] => {
   const fileNames = fs.readdirSync(postsDirectory);
   const allPostsData = fileNames
     .filter((fileName) => fileName !== "404.mdx")
@@ -39,14 +39,4 @@ export function getAllPosts(): PostData[] {
     .reverse();
 
   return allPostsData;
-}
-
-export function getAllPostIds(folder: string) {
-  const postsDirectory = path.join(process.cwd(), folder);
-  const fileNames = fs.readdirSync(postsDirectory);
-  return fileNames.map((fileName) => ({
-    params: {
-      id: fileName.replace(/\.mdx$/, ""),
-    },
-  }));
-}
+};
