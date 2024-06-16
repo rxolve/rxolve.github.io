@@ -10,9 +10,9 @@ interface ArticleListProps {
 const ArticleList = ({ list }: ArticleListProps) => {
   return (
     <>
-      {list?.map((post) => (
+      {list?.map((post, i) => (
         <article key={post.id}>
-          <details>
+          <details open={i === 0 && list.length === 1}>
             <summary>
               {post.date} {post.title}
             </summary>
