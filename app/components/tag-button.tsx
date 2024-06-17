@@ -6,7 +6,7 @@ interface TagButtonProps {
 
 const TagButton = ({ tag }: TagButtonProps) => (
   <Link href={`/tag/${tag}`}>
-    <button className="outline" style={{ margin: "0 0.3rem" }}>
+    <button className="outline" style={{ margin: "0.3rem" }}>
       @{tag}
     </button>
   </Link>
