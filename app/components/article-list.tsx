@@ -12,7 +12,7 @@ const ArticleList = ({ list }: ArticleListProps) => {
     <>
       {list?.map((post, i) => (
         <article key={post.id}>
-          <details open={i === 0 && list.length === 1}>
+          <details open={i === 0}>
             <summary>
               {post.date} {post.title}
             </summary>
