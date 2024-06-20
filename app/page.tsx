@@ -1,9 +1,13 @@
 import { getAllPosts } from "@/lib/posts";
 import ArticleList from "./components/article-list";
 import TagList from "./components/tag-list";
+import { emojiNumber } from "@/lib/emoji-number";
+import { udpateVisitorCount } from "@/lib/visitor-count";
 
-const Home = () => {
+const Home = async () => {
   const allPosts = getAllPosts();
+
+  const visitorCount = await udpateVisitorCount();
 
   return (
     <main>
@@ -16,10 +20,15 @@ const Home = () => {
           </small>
         </div>
         <div>
-          💌
-          <a target="_blank" href="mailto:rxolve@gmail.com">
-            <small style={{ margin: "0 0.3rem" }}>rxolve@gmail.com</small>
-          </a>
+          <small>💌</small>
+          <small style={{ margin: "0 0.2rem" }}>
+            <a target="_blank" href="mailto:rxolve@gmail.com">
+              rxolve@gmail.com
+            </a>
+          </small>
+          <small style={{ margin: "0 0.2rem" }}>
+            🎉 {emojiNumber(visitorCount)}
+          </small>
         </div>
       </article>
       <TagList list={allPosts} />

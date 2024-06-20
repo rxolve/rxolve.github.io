@@ -1,12 +1,20 @@
 "use server";
 
 import { sql } from "@vercel/postgres";
+import { QueryResult, QueryResultRow } from "pg";
 
-export async function createText(formData: FormData) {
-  const text: string = formData.get("text") as string;
-
+export const updateVisitor = async () => {
   await sql`
-    INSERT INTO test (text)
-    VALUES (${text})
-    `;
-}
+    UPDATE visitors SET count = count + 1 WHERE id = 1;
+  `;
+};
+
+export const getVisitor = async () => {
+  const res: QueryResult<QueryResultRow> = await sql`
+    SELECT count FROM visitors WHERE id = 1;
+  `;
+
+  const count: number = res.rows[0].count;
+
+  return count;
+};
