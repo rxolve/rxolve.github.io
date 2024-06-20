@@ -1,15 +1,19 @@
+import { countEmojiMap } from "@/types/count";
 import Link from "next/link";
 
 interface TagButtonProps {
-  tag: string;
+  tagItem: TagItem;
 }
 
-const TagButton = ({ tag }: TagButtonProps) => (
-  <Link href={`/tag/${tag}`}>
-    <button className="outline" style={{ margin: "0.3rem" }}>
-      @{tag}
-    </button>
-  </Link>
-);
+const TagButton = ({ tagItem }: TagButtonProps) => {
+  if (!tagItem) return null;
+  return (
+    <Link href={`/tag/${tagItem.tag}`}>
+      <button className="outline" style={{ margin: "0.3rem" }}>
+        @{tagItem.tag} {countEmojiMap[tagItem.count]}
+      </button>
+    </Link>
+  );
+};
 
 export default TagButton;

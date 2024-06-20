@@ -4,9 +4,6 @@ import TagList from "./components/tag-list";
 
 const Home = () => {
   const allPosts = getAllPosts();
-  const tagList = Array.from(
-    new Set(allPosts.flatMap((post) => post.tags).filter(Boolean))
-  );
 
   return (
     <main>
@@ -25,7 +22,7 @@ const Home = () => {
           </a>
         </div>
       </article>
-      <TagList list={tagList} />
+      <TagList list={allPosts} />
       <ArticleList list={allPosts} />
     </main>
   );
