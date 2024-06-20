@@ -18,7 +18,9 @@ const ArticleList = ({ list }: ArticleListProps) => {
             </summary>
             <MDXRemote source={post.content} components={mdxComponents} />
             {post.tags &&
-              post.tags.map((tag) => <TagButton key={tag} tag={tag} />)}
+              post.tags.map((tag) => (
+                <TagButton key={tag} tagItem={{ tag, count: 0 }} />
+              ))}
           </details>
         </article>
       ))}
