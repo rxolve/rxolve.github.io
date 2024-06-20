@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import Analytics from "./components/analytics";
 import "./globals.css";
 

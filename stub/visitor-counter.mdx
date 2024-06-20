@@ -1,0 +1,38 @@
+---
+title: "방문한 사람들을 세어보아요"
+date: "240620"
+tags: [""]
+---
+
+- 태그에 갯수를 이모지로 달고 정렬을 시켜보았습니다.
+- 아래는 숫자를 이모지로 변환해서 반환하는 함수입니다.
+
+```typescript
+const emojiNumberMap: { [key: number]: string } = {
+  0: "0️⃣",
+  1: "1️⃣",
+  2: "2️⃣",
+  3: "3️⃣",
+  4: "4️⃣",
+  5: "5️⃣",
+  6: "6️⃣",
+  7: "7️⃣",
+  8: "8️⃣",
+  9: "9️⃣",
+};
+
+export const emojiNumber = (number: number) => {
+  if (!number) return "";
+  return number
+    .toString()
+    .split("")
+    .map((n) => emojiNumberMap[parseInt(n)])
+    .join("");
+};
+```
+
+- 함수를 만든 김에 방문자 수를 표기하는 컴포넌트도 만들어보았습니다.
+
+```typescript
+
+```
