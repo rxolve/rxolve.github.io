@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 const VisitorCount = () => {
   const [visitorCount, setVisitorCount] = useState(0);
+
   const handleVisitorCount = async () => {
     const res = await fetch("/api/visitors");
     const data = await res.json();

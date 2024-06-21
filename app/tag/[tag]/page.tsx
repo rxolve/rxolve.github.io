@@ -1,5 +1,4 @@
 import ArticleList from "@/app/components/article-list";
-import VisitorCount from "@/app/components/visitor-count";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
 
@@ -33,7 +32,6 @@ const TagPage = ({ params }: TagPageProps) => {
           </button>
         </Link>
         <h1>{tag}</h1>
-        <VisitorCount />
       </article>
       <ArticleList list={postList} />
     </main>

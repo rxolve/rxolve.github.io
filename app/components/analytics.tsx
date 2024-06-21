@@ -10,6 +10,9 @@ const Analytics = () => {
 
   useEffect(() => {
     ReactGA.initialize(GA_TRACKING_ID);
+    fetch("/api/visitors", {
+      method: "PATCH",
+    });
   }, []);
 
   useEffect(() => {

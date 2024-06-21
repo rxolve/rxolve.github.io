@@ -31,13 +31,25 @@ export const emojiNumber = (number: number) => {
 };
 ```
 
-- 이모지 숫자 함수를 만든 김에 방문자 수를 증가시키는 함수도 만들어보았습니다.
+- 이모지 숫자 함수를 만든 김에 방문자 수를 보여주는 컴포넌트도 만들었습니다.
 
 ```typescript
-export const udpateVisitorCount = async () => {
-  await updateVisitor();
-  const count = await getVisitor();
-  return emojiNumber(count);
+const VisitorCount = () => {
+  const [visitorCount, setVisitorCount] = useState(0);
+
+  const handleVisitorCount = async () => {
+    const res = await fetch("/api/visitors");
+    const data = await res.json();
+    setVisitorCount(data.visitCount);
+  };
+
+  useEffect(() => {
+    handleVisitorCount();
+  }, []);
+
+  return (
+    <small style={{ margin: "0 0.2rem" }}>🎉 {emojiNumber(visitorCount)}</small>
+  );
 };
 ```
 
