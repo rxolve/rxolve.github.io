@@ -1,12 +1,10 @@
 import { getAllPosts } from "@/lib/posts";
 import ArticleList from "./components/article-list";
 import TagList from "./components/tag-list";
-import { checkVisitorCount } from "@/lib/visitor-count";
+import VisitorCount from "./components/visitor-count";
 
 const Home = async () => {
   const allPosts = getAllPosts();
-
-  const visitorCount = await checkVisitorCount();
 
   return (
     <main>
@@ -25,7 +23,7 @@ const Home = async () => {
               rxolve@gmail.com
             </a>
           </small>
-          <small style={{ margin: "0 0.2rem" }}>🎉 {visitorCount}</small>
+          <VisitorCount />
         </div>
       </article>
       <TagList list={allPosts} />
