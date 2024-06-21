@@ -1,40 +1,26 @@
 import Script from "next/script";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import * as gtag from "@/lib/gtag";
+import ReactGA from "react-ga4";
+
+const GA_TRACKING_ID = "G-PLPX1ZCMEL";
 
 const Analytics = () => {
   const pathname = usePathname();
 
   useEffect(() => {
-    gtag.initGA();
+    ReactGA.initialize(GA_TRACKING_ID);
   }, []);
 
   useEffect(() => {
-    gtag.logPageView(pathname);
+    ReactGA.send({ hitType: "pageview", page: pathname });
   }, [pathname]);
 
   return (
-    <>
-      <Script
-        strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${gtag.GA_TRACKING_ID}`}
-      />
-      <Script
-        id="ga-init"
-        strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${gtag.GA_TRACKING_ID}', {
-                page_path: window.location.pathname,
-              });
-            `,
-        }}
-      />
-    </>
+    <Script
+      strategy="afterInteractive"
+      src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+    />
   );
 };
 
