@@ -1,13 +1,12 @@
 import { getAllPosts } from "@/lib/posts";
 import ArticleList from "./components/article-list";
 import TagList from "./components/tag-list";
-import { emojiNumber } from "@/lib/emoji-number";
-import { udpateVisitorCount } from "@/lib/visitor-count";
+import { checkVisitorCount } from "@/lib/visitor-count";
 
 const Home = async () => {
   const allPosts = getAllPosts();
 
-  const visitorCount = await udpateVisitorCount();
+  const visitorCount = await checkVisitorCount();
 
   return (
     <main>

@@ -1,6 +1,6 @@
 import ArticleList from "@/app/components/article-list";
 import { getAllPosts } from "@/lib/posts";
-import { udpateVisitorCount } from "@/lib/visitor-count";
+import { checkVisitorCount } from "@/lib/visitor-count";
 import Link from "next/link";
 
 interface TagPageProps {
@@ -13,7 +13,7 @@ export const generateStaticParams = async () => {
   const allPosts = getAllPosts();
   const tagList = new Set(allPosts.flatMap((post) => post.tags));
 
-  await udpateVisitorCount();
+  await checkVisitorCount();
 
   return Array.from(tagList).map((tag) => ({
     tag,
