@@ -1,4 +1,4 @@
-import { getVisitor, updateVisitor } from "@/lib/actions";
+import { getVisitor, updateVisitor } from "@/lib/api";
 
 export const udpateVisitorCount = async () => {
   await updateVisitor();
