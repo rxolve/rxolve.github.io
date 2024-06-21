@@ -26,9 +26,7 @@ const Home = async () => {
               rxolve@gmail.com
             </a>
           </small>
-          <small style={{ margin: "0 0.2rem" }}>
-            🎉 {emojiNumber(visitorCount)}
-          </small>
+          <small style={{ margin: "0 0.2rem" }}>🎉 {visitorCount}</small>
         </div>
       </article>
       <TagList list={allPosts} />
