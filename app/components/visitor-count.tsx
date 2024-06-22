@@ -7,10 +7,9 @@ const VisitorCount = () => {
   const [visitorCount, setVisitorCount] = useState(0);
 
   const handleVisitorCount = async () => {
-    const res = await fetch("https://api-market.dev.solvook.com/main");
+    const res = await fetch("/api/visitors");
     const data = await res.json();
-    console.log(data);
-    // setVisitorCount(data.visitCount);
+    setVisitorCount(data.visitCount);
   };
 
   useEffect(() => {
