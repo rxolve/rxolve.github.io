@@ -14,12 +14,17 @@ const Analytics = () => {
       .from("visitors")
       .select("count")
       .eq("id", 1);
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
     const visitorCount = data?.length ? data[0].count : 0;
     await supabase
       .from("visitors")
-      .update({ count: visitorCount + 1 })
-      .eq("id", 1)
-      .select();
+      .update({ count: visitorCount + 1, last_visited: new Date() })
+      .eq("id", 1);
   };
 
   useEffect(() => {
