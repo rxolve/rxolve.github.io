@@ -10,8 +10,10 @@ const Home = async () => {
   return (
     <main>
       <article>
-        <h1>Rxolve to solve 🤔</h1>
-        <h6>정리하는 개발자의 그저 그렇고 그런 기록 ✍</h6>
+        <h6>💻 매일 정리하는 개발자의</h6>
+        <h1>
+          그<sub>저</sub> 그<sub>렇고</sub> 그<sub>런</sub>기<sub>록</sub> ✍
+        </h1>
         <PoweredBy />
         <div>
           <small>💌</small>
