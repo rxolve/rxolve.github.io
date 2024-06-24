@@ -68,10 +68,8 @@ jobs:
       - name: Build with Next.js
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
         env:
-          POSTGRES_URL: ${{vars.POSTGRES_URL}}
-          POSTGRES_USER: ${{vars.POSTGRES_USER}}
-          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
-          POSTGRES_DATABASE: ${{vars.POSTGRES_DATABASE}}
+          NEXT_PUBLIC_SUPABASE_URL: ${{vars.NEXT_PUBLIC_SUPABASE_URL}}
+          NEXT_PUBLIC_SUPABASE_API_KEY: ${{vars.NEXT_PUBLIC_SUPABASE_API_KEY}}
 
       - name: Postbuild - Generate sitemap
         run: npm run postbuild
