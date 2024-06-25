@@ -5,14 +5,20 @@ import TagButton from "./tag-button";
 
 interface ArticleListProps {
   list?: PostData[];
+  date?: string;
 }
 
-const ArticleList = ({ list }: ArticleListProps) => {
+const ArticleList = ({ list, date }: ArticleListProps) => {
+  if (list && date) {
+    const index = list.findIndex((post) => post.date === date);
+    list = [list[index], ...list.filter((_, i) => i !== index)];
+  }
+
   return (
     <>
-      {list?.map((post, i) => (
+      {list?.map((post) => (
         <article key={post.id}>
-          <details open={i === 0 && list.length === 1}>
+          <details open={list?.length === 1 || date === post.date}>
             <summary>
               {post.date} {post.title}
             </summary>

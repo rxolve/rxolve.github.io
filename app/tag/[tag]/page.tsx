@@ -1,6 +1,7 @@
 import ArticleList from "@/app/components/article-list";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
+import TagDatePage from "./[date]/page";
 
 interface TagPageProps {
   params: {
@@ -20,22 +21,7 @@ export const generateStaticParams = async () => {
 const TagPage = ({ params }: TagPageProps) => {
   const { tag } = params;
 
-  const allPosts = getAllPosts();
-  const postList = allPosts.filter((post) => post.tags?.includes(tag));
-
-  return (
-    <main>
-      <article>
-        <Link href="/">
-          <button className="outline" style={{ margin: "0.5rem 0" }}>
-            &larr;
-          </button>
-        </Link>
-        <h1>{tag}</h1>
-      </article>
-      <ArticleList list={postList} />
-    </main>
-  );
+  return <TagDatePage params={{ tag, date: "" }} />;
 };
 
 export default TagPage;
