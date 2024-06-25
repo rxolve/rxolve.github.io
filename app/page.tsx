@@ -12,7 +12,7 @@ const Home = async () => {
       <article>
         <h6>💻 매일 정리하는 개발자의</h6>
         <h1>
-          그<sub>저</sub> 그<sub>렇고</sub> 그<sub>런</sub>기<sub>록</sub> ✍
+          그<sub>저</sub> 그<sub>렇고</sub> 그<sub>런</sub> 기<sub>록</sub> ✍
         </h1>
         <PoweredBy />
         <div>
