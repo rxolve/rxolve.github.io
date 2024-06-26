@@ -1,6 +1,6 @@
 "use client";
 
-import Analytics from "./components/analytics";
+import Analytics from "./ui/analytics";
 import "./globals.css";
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

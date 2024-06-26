@@ -1,4 +1,4 @@
-import ArticleList from "@/app/components/article-list";
+import ArticleList from "@/app/ui/article-list";
 import { getAllPosts } from "@/lib/posts";
 import Link from "next/link";
 

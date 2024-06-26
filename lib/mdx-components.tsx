@@ -1,4 +1,4 @@
-import CodeBlock from "../app/components/code-block";
+import CodeBlock from "../app/ui/code-block";
 
 export const mdxComponents = {
   code({ node, inline, className, children, ...props }: any) {

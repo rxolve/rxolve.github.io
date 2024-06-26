@@ -1,8 +1,8 @@
 import { getAllPosts } from "@/lib/posts";
-import ArticleList from "./components/article-list";
-import TagList from "./components/tag-list";
-import VisitorCount from "./components/visitor-count";
-import PoweredBy from "./components/powered-by";
+import ArticleList from "./ui/article-list";
+import TagList from "./ui/tag-list";
+import VisitorCount from "./ui/visitor-count";
+import PoweredBy from "./ui/powered-by";
 
 const Home = async () => {
   const allPosts = getAllPosts();

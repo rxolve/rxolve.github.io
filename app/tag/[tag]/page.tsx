@@ -1,6 +1,4 @@
-import ArticleList from "@/app/components/article-list";
 import { getAllPosts } from "@/lib/posts";
-import Link from "next/link";
 import TagDatePage from "./[date]/page";
 
 interface TagPageProps {
