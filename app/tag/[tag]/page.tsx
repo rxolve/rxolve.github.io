@@ -1,5 +1,6 @@
 import { getAllPosts } from "@/lib/posts";
 import TagDatePage from "./[date]/page";
+import { metadata } from "@/lib/metadata";
 
 interface TagPageProps {
   params: {
@@ -22,20 +23,11 @@ export const generateMetadata = async ({ params }: TagPageProps) => {
   const tagPosts = allPosts.filter((post) => post.tags?.includes(tag));
   const keywords = [tag, ...tagPosts.map((post) => post.title)];
 
-  return {
-    title: `#${tag}`,
-    description: tagPosts.map((post) => post.title).join(", "),
-    keywords,
-    openGraph: {
-      title: `#${tag}`,
-      description: tagPosts.map((post) => post.title).join(", "),
-      images: [
-        {
-          url: "/og-image.webp",
-        },
-      ],
-    },
-  };
+  return metadata(
+    `기기기그 #${tag}`,
+    tagPosts.map((post) => post.title).join(", "),
+    keywords
+  );
 };
 
 const TagPage = ({ params }: TagPageProps) => {

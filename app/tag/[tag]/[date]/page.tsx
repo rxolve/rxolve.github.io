@@ -1,4 +1,5 @@
 import ArticleList from "@/app/ui/article-list";
+import { metadata } from "@/lib/metadata";
 import { getAllPosts, getPost } from "@/lib/posts";
 import Link from "next/link";
 
@@ -25,20 +26,7 @@ export const generateMetadata = async ({ params }: TagDatePageProps) => {
   const { tag, date } = params;
 
   const post = await getPost(date);
-  return {
-    title: post.title,
-    description: post.content,
-    keywords: [post.title, tag],
-    openGraph: {
-      title: post.title,
-      description: post.content,
-      images: [
-        {
-          url: "/og-image.webp",
-        },
-      ],
-    },
-  };
+  return metadata(post.title, post.content, [tag, post.title]);
 };
 
 const TagDatePage = async ({ params }: TagDatePageProps) => {
