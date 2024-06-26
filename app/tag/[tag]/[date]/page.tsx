@@ -12,7 +12,7 @@ interface TagDatePageProps {
 }
 
 export const generateStaticParams = async () => {
-  const allPosts = getAllPosts();
+  const allPosts = await getAllPosts();
 
   const paramList: Params[] = allPosts.flatMap(
     (post) => post.tags?.map((tag) => ({ tag, date: post.date })) ?? []
@@ -21,10 +21,10 @@ export const generateStaticParams = async () => {
   return paramList;
 };
 
-const TagDatePage = ({ params }: TagDatePageProps) => {
+const TagDatePage = async ({ params }: TagDatePageProps) => {
   const { tag, date } = params;
 
-  const allPosts = getAllPosts();
+  const allPosts = await getAllPosts();
   const postList = allPosts.filter((post) => post.tags?.includes(tag));
 
   return (

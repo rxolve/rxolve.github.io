@@ -5,7 +5,7 @@ import VisitorCount from "./ui/visitor-count";
 import PoweredBy from "./ui/powered-by";
 
 const Home = async () => {
-  const allPosts = getAllPosts();
+  const allPosts = await getAllPosts();
 
   return (
     <main>
