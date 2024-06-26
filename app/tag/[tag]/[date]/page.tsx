@@ -1,5 +1,5 @@
 import ArticleList from "@/app/ui/article-list";
-import { getAllPosts } from "@/lib/posts";
+import { getAllPosts, getPost } from "@/lib/posts";
 import Link from "next/link";
 
 interface Params {
@@ -19,6 +19,26 @@ export const generateStaticParams = async () => {
   );
 
   return paramList;
+};
+
+export const generateMetadata = async ({ params }: TagDatePageProps) => {
+  const { tag, date } = params;
+
+  const post = await getPost(date);
+  return {
+    title: post.title,
+    description: post.content,
+    keywords: [post.title, tag],
+    openGraph: {
+      title: post.title,
+      description: post.content,
+      images: [
+        {
+          url: "/og-image.webp",
+        },
+      ],
+    },
+  };
 };
 
 const TagDatePage = async ({ params }: TagDatePageProps) => {
