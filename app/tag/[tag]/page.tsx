@@ -24,7 +24,7 @@ export const generateMetadata = async ({ params }: TagPageProps) => {
   const keywords = [tag, ...tagPosts.map((post) => post.title)];
 
   return metadata(
-    `기기기그 #${tag}`,
+    `그그그기 #${tag}`,
     tagPosts.map((post) => post.title).join(", "),
     keywords
   );
