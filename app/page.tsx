@@ -35,9 +35,5 @@ const Home = async () => {
 export default Home;
 
 export const generateMetadata = async () => {
-  return metadata("그그그기", "Rxolve to solve", [
-    "그그그기",
-    "Rxolve",
-    "Rxolve blog",
-  ]);
+  return metadata("그그그기", "Rxolve to solve", ["그그그기", "rxolve"]);
 };

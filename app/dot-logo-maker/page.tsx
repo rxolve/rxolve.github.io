@@ -1,19 +1,28 @@
 "use client";
-import { useState, useRef } from "react";
+import { Metadata } from "next";
+import { useState, useRef, useEffect } from "react";
 
-export default function Home() {
+const DotLogoMaker = () => {
   const [width, setWidth] = useState<number>(6);
   const [height, setHeight] = useState<number>(6);
+  const [primaryColor, setPrimaryColor] = useState<string>("#FFBE98");
+  const [secondaryColor, setSecondaryColor] = useState<string>("#CA848A");
   const [rectangles, setRectangles] = useState<boolean[][]>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const createRectangles = () => {
+  useEffect(() => {
+    if (width < 1) setWidth(1);
+    if (height < 1) setHeight(1);
+    if (width > 20) setWidth(20);
+    if (height > 20) setHeight(20);
+
+    // false로 채워진 2차원 배열 생성
     const newRectangles = Array.from({ length: height }, () =>
       Array(width).fill(false)
     );
     setRectangles(newRectangles);
     drawOnCanvas(newRectangles);
-  };
+  }, [width, height]);
 
   const toggleRectangle = (row: number, col: number) => {
     const newRectangles = rectangles.map((r, rowIndex) =>
@@ -33,43 +42,26 @@ export default function Home() {
         context.clearRect(0, 0, canvas.width, canvas.height);
         rectangles.forEach((row, rowIndex) => {
           row.forEach((col, colIndex) => {
-            context.fillStyle = col ? "#CA848A" : "#FFBE98";
+            context.fillStyle = col ? secondaryColor : primaryColor;
             context.fillRect(colIndex * 50, rowIndex * 50, 50, 50);
-            // context.strokeRect(colIndex * 50, rowIndex * 50, 50, 50);
           });
         });
 
-        // 중앙 십자형 하얀색 선 그리기
-        context.strokeStyle = "#FFBE98";
-        context.lineWidth = 1;
+        // // 중앙 십자형 하얀색 선 그리기
+        // context.strokeStyle = secondaryColor;
+        // context.lineWidth = 1;
 
-        // 세로 중앙선
-        context.beginPath();
-        context.moveTo(canvas.width / 2, 0);
-        context.lineTo(canvas.width / 2, canvas.height);
-        context.stroke();
+        // // 세로 중앙선
+        // context.beginPath();
+        // context.moveTo(canvas.width / 2, 0);
+        // context.lineTo(canvas.width / 2, canvas.height);
+        // context.stroke();
 
-        // 가로 중앙선
-        context.beginPath();
-        context.moveTo(0, canvas.height / 2);
-        context.lineTo(canvas.width, canvas.height / 2);
-        context.stroke();
-
-        // 중앙 한칸 위
-        context.beginPath();
-        context.moveTo(0, canvas.height / 2 - 50);
-        context.lineTo(canvas.width, canvas.height / 2 - 50);
-        context.stroke();
-
-        context.beginPath();
-        context.moveTo(0, canvas.height - 50);
-        context.lineTo(canvas.width / 2, canvas.height - 50);
-        context.stroke();
-
-        context.beginPath();
-        context.moveTo(canvas.width / 2 + 100, canvas.height / 2);
-        context.lineTo(canvas.width / 2 + 100, canvas.height);
-        context.stroke();
+        // // 가로 중앙선
+        // context.beginPath();
+        // context.moveTo(0, canvas.height / 2);
+        // context.lineTo(canvas.width, canvas.height / 2);
+        // context.stroke();
       }
     }
   };
@@ -85,14 +77,22 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div>
+    <main>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "20px",
+        }}
+      >
         <label>
           Width:
           <input
             type="number"
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
+            style={{ marginLeft: "5px" }}
           />
         </label>
         <label>
@@ -101,14 +101,30 @@ export default function Home() {
             type="number"
             value={height}
             onChange={(e) => setHeight(Number(e.target.value))}
+            style={{ marginLeft: "5px" }}
           />
         </label>
-        <button onClick={createRectangles}>Create Rectangles</button>
-        <button onClick={downloadImage}>Download Image</button>
+        <label>
+          Primary Color:
+          <input
+            type="color"
+            value={primaryColor}
+            onChange={(e) => setPrimaryColor(e.target.value)}
+            style={{ marginLeft: "5px" }}
+          />
+        </label>
+        <label>
+          Secondary Color:
+          <input
+            type="color"
+            value={secondaryColor}
+            onChange={(e) => setSecondaryColor(e.target.value)}
+            style={{ marginLeft: "5px" }}
+          />
+        </label>
       </div>
       <div
         style={{
-          marginTop: "20px",
           display: "grid",
           gridTemplateColumns: `repeat(${width}, 50px)`,
         }}
@@ -121,14 +137,18 @@ export default function Home() {
               style={{
                 width: "50px",
                 height: "50px",
-                backgroundColor: col ? "black" : "white",
-                border: "1px solid black",
+                backgroundColor: col ? secondaryColor : primaryColor,
               }}
             ></div>
           ))
         )}
       </div>
+      <button onClick={downloadImage} style={{ margin: "20px 0" }}>
+        Download Image
+      </button>
       <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
-    </div>
+    </main>
   );
-}
+};
+
+export default DotLogoMaker;

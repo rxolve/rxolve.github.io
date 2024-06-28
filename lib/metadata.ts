@@ -12,7 +12,7 @@ export const metadata = (
       description,
       images: [
         {
-          url: "https://rxolve.github.io//og-image.png",
+          url: "https://rxolve.github.io/og-image.png",
         },
       ],
     },
