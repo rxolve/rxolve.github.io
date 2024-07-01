@@ -21,7 +21,9 @@ const VisitorCount = ({ initCount = 0 }: { initCount?: number }) => {
   }, []);
 
   return (
-    <small style={{ margin: "0 0.2rem" }}>🎉 {emojiNumber(visitorCount)}</small>
+    <small style={{ margin: "0 0.2rem" }}>
+      🎉 {visitorCount ? emojiNumber(visitorCount) : "방문자 수"}
+    </small>
   );
 };
 

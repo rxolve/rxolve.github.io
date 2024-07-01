@@ -1,1 +1,14 @@
 @import url("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css");
+
+[data-theme="light"],
+:root:not([data-theme="dark"]) {
+  --pico-color: #964d4c;
+  --pico-primary: var(--pico-color);
+}
+
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --pico-color: #ca848a;
+    --pico-primary: var(--pico-color);
+  }
+}
