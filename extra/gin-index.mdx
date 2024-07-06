@@ -1,12 +1,12 @@
 ---
-title: "GIN Index"
-date: "240625"
+title: "GIN 인덱스"
+date: "240706"
 tags: ["AWS", "RDS"]
 ---
 
 - GIN (Generalized Inverted Index) 인덱스는 복합 데이터 유형에서 효율적인 검색을 위해 설계되었습니다.
   - 주로 텍스트 검색, 배열, JSONB와 같은 복합 데이터 유형을 위한 인덱스로 사용됩니다.
-  - 일반적으로 데이터베이스는 B-Tree 인덱스를 사용하여 데이터를 검색합니다.
+    - 일반적인 데이터베이스는 B-Tree 인덱스를 사용하여 데이터를 검색합니다.
 - GIN 인덱스는 키-값 쌍을 저장합니다.
   - 여기서 "키"는 인덱싱된 데이터의 요소(예: 텍스트 단어, 배열의 각 요소)입니다.
   - "값"은 해당 키를 포함하는 행의 ID입니다.
@@ -18,16 +18,14 @@ tags: ["AWS", "RDS"]
 - GIN 인덱스 생성 쿼리:
 
   ```sql
-  CREATE INDEX idx_gin_content ON documents USING GIN (to_tsvector('english', content));
+  CREATE TABLE books (
+    id SERIAL PRIMARY KEY,
+    title TEXT,
+    authors TEXT[]
+  );
 
+  CREATE INDEX idx_books_authors ON books USING GIN (authors);
   ```
 
-- 텍스트 검색 쿼리:
-
-  ```sql
-  SELECT * FROM documents WHERE to_tsvector('english', content) @@ to_tsquery('text & search');
-
-  ```
-
+- 복합 데이터 유형의 쿼리 성능을 크게 향상시킬 수 있습니다.
 - 자주 업데이트되는 테이블에서는 업데이트 성능이 저하될 수 있습니다.
-- 그러나 복합 데이터 유형의 쿼리 성능을 크게 향상시킬 수 있습니다.
