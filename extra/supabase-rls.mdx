@@ -3,3 +3,37 @@ title: "Supabase RLS 설정하기"
 date: "240703"
 tags: ["Supabase"]
 ---
+
+> (Row Level Security)[https://supabase.com/docs/guides/database/postgres/row-level-security]
+
+- 처음 Supabase 에서 테이블을 만들면 모든 사용자가 해당 테이블에 대한 접근 권한을 가집니다.
+
+  - 클라이언트에서 쿼리를 실행하면 키가 공개되어 있기 때문에, 누구나 해당 테이블에 대한 쿼리를 실행할 수 있습니다.
+  - 이때 **Row Level Security (RLS)** 를 설정하여 특정 사용자에게만 특정 행에 대한 접근 권한을 부여할 수 있습니다.
+
+- 아래와 같은 테이블이 있습니다.
+  ```sql
+    CREATE TABLE visitors (
+        id SERIAL PRIMARY KEY,
+        count INT,
+        last_visited TIMESTAMP
+    );
+  ```
+- 읽기에는 열려있고, 쓰기에는 닫힌 RLS 를 설정하려면 다음과 같은 단계를 거칩니다.
+  - SQL 에디터에서 실행하시면 됩니다.
+
+1. RLS 활성화
+
+   ```sql
+   ALTER TABLE visitors ENABLE ROW LEVEL SECURITY;
+   ```
+
+2. 읽기 정책 생성 (모든 사용자)
+
+   ```sql
+    CREATE POLICY "allow_select_to_all" ON visitors
+    FOR SELECT
+    USING (true);
+   ```
+
+3. 쓰기 정책 생성 (인증된 사용자만)
