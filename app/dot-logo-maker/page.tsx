@@ -1,5 +1,4 @@
 "use client";
-import { Metadata } from "next";
 import { useState, useRef, useEffect } from "react";
 
 const DotLogoMaker = () => {
