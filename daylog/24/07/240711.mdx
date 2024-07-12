@@ -21,13 +21,11 @@ Book.createByEntity(entity, this.sourceRepo.getQuestions);
   - 노드의 global
 - 이는 예상치 못한 오류를 발생시킬 수 있습니다.
 
-#### bind
+#### bind 에 대해
 
 - bind는 Function 객체의 메서드입니다.
 - 이 메서드는 새로운 함수를 생성하는데, 이 새 함수는 원본 함수와 동일한 코드를 가집니다.
-- 다만, this 가 bind()의 첫 번째 인자로 설정됩니다.
-
-#### 기본 문법
+- 다만, this 가 bind 의 첫 번째 인자로 설정됩니다.
 
 ```ts
 const boundFunction = originalFunction.bind(thisArg[, arg1[, arg2[, ...]]])
@@ -46,7 +44,7 @@ Book.createByEntity(entity, this.sourceRepo.getQuestions.bind(this.sourceRepo));
 
 - bind를 사용함으로써, getQuestions 메서드가 항상 sourceRepo 객체의 컨텍스트에서 실행되도록 보장합니다.
 
-#### 대안
+#### bind 대안
 
 - bind 대신 화살표 함수를 사용할 수도 있습니다.
 

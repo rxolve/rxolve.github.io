@@ -35,7 +35,7 @@ const PoweredBy = () => {
               width={24}
               height={24}
               style={{
-                backgroundColor: "#964d4c",
+                backgroundColor: "#ca848a",
               }}
             />
           </a>
