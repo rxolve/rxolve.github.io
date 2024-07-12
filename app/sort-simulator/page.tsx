@@ -21,22 +21,30 @@ const SortSimulator = () => {
   }, []);
 
   const insertSort = () => {
-    setWaiting(true);
-    const start = performance.now();
-    const law = [...insertSortArray];
-    for (let i = 1; i < law.length; i++) {
-      const key = law[i];
-      let j = i - 1;
-      while (j >= 0 && law[j] > key) {
-        law[j + 1] = law[j];
-        j = j - 1;
+    return new Promise((resolve) => {
+      setWaiting(true);
+      const start = performance.now();
+      const arr = [...insertSortArray];
+      for (let i = 1; i < arr.length; i++) {
+        const key = arr[i];
+        let j = i - 1;
+        while (j >= 0 && arr[j] > key) {
+          arr[j + 1] = arr[j];
+          j = j - 1;
+        }
+        arr[j + 1] = key;
       }
-      law[j + 1] = key;
-    }
-    setInsertSortArray(law);
-    const end = performance.now();
-    setInsertSortTime(((end - start) / 1000).toFixed(2));
-    setWaiting(false);
+      setInsertSortArray(arr);
+      const end = performance.now();
+      setInsertSortTime(((end - start) / 1000).toFixed(2));
+      setWaiting(false);
+
+      resolve(null);
+    });
+  };
+
+  const handleInsertSort = async () => {
+    await insertSort();
   };
 
   return (
@@ -58,7 +66,7 @@ const SortSimulator = () => {
           {" " + insertSortArray.slice(size - 5, size).join(", ")}
         </p>
         <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={insertSort}>Insert Sort</button>
+          <button onClick={handleInsertSort}>Insert Sort</button>
           <p>{insertSortTime}s</p>
         </div>
       </div>
