@@ -1,6 +1,6 @@
 ---
-title: "bigm_similarity: RDS에서 간단히 유사한 문자열을 검색할 때"
-date: "240711"
+title: "bigm_similarity: 유사한 문자열을 검색하는 쿼리"
+date: "240713"
 tags: ["RDS"]
 ---
 
@@ -28,9 +28,9 @@ CREATE EXTENSION pg_bigm;
 
 #### 테스트 데이터 생성
 
-- 간단한 예제를 위해 상품 테이블을 만들어 보겠습니다.
+- 간단한 예제를 위해 상품 테이블을 만들어 보았습니다.
 
-```sql
+```PostgreSQL
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
     name TEXT
@@ -98,7 +98,7 @@ Samsung Galaxy S21 | 0.461538
 
 ### 마치며
 
-- bigm_similarity 를 사용하면 RDS PostgreSQL 에서 간단하게 유사도 검색을 구현할 수 있습니다.
-  - 이 기능은 사용자 경험을 향상시키는 데 큰 도움이 될 수 있으며, 특히 검색 기능을 구현할 때 유용합니다.
+- bigm_similarity 를 사용하면 PostgreSQL 에서 간단하게 유사도 검색을 구현할 수 있습니다.
+  - 이로서 사용자 경험을 향상시키는 데 큰 도움이 될 수 있으며, 특히 검색 기능을 구현할 때 유용합니다.
 - 더 복잡한 시나리오에서는 full text search 와 결합하거나, 트리그램(trigram) 기반의 다른 유사도 함수들도 고려해 볼 수 있습니다.
-  - 항상 실제 데이터로 성능을 테스트하고, 필요에 따라 최적화를 진행해야 합니다.
+  - 실제 데이터로 성능을 테스트하고, 필요에 따라 최적화를 진행해야 합니다.
