@@ -4,16 +4,24 @@ import TagList from "./ui/tag-list";
 import VisitorCount from "./ui/visitor-count";
 import PoweredBy from "./ui/powered-by";
 import { metadata } from "@/lib/metadata";
+import { langEn } from "@/language/en";
+import { LangMap, langKo } from "@/language/ko";
+import { HomeProps } from "@/type/home.type";
 
-const Home = async () => {
-  const allPosts = await getAllPosts();
+const Home = async ({ isEn }: HomeProps) => {
+  const allPosts = await getAllPosts(isEn);
+  const langMap: LangMap = isEn ? langEn : langKo;
 
   return (
     <main>
       <article>
-        <h6>💻 매일 정리하는 개발자의</h6>
+        <h6>{langMap.homeSubTitle}</h6>
         <h1>
-          그<sub>저</sub> 그<sub>렇고</sub> 그<sub>런</sub> 기<sub>록</sub> ✍
+          {langMap.homeTitle.t1}
+          <sub>{langMap.homeTitle.t2}</sub> {langMap.homeTitle.t3}
+          <sub>{langMap.homeTitle.t4}</sub> {langMap.homeTitle.t5}
+          <sub>{langMap.homeTitle.t6}</sub> {langMap.homeTitle.t7}
+          <sub>{langMap.homeTitle.t8}</sub> {langMap.homeTitle.t9}
         </h1>
         <PoweredBy />
         <div>

@@ -1,6 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/lib/mdx-components";
-import { PostData } from "@/types/post";
+import { PostData } from "@/type/post.type";
 import TagButton from "./tag-button";
 
 interface ArticleListProps {

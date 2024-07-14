@@ -1,0 +1,32 @@
+---
+title: "Subscription Payment Test"
+date: "240603"
+tags: ["Payment"]
+---
+
+- To test subscription payments, we are integrating a payment API called [PayApp](https://payapp.kr/dev_center/dev_center01.html).
+- I felt something unusual as the endpoint is HTML and the example code is in PHP.
+- The response is also provided as a string rather than JSON. We need to parse it carefully for use.
+
+```typescript
+// Since the endpoint is HTML, it recognizes data passed as form data.
+const form = new FormData();
+form.append("cmd", "rebillRegist");
+// ...add additional data
+const payappRes = await axios.post(`{PayApp API HOST}`, form);
+
+// Parsing the PayApp response
+const payAppResponse = new PayAppResponse();
+payappRes.data.split("&").forEach((slice: string) => {
+  const [key, value] = slice.split("=");
+  payAppResponse[key] = value;
+});
+
+if (payAppResponse.state !== "1") {
+  //...handle failure
+}
+
+// ...handle success
+```
+
+- It feels like making friends with an old and tough companion.

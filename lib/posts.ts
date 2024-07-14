@@ -1,9 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
-import { PostData } from "../types/post";
+import { PostData } from "../type/post.type";
 
 const postsDirectory = path.join(process.cwd(), "daylog");
+const enPostsDirectory = path.join(process.cwd(), "daylog-en");
 
 const findSubdirectories = async (dir: string): Promise<string[]> => {
   let results: string[] = [];
@@ -20,8 +21,10 @@ const findSubdirectories = async (dir: string): Promise<string[]> => {
   return results;
 };
 
-export const getAllPosts = async (): Promise<PostData[]> => {
-  const fileFolders = await findSubdirectories(postsDirectory);
+export const getAllPosts = async (isEn = false): Promise<PostData[]> => {
+  const fileFolders = await findSubdirectories(
+    isEn ? enPostsDirectory : postsDirectory
+  );
   const fileNames = (
     await Promise.all(
       fileFolders.map(async (folder) => {

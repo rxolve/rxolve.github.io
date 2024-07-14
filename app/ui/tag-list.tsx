@@ -1,5 +1,5 @@
 import TagButton from "./tag-button";
-import { PostData } from "@/types/post";
+import { PostData } from "@/type/post.type";
 
 interface TagListProps {
   list: PostData[];
