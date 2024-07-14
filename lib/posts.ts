@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
-import { PostData } from "../type/post.type";
+import { PostData, PostParams } from "../type/post.type";
+import { HomeProps } from "@/type/home.type";
 
 const postsDirectory = path.join(process.cwd(), "daylog");
 const enPostsDirectory = path.join(process.cwd(), "daylog-en");
@@ -21,7 +22,9 @@ const findSubdirectories = async (dir: string): Promise<string[]> => {
   return results;
 };
 
-export const getAllPosts = async (isEn = false): Promise<PostData[]> => {
+export const getAllPosts = async (props?: HomeProps): Promise<PostData[]> => {
+  const isEn = props?.isEn ?? false;
+
   const fileFolders = await findSubdirectories(
     isEn ? enPostsDirectory : postsDirectory
   );
@@ -60,18 +63,18 @@ export const getAllPosts = async (isEn = false): Promise<PostData[]> => {
   return allPostsData;
 };
 
-export const getPost = async (date: string): Promise<PostData> => {
+export const getPost = async (params: PostParams): Promise<PostData> => {
+  const { date, isEn = false } = params;
   if (!date || date.length !== 6) {
     throw new Error("Invalid date");
   }
 
+  const directory = isEn ? enPostsDirectory : postsDirectory;
+
   const year = date.slice(0, 2);
   const month = date.slice(2, 4);
 
-  const fullPath = path.join(
-    `${postsDirectory}/${year}/${month}`,
-    `${date}.mdx`
-  );
+  const fullPath = path.join(`${directory}/${year}/${month}`, `${date}.mdx`);
   const fileContents = await fs.readFile(fullPath, "utf8");
   const { data, content } = matter(fileContents);
 

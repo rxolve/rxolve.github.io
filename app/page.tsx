@@ -9,7 +9,7 @@ import { LangMap, langKo } from "@/language/ko";
 import { HomeProps } from "@/type/home.type";
 
 const Home = async ({ isEn }: HomeProps) => {
-  const allPosts = await getAllPosts(isEn);
+  const allPosts = await getAllPosts({ isEn });
   const langMap: LangMap = isEn ? langEn : langKo;
 
   return (
@@ -34,7 +34,7 @@ const Home = async ({ isEn }: HomeProps) => {
           <VisitorCount />
         </div>
       </article>
-      <TagList list={allPosts} />
+      <TagList list={allPosts} isEn={isEn} />
       <ArticleList list={allPosts} />
     </main>
   );

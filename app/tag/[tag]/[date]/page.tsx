@@ -3,19 +3,10 @@ import { metadata } from "@/lib/metadata";
 import { getAllPosts, getPost } from "@/lib/posts";
 import Link from "next/link";
 
-interface Params {
-  tag: string;
-  date: string;
-}
-
-interface TagDatePageProps {
-  params: Params;
-}
-
 export const generateStaticParams = async () => {
   const allPosts = await getAllPosts();
 
-  const paramList: Params[] = allPosts.flatMap(
+  const paramList: TagParams[] = allPosts.flatMap(
     (post) => post.tags?.map((tag) => ({ tag, date: post.date })) ?? []
   );
 
@@ -25,20 +16,20 @@ export const generateStaticParams = async () => {
 export const generateMetadata = async ({ params }: TagDatePageProps) => {
   const { tag, date } = params;
 
-  const post = await getPost(date);
+  const post = await getPost({ date });
   return metadata(post.title, post.content, [tag, post.title]);
 };
 
 const TagDatePage = async ({ params }: TagDatePageProps) => {
-  const { tag, date } = params;
+  const { tag, date, isEn = false } = params;
 
-  const allPosts = await getAllPosts();
+  const allPosts = await getAllPosts({ isEn });
   const postList = allPosts.filter((post) => post.tags?.includes(tag));
 
   return (
     <main>
       <article>
-        <Link href="/">
+        <Link href={isEn ? "/en" : "/"}>
           <button className="outline" style={{ margin: "0.5rem 0" }}>
             &larr;
           </button>

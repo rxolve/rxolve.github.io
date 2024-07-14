@@ -8,3 +8,8 @@ export interface PostMetaData {
 export interface PostData extends PostMetaData {
   content: string;
 }
+
+export interface PostParams {
+  date: string;
+  isEn?: boolean;
+}

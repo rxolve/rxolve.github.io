@@ -3,9 +3,11 @@ import { PostData } from "@/type/post.type";
 
 interface TagListProps {
   list: PostData[];
+  isEn?: boolean;
 }
 
-const TagList = ({ list }: TagListProps) => {
+const TagList = (props: TagListProps) => {
+  const { list, isEn = false } = props;
   const tagItemList: TagItem[] = [];
 
   for (const post of list) {
@@ -26,7 +28,7 @@ const TagList = ({ list }: TagListProps) => {
     <>
       <article>
         {sortedTagItemList?.map((tagItem) => (
-          <TagButton key={tagItem.tag} tagItem={tagItem} />
+          <TagButton key={tagItem.tag} tagItem={tagItem} isEn={isEn} />
         ))}
       </article>
     </>

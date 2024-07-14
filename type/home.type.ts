@@ -1,3 +1,3 @@
 export interface HomeProps {
-  isEn: boolean;
+  isEn?: boolean;
 }
