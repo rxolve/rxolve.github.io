@@ -1,12 +1,14 @@
+import { json } from "stream/consumers";
+
 export const metadata = (
   title: string,
   description: string,
   keywords: string[]
 ) => {
-  return {
+  const metadata = {
     title,
     description,
-    keywords,
+    keywords: keywords.join(", "),
     openGraph: {
       title,
       description,
@@ -16,5 +18,16 @@ export const metadata = (
         },
       ],
     },
+    other: {
+      "application/ld+json": JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: title,
+        description,
+        keywords: keywords.join(", "),
+      }),
+    },
   };
+
+  return metadata;
 };
