@@ -1,0 +1,52 @@
+---
+title: "Merge Sort"
+date: "240608"
+tags: ["Algorithm"]
+---
+
+```typescript
+// Function to sort an array recursively using divide and conquer
+const mergeSort = (arr: number[]): number[] => {
+  // Base case: if array length is 1 or less, it's already sorted
+  if (arr.length <= 1) return arr;
+
+  // Find the middle index of the array
+  const mid = Math.floor(arr.length / 2);
+  // Sort the left half of the array recursively
+  const left = mergeSort(arr.slice(0, mid));
+  // Sort the right half of the array recursively
+  const right = mergeSort(arr.slice(mid));
+
+  const result: number[] = []; // Array to store merged result
+  const [i, j] = [0, 0]; // Pointers to track position in left and right arrays
+
+  // Return the merged result array
+  return merge(left, right, result, i, j);
+};
+
+// Function to merge two arrays
+const merge = (
+  left: number[],
+  right: number[],
+  result: number[],
+  i: number,
+  j: number
+): number[] => {
+  // If there are elements to compare in both left and right arrays
+  if (i < left.length && j < right.length) {
+    // If current element in left array is smaller than in right array
+    if (left[i] < right[j]) {
+      // Add left's current element to result and call recursively for next left element
+      return result.concat(left[i], merge(left, right, result, i + 1, j));
+    } else {
+      // Add right's current element to result and call recursively for next right element
+      return result.concat(right[j], merge(left, right, result, i, j + 1));
+    }
+  }
+  // If no more elements to compare in one of the arrays
+  // Add remaining elements to result
+  return result.concat(left.slice(i)).concat(right.slice(j));
+};
+```
+
+- Let's use this when organizing our bookshelves or closets in daily life!

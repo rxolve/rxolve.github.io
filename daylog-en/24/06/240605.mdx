@@ -1,0 +1,38 @@
+---
+title: "Deploying to Github Pages with gh-pages"
+date: "240605"
+tags: ["GithubPages"]
+---
+
+0. I changed this site from [https://rxolve-github-io.vercel.app](https://rxolve-github-io.vercel.app) to [https://rxolve.github.io](https://rxolve.github.io).
+1. Add these settings to next.config.mjs:
+
+```javascript
+   output: 'export',
+   images: {
+      unoptimized: true,
+   },
+```
+
+2. Run `npm run build`. This creates files in the 'out' folder. Add the 'out' folder to `.gitignore`.
+3. Install gh-pages:
+
+```bash
+npm install --save-dev gh-pages
+```
+
+4. Add these scripts to package.json:
+
+```json
+"scripts": {
+ "build": "next build",
+ "predeploy": "npm run build",
+ "deploy": "gh-pages -d out",
+}
+```
+
+5. Run `npm run deploy`.
+6. In the GitHub `your.github.io` project, go to Settings > Pages and change the Source to the gh-pages branch.
+7. You can see the deployed page at `https://your.github.io`. But Pico CSS isn't working, so it looks bad. I'm sad about this.
+   - The problem is that files in the `_next/static` folder are giving 404 errors.
+   - I'll try to fix this tomorrow. Come back, Mr. Pico.
