@@ -1,0 +1,46 @@
+---
+title: "My Thoughts on Category ID Systems"
+date: "240611"
+tags: ["Design"]
+---
+
+- I decided to make product categories with 5 levels. I thought hard about the best way to design this.
+
+- Each level of the category ID has 2 letters, so the whole ID is 10 letters long. Here's an example I came up with:
+
+> - First level: 10 ('Programming')
+> - Second level: 1001 ('Backend Development')
+> - Third level: 100102 ('NestJS')
+> - Fourth level: 10010207 ('Decorators')
+> - Fifth level: 1001020704 ('Method Decorators')
+
+- This way, I made sure lower levels include the higher levels.
+- I realized we can easily find subcategories by matching the start of the ID.
+
+```typescript
+private findNextDepth = (
+    allCategories: CategoryEntity[],
+    items: Category[],
+    ): Category[] => {
+    // I look for lower levels using a method called recursion
+    for (const item of items) {
+        const nextDepth = allCategories.filter(
+            (category) =>
+                category.id.startsWith(item.id) &&
+                category.id.length === item.id.length + CATEGORY_ID_DEPTH_UNIT,
+        );
+        if (nextDepth.length > 0) {
+            const nextItems = nextDepth.map((category) =>
+                Category.createByEntity(category),
+            );
+            item.items = this.findNextDepth(allCategories, nextItems);
+        }
+    }
+
+    return items;
+};
+```
+
+- The frontend developers suggested this idea to me yesterday.
+- At first, I was going to do it the usual way. But when I started designing today, I realized this method was the best.
+- I learned that if I listen, good ideas are often close by. I'm lucky to work with such smart developers.
