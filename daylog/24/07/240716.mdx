@@ -1,0 +1,136 @@
+---
+title: "JSON-LD: SEO 더 잘하기"
+date: "240716"
+tags: ["SEO", "Next.js"]
+---
+
+#### JSON-LD 란?
+
+- JSON-LD(JavaScript Object Notation for Linked Data)는 구조화된 데이터를 표현하기 위한 경량 형식입니다.
+- 이 형식은 검색 엔진이 웹 페이지의 콘텐츠를 더 정확하게 이해하고 해석할 수 있게 해줍니다.
+- Google, Bing 등 주요 검색 엔진에서 권장하는 구조화된 데이터 형식입니다.
+
+#### JSON-LD 의 탄생
+
+- JSON-LD의 탄생을 이해하려면 먼저 시맨틱 웹(Semantic Web)의 개념을 알아야 합니다.
+- 1989년 월드 와이드 웹(WWW)을 발명한 팀버너스리(Tim Berners-Lee)는 1998년 웹의 데이터를 기계가 이해하고 처리할 수 있는 환경을 만들기 위해 시맨틱 웹을 제안했습니다.
+- 시맨틱 웹의 비전은 웹 페이지의 내용을 단순한 텍스트가 아닌 의미 있는 데이터로 표현하는 것이었습니다.
+- RDF (Resource Description Framework), OWL (Web Ontology Language) 등 다양한 기술들이 개발되었지만, 복잡성으로 인해 널리 채택되지 못했습니다.
+- 그러다 2010년 Manu Sporny 와 Dave Longley 가 JSON-LD 개념을 제안하면서 개발자 친화적인 방식(JSON)으로 링크드 데이터(Linked Data)를 구현할 수 있게 되었습니다.
+- JSON-LD 의 차별화되는 특징은 다음과 같습니다.
+  - 단순성: 기존 JSON 구문을 그대로 사용하여 학습 곡선 낮춤
+  - 호환성: 기존 JSON 기반 시스템과의 높은 호환성
+  - 유연성: 복잡한 데이터 구조를 표현할 수 있는 능력
+- 2012년에 JSON-LD 1.0 초안이 발표되었고, 2014년에 W3C 권장 사항으로 승인되었습니다. 2020년에는 JSON-LD 1.1 버전이 출시되었습니다.
+
+#### JSON-LD 구조
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Type",
+  "property1": "value1",
+  "property2": "value2",
+  ...
+}
+```
+
+- @context: JSON-LD 문서의 컨텍스트를 정의합니다. 보통 "https://schema.org" 를 사용합니다.
+- @type: 설명하는 엔티티의 유형을 지정합니다.
+
+#### 중첩과 참조
+
+- JSON-LD 는 중첩 구조를 지원합니다.
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "author": {
+    "@type": "Person",
+    "name": "rxolve",
+    "sameAs": "https://github.com/rxolve"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "SOSR Inc.",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://rxolve.github.io/og-image.png"
+    }
+  }
+}
+```
+
+또한, @id 를 사용하여 다른 엔티티를 참조할 수 있습니다.
+
+```json
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": "#rxolve",
+      "name": "Rxolve Kim"
+    },
+    {
+      "@type": "Article",
+      "author": { "@id": "#rxolve" }
+    }
+  ]
+}
+```
+
+### Next.js에서 JSON-LD 사용하기
+
+- `<script>` 태그 안에 직접 삽입, `react-schemaorg` 라이브러리 사용 등의 방식이 있습니다.
+- 저는 `generateMetadata` 함수를 활용 해서 메타데이터와 JSON-LD 를 한 곳에서 관리하는 방식을 선택했습니다.
+  - Next.js 13.2 이상 버전에서 지원합니다.
+  - 기존 메타데이터 객체에 other 속성을 추가하여 JSON-LD 를 삽입합니다.
+  - 키는 `application/ld+json`, 값은 JSON 문자열로 파싱한 JSON-LD 객체를 넣습니다.
+
+```tsx
+export const generateMetadata = async ({ params }: TagDatePageProps) => {
+  const { tag, date } = params;
+
+  const post = await getPost({ date });
+  return metadata(post.title, post.content, [tag, post.title]);
+};
+
+const metadata = (title: string, description: string, keywords: string[]) => {
+  const metadata = {
+    title,
+    description,
+    keywords: keywords.join(", "),
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: "https://rxolve.github.io/og-image.png",
+        },
+      ],
+    },
+    other: {
+      "application/ld+json": JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        headline: title,
+        description,
+        keywords: keywords.join(", "),
+      }),
+    },
+  };
+
+  return metadata;
+};
+
+const TagDatePage = async ({ params }: TagDatePageProps) => {
+  // ...
+};
+```
+
+### 정리
+
+- JSON-LD 는 Next.js 애플리케이션의 SEO 를 크게 개선할 수 있는 도구입니다.
+- 적절히 구현하면 검색 엔진이 콘텐츠를 더 잘 이해하고, 검색 결과에서 더 풍부한 정보를 표시할 수 있게 됩니다.

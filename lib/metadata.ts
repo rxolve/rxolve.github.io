@@ -1,5 +1,3 @@
-import { json } from "stream/consumers";
-
 export const metadata = (
   title: string,
   description: string,
