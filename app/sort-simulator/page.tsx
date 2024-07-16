@@ -1,77 +1,76 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
+import { insertionSort, mergeSort, timSort } from "./sorting";
 
-const SortSimulator = () => {
-  const size = useMemo(() => 100000, []);
+interface AlgorithmResult {
+  [key: string]: number;
+}
 
-  const [waiting, setWaiting] = useState(false);
-  const [lawArray, setLawArray] = useState(new Array(size).fill(0));
-  const [insertSortArray, setInsertSortArray] = useState(
-    new Array(size).fill(0)
-  );
-  const [insertSortTime, setInsertSortTime] = useState("0.00");
+const AlgorithmTest: React.FC = () => {
+  const [arraySize, setArraySize] = useState<number>(1000);
+  const [results, setResults] = useState<AlgorithmResult>({});
 
-  useEffect(() => {
-    const randomArray: number[] = lawArray.map(() =>
-      Math.floor(Math.random() * size)
-    );
-    setLawArray(randomArray);
-    setInsertSortArray(randomArray);
-  }, []);
-
-  const insertSort = () => {
-    return new Promise((resolve) => {
-      setWaiting(true);
-      const start = performance.now();
-      const arr = [...insertSortArray];
-      for (let i = 1; i < arr.length; i++) {
-        const key = arr[i];
-        let j = i - 1;
-        while (j >= 0 && arr[j] > key) {
-          arr[j + 1] = arr[j];
-          j = j - 1;
-        }
-        arr[j + 1] = key;
-      }
-      setInsertSortArray(arr);
-      const end = performance.now();
-      setInsertSortTime(((end - start) / 1000).toFixed(2));
-      setWaiting(false);
-
-      resolve(null);
-    });
+  const generateRandomArray = (size: number): number[] => {
+    return Array.from({ length: size }, () => Math.floor(Math.random() * 1000));
   };
 
-  const handleInsertSort = async () => {
-    await insertSort();
+  const runTest = () => {
+    const testArray = generateRandomArray(arraySize);
+    const algorithms = [
+      { name: "Insertion Sort", func: insertionSort },
+      { name: "Merge Sort", func: mergeSort },
+      { name: "Tim Sort", func: timSort },
+    ];
+
+    const newResults: AlgorithmResult = {};
+
+    algorithms.forEach(({ name, func }) => {
+      const arrayCopy = [...testArray];
+      const start = performance.now();
+      func(arrayCopy);
+      const end = performance.now();
+      newResults[name] = end - start;
+    });
+
+    setResults(newResults);
   };
 
   return (
-    <main>
-      <h1>Sort Simulator</h1>
-      <h2>Array Size: {size}</h2>
-      <div>
-        <h4>Law Array</h4>
-        <p>
-          {lawArray.slice(0, 5).join(", ") + " "}...
-          {" " + lawArray.slice(size - 5, size).join(", ")}
-        </p>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">알고리즘 성능 테스트</h1>
+      <div className="mb-4">
+        <label htmlFor="arraySize" className="mr-2">
+          배열 크기:
+        </label>
+        <input
+          id="arraySize"
+          type="number"
+          value={arraySize}
+          onChange={(e) => setArraySize(Number(e.target.value))}
+          className="border p-1"
+        />
       </div>
-
-      <div>
-        <h4>Insert Sort Array</h4>
-        <p>
-          {insertSortArray.slice(0, 5).join(", ") + " "}...
-          {" " + insertSortArray.slice(size - 5, size).join(", ")}
-        </p>
-        <div style={{ display: "flex", gap: "10px" }}>
-          <button onClick={handleInsertSort}>Insert Sort</button>
-          <p>{insertSortTime}s</p>
+      <button
+        onClick={runTest}
+        className="bg-blue-500 text-white px-4 py-2 rounded"
+      >
+        테스트 실행
+      </button>
+      {Object.keys(results).length > 0 && (
+        <div className="mt-4">
+          <h2 className="text-xl font-semibold mb-2">결과:</h2>
+          <ul>
+            {Object.entries(results).map(([name, time]) => (
+              <li key={name}>
+                {name}: {time.toFixed(2)}ms
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </main>
+      )}
+    </div>
   );
 };
 
-export default SortSimulator;
+export default AlgorithmTest;
