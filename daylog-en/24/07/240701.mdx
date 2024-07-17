@@ -1,0 +1,104 @@
+---
+title: "Why Object-Oriented Programming is Tricky in JavaScript"
+date: "240701"
+tags: ["Article", "JavaScript", "OOP"]
+---
+
+> [Is it right to be object-oriented in JavaScript?](https://yozm.wishket.com/magazine/detail/1396/)
+>
+> This article talks about how object-oriented programming started, its rules, and how JavaScript tries to copy it.
+
+### Prototype Languages
+
+- To use OOP well in JavaScript, you first need to understand **prototype** languages.
+- While some languages were developing OOP based on classes, others were using prototypes.
+
+#### Self (Late 1980s)
+
+- This was the first prototype-based OOP language.
+- It used prototypes instead of classes to define objects and made new objects by copying existing ones.
+
+#### Lua (1993)
+
+- It was made to be a simple language that's easy to use inside C/C++ programs.
+
+#### JavaScript (1995)
+
+- This is the most famous prototype language.
+- It started in web browsers but now it's used in many places like servers, mobile apps, and desktop programs.
+
+#### Dart (2011)
+
+- It was made for Flutter and tries to fix some problems with JavaScript.
+
+#### TypeScript (2012)
+
+- It's like JavaScript but with added types.
+
+### Prototype Chain
+
+- The biggest thing about prototype languages is that they make new objects from other objects, not from classes.
+- These objects are connected by a prototype chain.
+- If an object can't find something it needs, it looks up this chain to find it in a parent object.
+
+```javascript
+const person = {
+  sayHello() {
+    console.log(`Hello, my name is ${this.name}`);
+  },
+};
+
+const alice = Object.create(person);
+alice.name = "Alice";
+
+const employee = Object.create(alice);
+employee.jobTitle = "Developer";
+employee.sayJobTitle = function () {
+  console.log(`My job title is ${this.jobTitle}`);
+};
+
+employee.sayHello(); // "Hello, my name is Alice"
+employee.sayJobTitle(); // "My job title is Developer"
+```
+
+- This chain helps do things like inheritance, polymorphism, encapsulation, and abstraction in OOP.
+
+### Why OOP is Hard in JavaScript
+
+This can be confusing for people used to class-based OOP languages like Java.
+
+- JavaScript added the 'class' keyword in ES6, but it's just a simpler way to write prototype-based code.
+
+  - It doesn't change how JavaScript really works, so things like inheritance might not work as you expect.
+
+- It's easy to add or change parts of an object in JavaScript. The rules are looser than in class-based languages.
+- JavaScript doesn't directly support multiple inheritance.
+
+  - You have to use special patterns like mixins to do this, which makes your code more complicated.
+
+  ```javascript
+  // Define a mixin function
+  function mixin(target, ...sources) {
+    Object.assign(target.prototype, ...sources);
+  }
+
+  ...
+
+  // Apply mixins
+  mixin(Animal, canSwim, canFly);
+  ```
+
+- JavaScript is also really good at functional programming.
+
+  - This makes developers often prefer functional programming, which is different from OOP.
+
+The best thing about JavaScript is that you can use many different ways of programming.
+
+As the article suggests, good OOP in JavaScript might mean:
+
+- Making small programs with data and methods to reuse code
+- Using the simple parts of JavaScript
+- Avoiding complicated structures
+- Combining the good parts of functional programming
+
+This way, you can use object-oriented ideas in JavaScript without making things too complex.

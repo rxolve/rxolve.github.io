@@ -1,0 +1,54 @@
+---
+title: "Tidy First? 7. Moving Declaration and Initialization Together"
+date: "240623"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- Sometimes, when we create a variable and give it a value, these two steps are far apart in the code.
+  - Usually, we can guess what a variable does from its name, but seeing its initial value makes this even clearer.
+  - So, when these two steps are far apart, it's harder to understand the code.
+- Here's an example of code like this:
+
+```
+fn()
+  int a
+  ...code that doesn't use a
+  a=...
+  int b
+  ...code that can use a but doesn't use b
+  b=...a
+  ...code that uses b
+```
+
+- We can fix this by moving the value-giving step closer to where we create the variable:
+
+```
+fn()
+  int a=...
+  ...code that doesn't use a
+  ...code that uses a but doesn't use b
+  int b=...a...
+  ...code that uses b
+```
+
+- Try moving things around like it's a game.
+
+  - Pretend you're a mystery writer. Imagine how someone reading your code will feel.
+  - Leave clues so people can tell who wrote this code.
+
+- You'll probably make mistakes sometimes.
+
+  - You might accidentally change how the code works when you're just trying to make it neater.
+  - But that's okay. You can always go back to the correct version of the code.
+
+- Work in small steps.
+  - That's the best way to tidy up code.
+  - Big changes in how things are designed can be hard and scary. Try to make smaller steps.
+  - If it's still scary, make even smaller steps.
+  - **The best size for a step is one that doesn't make you feel afraid.**
