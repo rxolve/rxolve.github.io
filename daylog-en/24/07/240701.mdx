@@ -1,45 +1,45 @@
 ---
-title: "Why Object-Oriented Programming is Tricky in JavaScript"
+title: "Why OOP is Challenging in JavaScript"
 date: "240701"
 tags: ["Article", "JavaScript", "OOP"]
 ---
 
-> [Is it right to be object-oriented in JavaScript?](https://yozm.wishket.com/magazine/detail/1396/)
+> [Is it right to use Object-Oriented Programming in JavaScript?](https://yozm.wishket.com/magazine/detail/1396/)
 >
-> This article talks about how object-oriented programming started, its rules, and how JavaScript tries to copy it.
+> - This article covers the birth of the object-oriented paradigm, its principles and methodologies, and the tearful efforts to mimic object-oriented programming in JavaScript.
 
-### Prototype Languages
+### Prototype-based Languages
 
-- To use OOP well in JavaScript, you first need to understand **prototype** languages.
-- While some languages were developing OOP based on classes, others were using prototypes.
+- To use OOP well in JavaScript, you first need to understand **prototype-based** languages.
+- While object-oriented programming was developing based on classes, there were languages that implemented object-oriented programming based on prototypes.
 
 #### Self (Late 1980s)
 
-- This was the first prototype-based OOP language.
-- It used prototypes instead of classes to define objects and made new objects by copying existing ones.
+- It's the origin of prototype-based object-oriented languages.
+- It adopted a method of defining objects using prototypes instead of classes, and creating new objects by cloning existing objects.
 
 #### Lua (1993)
 
-- It was made to be a simple language that's easy to use inside C/C++ programs.
+- It was developed with the goal of being a lightweight scripting language with clean syntax that's very easy to embed in C/C++ programs.
 
 #### JavaScript (1995)
 
-- This is the most famous prototype language.
-- It started in web browsers but now it's used in many places like servers, mobile apps, and desktop programs.
+- It's the most famous prototype-based language.
+- It's used in various environments beyond its native web browsers, including server-side, mobile apps, and desktops.
 
 #### Dart (2011)
 
-- It was made for Flutter and tries to fix some problems with JavaScript.
+- It was developed for Flutter and created to complement JavaScript's weaknesses.
 
 #### TypeScript (2012)
 
-- It's like JavaScript but with added types.
+- It's a superset of JavaScript that supports types.
 
 ### Prototype Chain
 
-- The biggest thing about prototype languages is that they make new objects from other objects, not from classes.
-- These objects are connected by a prototype chain.
-- If an object can't find something it needs, it looks up this chain to find it in a parent object.
+- The biggest feature of prototype-based languages is that objects are created from other objects, not from classes.
+- These objects are connected through a prototype chain.
+- If an object can't find a specific property or method, it looks for it in the upper object following this chain.
 
 ```javascript
 const person = {
@@ -61,44 +61,42 @@ employee.sayHello(); // "Hello, my name is Alice"
 employee.sayJobTitle(); // "My job title is Developer"
 ```
 
-- This chain helps do things like inheritance, polymorphism, encapsulation, and abstraction in OOP.
+- Through this chain, concepts of object-oriented programming including inheritance, polymorphism, encapsulation, and abstraction were implemented.
 
-### Why OOP is Hard in JavaScript
+### Difficulties of OOP in JavaScript
 
-This can be confusing for people used to class-based OOP languages like Java.
+This can bring confusion to people who used class-based object-oriented languages like Java.
 
-- JavaScript added the 'class' keyword in ES6, but it's just a simpler way to write prototype-based code.
-
-  - It doesn't change how JavaScript really works, so things like inheritance might not work as you expect.
-
-- It's easy to add or change parts of an object in JavaScript. The rules are looser than in class-based languages.
+- Although the `class` keyword was introduced in ES6, it's just syntactic sugar wrapping prototype-based inheritance.
+  - Because it doesn't change the essence of being prototype-based, it can behave differently than expected in implementations like inheritance or method overriding.
+- It's easy to add or change properties or methods to objects. Rules are looser compared to class-based languages.
 - JavaScript doesn't directly support multiple inheritance.
 
-  - You have to use special patterns like mixins to do this, which makes your code more complicated.
+  - It needs to be solved with patterns like mixins, which requires additional code writing and increases structural complexity.
 
   ```javascript
-  // Define a mixin function
+  // Define mixin function
   function mixin(target, ...sources) {
     Object.assign(target.prototype, ...sources);
   }
 
   ...
 
-  // Apply mixins
+  // Apply mixin
   mixin(Animal, canSwim, canFly);
   ```
 
-- JavaScript is also really good at functional programming.
+- Above all, JavaScript strongly supports the functional programming paradigm.
 
-  - This makes developers often prefer functional programming, which is different from OOP.
+  - This makes developers prefer functional implementations, which can easily deviate from an object-oriented perspective.
 
-The best thing about JavaScript is that you can use many different ways of programming.
+I think JavaScript's biggest charm is its flexibility to freely use various paradigms.
 
-As the article suggests, good OOP in JavaScript might mean:
+As in the second to last paragraph of Teo's post:
 
-- Making small programs with data and methods to reuse code
-- Using the simple parts of JavaScript
-- Avoiding complicated structures
-- Combining the good parts of functional programming
+- Creating small programs based on data and methods to increase code reusability
+- Taking advantage of concise syntax
+- Avoiding complex structures
+- Combining with the advantages of functional programming
 
-This way, you can use object-oriented ideas in JavaScript without making things too complex.
+This approach could be considered as using object-oriented programming well in JavaScript.

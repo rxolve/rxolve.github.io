@@ -1,0 +1,59 @@
+---
+title: "Tidy First? 12. Helper Extraction"
+date: "240710"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- Sometimes we find a piece of code that has a clear purpose and doesn't interact much with the rest of the code.
+  - We take out this code, make it a helper, and give it a name.
+  - We name the helper based on what it does, not how it works.
+  - This cleaning method is called 'method extraction' in refactoring.
+- I want to mention a few special cases when extracting helpers:
+  - When you need to change a few lines in a big routine:
+    - Take those lines out and make them a helper
+    - Change only what's inside the helper
+    - If it looks good, use the helper in the main routine
+    - Usually, once you start using helpers, you'll want to use them everywhere!
+  - Before:
+    ```
+    routine()
+      ...code to keep...
+      ...code to change...
+      ...code to keep...
+    ```
+  - After:
+    ```
+    helper()
+      ...code to change...
+    routine()
+      ...code to keep...
+      ...helper()...
+      ...code to keep...
+    ```
+  - This makes parts of your code that work well together.
+  - Another special case is when one thing needs to happen before another:
+    - If a() must be called before b()
+    - Before:
+      ```
+      foo.a()
+      foo.b()
+      ```
+    - After:
+      ```
+      ab()
+        a()
+        b()
+      ```
+- As you make helpers, you'll find yourself wanting to use them again very quickly.
+  - This process makes you think about problems in new ways.
+  - When we can give new names to parts of our design, we come up with new ideas.
+    - (**Today's key sentence!**)
+- You can use helpers wherever you need them.
+  - Some coding tools can find places where your new helper could be used and even change the code for you.
+  - We're lucky to have these tools!

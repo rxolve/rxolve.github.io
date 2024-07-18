@@ -1,0 +1,56 @@
+---
+title: "bind: When Passing Functions to Functions"
+date: "240711"
+tags: ["JavaScript"]
+---
+
+#### When we need bind
+
+- When writing code, sometimes we need to pass one function to another function.
+- We should use 'bind' to make sure it works the way we expect.
+
+```ts
+// Wrong example
+Book.createByEntity(entity, this.sourceRepo.getQuestions);
+```
+
+- The getQuestions method should work within the sourceRepo object.
+- But in the code above, it runs in Book.createByEntity, so when getQuestions is called, 'this' might point to:
+  - undefined
+  - window (in browsers)
+  - global (in Node.js)
+- This can cause unexpected errors.
+
+#### About bind
+
+- bind is a method of Function objects.
+- It creates a new function that has the same code as the original function.
+- But 'this' is set to the first argument of bind.
+
+```ts
+const boundFunction = originalFunction.bind(thisArg[, arg1[, arg2[, ...]]])
+```
+
+- thisArg: The value to use as 'this' when the bound function is called
+- arg1, arg2, ...: Arguments to pass to the original function (optional)
+
+#### How to use bind
+
+- We can fix the earlier code using bind like this:
+
+```ts
+Book.createByEntity(entity, this.sourceRepo.getQuestions.bind(this.sourceRepo));
+```
+
+- By using bind, we make sure the getQuestions method always runs within the sourceRepo object.
+
+#### Alternatives to bind
+
+- We can also use arrow functions instead of bind:
+
+```ts
+Book.createByEntity(entity, () => this.sourceRepo.getQuestions());
+```
+
+- Arrow functions don't have their own 'this', so they use 'this' from the surrounding code.
+- You can use whichever way works best for you.
