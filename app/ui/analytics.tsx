@@ -20,7 +20,7 @@ const Analytics = () => {
       return;
     }
 
-    const visitorCount = data?.length ? data[0].count : 0;
+    const visitorCount = data[0].count;
     await supabase
       .from("visitors")
       .update({ count: visitorCount + 1, last_visited: new Date() })
