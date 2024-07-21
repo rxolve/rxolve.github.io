@@ -1,0 +1,145 @@
+---
+title: "ISR and Rendering in Next.js 14"
+date: "240717"
+tags: ["Next.js"]
+---
+
+### What's the buzz about ISR?
+
+I looked into ISR and learned about how Next.js 14 shows web pages. Let's break it down!
+
+Next.js 14 can show web pages in three main ways: static, dynamic, and streaming. This makes it super flexible. Let's look at each one:
+
+### 1. Static Rendering
+
+Static rendering makes pages when you build your website. It's like pre-making food before a party.
+
+#### Good things:
+
+- Pages load really fast
+- Doesn't make your server work too hard
+- Great for search engines to find your site
+
+#### Not-so-good things:
+
+- Hard to show stuff that changes a lot
+- Need to rebuild pages when you update information
+
+#### Here's an example:
+
+```jsx
+import { getAllPosts, getPostBySlug } from "@/lib/api";
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default async function Post({ params }) {
+  const post = await getPostBySlug(params.slug);
+  return <article>{/* Show post content here */}</article>;
+}
+```
+
+### 2. Dynamic Rendering
+
+Dynamic rendering makes pages every time someone asks for them. It's like cooking food right when someone orders it.
+
+#### Good things:
+
+- Always shows the newest information
+- Can handle stuff that changes a lot
+- Great for search engines too
+
+#### Not-so-good things:
+
+- Pages might load a bit slower at first
+- Makes your server work harder
+
+#### Here's an example:
+
+```jsx
+import { getCurrentUser } from "@/lib/auth";
+import { getDashboardData } from "@/lib/api";
+
+export const dynamic = "force-dynamic";
+
+export default async function Dashboard() {
+  const user = await getCurrentUser();
+  const dashboardData = await getDashboardData(user.id);
+  return <div>{/* Show dashboard content here */}</div>;
+}
+```
+
+### 3. Streaming
+
+Streaming shows part of the page first, then loads the rest bit by bit. It's like getting your appetizer while the main course is still cooking.
+
+#### Good things:
+
+- Pages start showing up faster
+- Makes the website feel smoother
+- Helps big, complicated pages load better
+
+#### Here's an example:
+
+```jsx
+import { Suspense } from "react";
+import ProductDetails from "./ProductDetails";
+import RelatedProducts from "./RelatedProducts";
+
+export default function Product({ params }) {
+  return (
+    <div>
+      <h1>Product {params.id}</h1>
+      <Suspense fallback={<div>Loading product details...</div>}>
+        <ProductDetails id={params.id} />
+      </Suspense>
+      <Suspense fallback={<div>Loading related products...</div>}>
+        <RelatedProducts id={params.id} />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### 4. Incremental Static Regeneration (ISR)
+
+ISR updates static pages every so often or when you ask it to. It's like having pre-made food but checking and replacing it regularly to keep it fresh.
+
+#### Good things:
+
+- Pages load fast like static rendering
+- Can update content regularly or when you need to
+- Combines the good parts of static and dynamic rendering
+
+#### Here's an example:
+
+```jsx
+// app/posts/[slug]/page.js
+import { getAllPosts, getPostBySlug } from "@/lib/api";
+
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}
+
+export default async function Post({ params }) {
+  const post = await getPostBySlug(params.slug);
+  return <article>{/* Show post content here */}</article>;
+}
+
+export const revalidate = 3600; // Check for updates every hour
+```
+
+### Should I use ISR?
+
+I learned that I could easily use ISR on this post page by adding the revalidate option.
+
+But I also realized that this page doesn't change, so it doesn't need ISR.
+
+I decided that if I make parts of the site that change a lot in the future, I'll try using ISR then.
