@@ -26,7 +26,7 @@ const Home = async ({ isEn }: HomeProps) => {
         <PoweredBy />
         <div>
           <small>💌</small>
-          <small style={{ margin: "0 0.2rem" }}>
+          <small className="mx-1">
             <a target="_blank" href="mailto:rxolve@gmail.com">
               rxolve@gmail.com
             </a>

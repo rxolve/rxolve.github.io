@@ -11,7 +11,7 @@ const TagButton = (props: TagButtonProps) => {
   if (!tagItem) return null;
   return (
     <Link href={isEn ? `en/tag/${tagItem.tag}` : `/tag/${tagItem.tag}`}>
-      <button className="outline" style={{ margin: "0.3rem" }}>
+      <button className="outline m-1">
         @{tagItem.tag} {emojiNumber(tagItem.count)}
       </button>
     </Link>

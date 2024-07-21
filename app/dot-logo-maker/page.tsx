@@ -77,21 +77,14 @@ const DotLogoMaker = () => {
 
   return (
     <main>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          marginBottom: "20px",
-        }}
-      >
+      <div className="flex items-center gap-2.5 mb-5">
         <label>
           Width:
           <input
             type="number"
             value={width}
             onChange={(e) => setWidth(Number(e.target.value))}
-            style={{ marginLeft: "5px" }}
+            className="ml-2.5"
           />
         </label>
         <label>
@@ -100,7 +93,7 @@ const DotLogoMaker = () => {
             type="number"
             value={height}
             onChange={(e) => setHeight(Number(e.target.value))}
-            style={{ marginLeft: "5px" }}
+            className="ml-2.5"
           />
         </label>
         <label>
@@ -109,7 +102,7 @@ const DotLogoMaker = () => {
             type="color"
             value={primaryColor}
             onChange={(e) => setPrimaryColor(e.target.value)}
-            style={{ marginLeft: "5px" }}
+            className="ml-2.5"
           />
         </label>
         <label>
@@ -118,34 +111,29 @@ const DotLogoMaker = () => {
             type="color"
             value={secondaryColor}
             onChange={(e) => setSecondaryColor(e.target.value)}
-            style={{ marginLeft: "5px" }}
+            className="ml-2.5"
           />
         </label>
       </div>
       <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(${width}, 50px)`,
-        }}
+        className={`grid`}
+        style={{ gridTemplateColumns: `repeat(${width}, 50px)` }}
       >
         {rectangles.map((row, rowIndex) =>
           row.map((col, colIndex) => (
             <div
               key={`${rowIndex}-${colIndex}`}
               onClick={() => toggleRectangle(rowIndex, colIndex)}
-              style={{
-                width: "50px",
-                height: "50px",
-                backgroundColor: col ? secondaryColor : primaryColor,
-              }}
+              className={`w-[50px] h-[50px]`}
+              style={{ backgroundColor: col ? secondaryColor : primaryColor }}
             ></div>
           ))
         )}
       </div>
-      <button onClick={downloadImage} style={{ margin: "20px 0" }}>
+      <button onClick={downloadImage} className="my-5">
         Download Image
       </button>
-      <canvas ref={canvasRef} style={{ display: "none" }}></canvas>
+      <canvas ref={canvasRef} className="hidden"></canvas>
     </main>
   );
 };

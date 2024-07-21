@@ -34,9 +34,7 @@ const PoweredBy = () => {
               alt={item.alt}
               width={24}
               height={24}
-              style={{
-                backgroundColor: "#ca848a",
-              }}
+              className="bg-[#ca848a]"
             />
           </a>
         ))}

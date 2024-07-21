@@ -12,3 +12,5 @@
     --pico-primary: var(--pico-color);
   }
 }
+
+@tailwind utilities;

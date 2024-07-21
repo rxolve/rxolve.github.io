@@ -30,9 +30,7 @@ const TagDatePage = async ({ params }: TagDatePageProps) => {
     <main>
       <article>
         <Link href={isEn ? "/en" : "/"}>
-          <button className="outline" style={{ margin: "0.5rem 0" }}>
-            &larr;
-          </button>
+          <button className="outline my-2">&larr;</button>
         </Link>
         <h1>{tag}</h1>
       </article>
