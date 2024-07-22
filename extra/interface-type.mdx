@@ -1,0 +1,153 @@
+---
+title: "TypeScript에서 Interface vs Type"
+date: "240722"
+tags: ["Next.js", "NestJS"]
+---
+
+# Interface vs Type
+
+TypeScript에서 `interface`와 `type`은 둘 다 타입을 정의하는 데 사용되지만, 몇 가지 중요한 차이점이 있습니다. 이들의 주요 차이점과 사용 사례를 살펴보겠습니다.
+
+## 1. 문법
+
+### Interface
+
+```typescript
+interface Person {
+  name: string;
+  age: number;
+}
+```
+
+### Type
+
+```typescript
+type Person = {
+  name: string;
+  age: number;
+};
+```
+
+## 2. 확장성
+
+### Interface
+
+인터페이스는 `extends` 키워드를 사용하여 확장할 수 있습니다:
+
+```typescript
+interface Animal {
+  name: string;
+}
+
+interface Cat extends Animal {
+  meow(): void;
+}
+```
+
+### Type
+
+타입은 인터섹션을 사용하여 확장과 유사한 동작을 할 수 있습니다:
+
+```typescript
+type Animal = {
+  name: string;
+};
+
+type Cat = Animal & {
+  meow(): void;
+};
+```
+
+## 3. 선언 병합
+
+### Interface
+
+인터페이스는 동일한 이름으로 여러 번 선언할 수 있으며, 이들은 자동으로 병합됩니다:
+
+```typescript
+interface Car {
+  brand: string;
+}
+
+interface Car {
+  model: string;
+}
+
+// 결과: Car는 brand와 model 두 속성을 가집니다.
+```
+
+### Type
+
+타입은 재선언할 수 없습니다:
+
+```typescript
+type Car = {
+  brand: string;
+};
+
+// 오류: 중복된 식별자 'Car'
+type Car = {
+  model: string;
+};
+```
+
+## 4. 계산된 속성
+
+### Type
+
+타입은 매핑된 타입과 같은 고급 타입 기능을 사용할 수 있습니다:
+
+```typescript
+type Keys = "firstName" | "lastName";
+type DuplicateString<T extends string> = { [K in T]: string };
+
+type NameFields = DuplicateString<Keys>;
+// 결과: { firstName: string; lastName: string; }
+```
+
+### Interface
+
+인터페이스는 이러한 종류의 타입 조작을 직접 지원하지 않습니다.
+
+## 5. 유니온 타입
+
+### Type
+
+타입은 유니온 타입을 직접 정의할 수 있습니다:
+
+```typescript
+type Status = "pending" | "approved" | "rejected";
+```
+
+### Interface
+
+인터페이스는 유니온 타입을 직접 정의할 수 없습니다. 대신 타입을 사용해야 합니다.
+
+## 6. 튜플과 배열
+
+### Type
+
+타입은 튜플을 쉽게 정의할 수 있습니다:
+
+```typescript
+type Point = [number, number];
+```
+
+### Interface
+
+인터페이스로도 튜플과 유사한 구조를 정의할 수 있지만, 타입만큼 간결하지 않습니다:
+
+```typescript
+interface Point {
+  0: number;
+  1: number;
+  length: 2;
+}
+```
+
+## 결론
+
+- `interface`는 객체의 구조를 정의하는 데 주로 사용되며, 확장성과 선언 병합이 필요한 경우에 적합합니다.
+- `type`은 더 다양한 타입 정의에 사용될 수 있으며, 유니온 타입, 교차 타입, 기본 타입 등을 정의하는 데 유용합니다.
+
+일반적으로, 객체의 구조를 정의할 때는 `interface`를 사용하고, 그 외의 경우(유니온 타입, 기본 타입의 별칭 등)에는 `type`을 사용하는 것이 관례입니다. 하지만 최근 TypeScript 버전에서는 두 구문의 기능이 많이 겹치므로, 프로젝트의 일관성과 팀의 선호도에 따라 선택하면 됩니다.
