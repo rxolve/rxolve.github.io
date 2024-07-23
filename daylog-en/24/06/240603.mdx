@@ -1,32 +1,60 @@
 ---
-title: "Testing Recurring Payments"
+title: "Parsing String Responses in NestJS"
 date: "240603"
-tags: ["Payment"]
+tags: ["NestJS"]
 ---
 
-- I'm connecting to a payment API called [PayApp](https://payapp.kr/dev_center/dev_center01.html) to test recurring payments.
-- The API endpoint is HTML and the example code is in PHP. This made me feel it was unusual.
-- The response is also given as a string, not JSON. We need to parse it carefully to use it.
+I'm integrating the payment API from [PayApp](https://payapp.kr/dev_center/dev_center01.html) for recurring payments in NestJS.
+
+I realized that it's different from recent B2B services, as the endpoint is HTML and the example code is in PHP.
+
+The response is also provided as a string, not JSON. It needs to be parsed appropriately for use.
+
+- Request
 
 ```typescript
-// The endpoint is HTML, so we need to send data as form data.
-const form = new FormData();
-form.append("cmd", "rebillRegist");
-// ...add more data to send
-const payappRes = await axios.post(`{PayApp API HOST}`, form);
+async function sendPayAppRequest() {
+  const form = new FormData();
+  form.append("cmd", "rebillRegist");
+  // Add other necessary data
 
-// Parse the PayApp response
-const payAppResponse = new PayAppResponse();
-payappRes.data.split("&").forEach((slice: string) => {
-  const [key, value] = slice.split("=");
-  payAppResponse[key] = value;
-});
-
-if (payAppResponse.state !== "1") {
-  //...handle failure
+  const payAppResRaw = await axios.post(`{PayApp API HOST}`, form);
+  return payAppResRaw.data;
 }
-
-// ...handle success
 ```
 
-- It feels like making friends with someone who is older and tougher.
+- Parsing
+
+```typescript
+class PayAppResponse {
+  [key: string]: string;
+}
+
+function parsePayAppResponse(rawResponse: string): PayAppResponse {
+  const payAppRes = new PayAppResponse();
+  rawResponse.split("&").forEach((slice: string) => {
+    const [key, value] = slice.split("=");
+    payAppRes[key] = value;
+  });
+  return payAppRes;
+}
+```
+
+- Handling
+
+```typescript
+async function handlePayAppResponse() {
+  const rawResponse = await sendPayAppRequest();
+  const payAppRes = parsePayAppResponse(rawResponse);
+
+  if (payAppRes.state !== "1") {
+    // Handle failure
+    throw new Error("Payment request failed");
+  }
+
+  // Handle success
+  return payAppRes;
+}
+```
+
+- It feels like making a new friend who's older and tougher.
