@@ -1,0 +1,38 @@
+---
+title: "Tidy First? 16. Separating Code Cleanup"
+date: "240715"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- Where should we perform code cleanup?
+- Here's one unsightly scenario that keeps repeating:
+  - I include my code cleanup along with behavioral changes in my code.
+  - Reviewers complain that my PR is too long.
+  - I separate my cleanup changes into a separate PR, either before or after the behavioral change PR.
+  - Reviewers complain about the cleanup-only PR, saying they don't understand its purpose.
+  - Back to step 1.
+- If we do code cleanup, it has to be handled somewhere. So where should we do it?
+- Create separate PRs for code cleanup, and try to include only a few cleanups per PR.
+- Even if there's just one cleanup, make it a separate PR.
+- Similarly, create separate PRs for behavioral changes.
+- Each time you switch between cleanup and behavioral changes, you should open a new PR.
+  > B / SS / B / SSS / BB / S
+  - B: Behavioral change PR
+  - S: Code cleanup PR
+- Small PRs are usually welcomed as they reduce review time.
+  - Being able to review code quickly can motivate you to create even smaller PRs.
+  - The clearer the focus, the more a PR encourages faster review.
+- Once you become:
+  - familiar with code cleanup,
+  - accustomed to working in small units,
+  - and comfortable working absolutely safely,
+    try to be brave and attempt not to review cleanup PRs separately.
+- This will further reduce waiting times, encouraging you to create even smaller PRs.
+
+> Today's lesson: Break PRs into smaller pieces!
