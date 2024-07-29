@@ -68,6 +68,54 @@ const Algorithms = () => {
     return array;
   };
 
+  const row = 1000;
+  const col = 1000;
+  const testArrayInit = () => {
+    const start = performance.now();
+    const arr: Array<number[]> = [];
+    for (let i = 0; i < row; i++) {
+      arr.push([]);
+      for (let j = 0; j < col; j++) {
+        arr[i].push(0);
+      }
+    }
+    const end = performance.now();
+
+    return end - start;
+  };
+
+  const testArrayFrom = () => {
+    const start = performance.now();
+    const arr: Array<number[]> = Array.from({ length: row }, () =>
+      Array.from({ length: col }, () => 0)
+    );
+    const end = performance.now();
+
+    return end - start;
+  };
+
+  const testArrayReuse = () => {
+    const start = performance.now();
+    const colArray = Array.from({ length: col }, () => 0);
+    const arr: Array<number[]> = Array.from({ length: row }, () => [
+      ...colArray,
+    ]);
+    const end = performance.now();
+
+    return end - start;
+  };
+
+  const testTypedArray = () => {
+    const start = performance.now();
+    const arr: Array<Float64Array> = Array.from(
+      { length: row },
+      () => new Float64Array(col)
+    );
+    const end = performance.now();
+
+    return end - start;
+  };
+
   return (
     <div>
       <h1>Algorithms</h1>
@@ -77,6 +125,23 @@ const Algorithms = () => {
       </p>
       <p>
         <strong>Output:</strong> {timSort(input).join(", ")}
+      </p>
+      <h2>Test Array Init</h2>
+      <p>
+        <strong>testArrayInit:</strong> {testArrayInit()}ms
+      </p>
+      <h2>Test Array From</h2>
+      <p>
+        <strong>testArrayFrom:</strong> {testArrayFrom()}ms
+      </p>
+      <h2>Test Array Reuse</h2>
+      <p>
+        <strong>testArrayReuse:</strong> {testArrayReuse()}ms
+      </p>
+
+      <h2>Test Typed Array</h2>
+      <p>
+        <strong>testTypedArray:</strong> {testTypedArray()}ms
       </p>
     </div>
   );
