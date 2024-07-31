@@ -1,0 +1,82 @@
+---
+title: "Lambda Calculus: The Theoretical Origin of Closures"
+date: "240731"
+tags: ["JavaScript", "FP"]
+---
+
+Closures were not invented by JavaScript.
+
+Closures are a feature in programming languages based on ideas from lambda calculus.
+
+In this post, we'll look at how lambda calculus and JavaScript closures are connected.
+
+## Functions in Lambda Calculus
+
+Lambda calculus explains how to define and use functions with very simple rules. In lambda calculus, a function looks like this:
+
+```mathematica
+λx.E
+```
+
+Here, λ means lambda, x is the input, and E is what the function does (the body). This function takes x and calculates E.
+
+## What Closures Are
+
+A closure is a function plus the environment where it was defined.
+
+Closures remember the environment where they were created and use it when they're called.
+
+#### An Inner Function Using an Outer Function's Variables
+
+```javascript
+function outerFunction() {
+  let outerVariable = "I am from outer scope";
+
+  function innerFunction() {
+    console.log(outerVariable);
+  }
+
+  return innerFunction;
+}
+
+const myClosure = outerFunction();
+myClosure(); // 'I am from outer scope'
+```
+
+Here, innerFunction remembers outerFunction's environment, so it can use outerVariable.
+
+## How Lambda Calculus and Closures Are Related
+
+The rules for defining and using functions in lambda calculus are the basis for closures.
+
+- Lambda Calculus: Functions include their environment without saying so. For example, in λx.E, E is calculated in an environment that includes x.
+- Closures: Functions clearly save the environment where they were defined, so they can use it when called.
+
+#### Examples
+
+- Lambda Calculus
+  ```mathematica
+  (λx.λy.x + y) 5 2
+  ```
+- Closure
+
+  ```javascript
+  function makeAdder(x) {
+    return function (y) {
+      return x + y;
+    };
+  }
+
+  const add5 = makeAdder(5);
+  console.log(add5(2)); // 7
+  ```
+
+  Here, makeAdder(5) captures x as 5 and makes a closure. The returned function takes y as input and calculates x + y.
+
+## Ending Thoughts
+
+Closures came from the idea in lambda calculus of including the environment when defining functions.
+
+Lambda calculus gives a math model for functions, while closures show how to use this idea in real programming languages.
+
+Understanding this helps explain how functions and environments work together in functional programming languages.
