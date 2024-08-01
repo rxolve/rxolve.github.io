@@ -1,0 +1,122 @@
+---
+title: "Shallow Copy and Deep Copy, and Structural Sharing"
+date: "240801"
+tags: ["JavaScript"]
+---
+
+## Why Did My Array Change?
+
+In JavaScript, we might sometimes see a problem with shallow copy and deep copy. Let's learn about them!
+
+## Shallow Copy: Simple but Risky
+
+A shallow copy makes a new object, but it only copies the addresses of the things inside the original object.
+
+This means if you change something deep inside the copy, it changes in the original too!
+
+You can make a shallow copy using `Object.assign()` or the spread operator (`...`).
+
+```javascript
+const original = { name: "John", skills: ["JavaScript", "React"] };
+const shallowCopy = { ...original };
+
+shallowCopy.name = "Jane";
+shallowCopy.skills.push("Node.js");
+
+console.log(original); // { name: 'John', skills: ['JavaScript', 'React', 'Node.js'] }
+console.log(shallowCopy); // { name: 'Jane', skills: ['JavaScript', 'React', 'Node.js'] }
+```
+
+See how the `skills` array changed in both? This can save memory, but it can also cause unexpected problems.
+
+## Deep Copy: Safe but Costly
+
+A deep copy makes a completely new object, copying everything inside, even other objects.
+
+This way, changing the copy doesn't affect the original at all.
+
+The easiest way to do this is with `JSON.parse(JSON.stringify(obj))`. But be careful, this method has some tricks.
+
+```javascript
+const original = {
+  sayHi: () => console.log("Hello"),
+  symbol: Symbol("foo"),
+  nothing: undefined,
+  today: new Date(),
+};
+
+const deepCopy = JSON.parse(JSON.stringify(original));
+
+console.log(deepCopy);
+// { today: "2023-08-01T12:34:56.789Z" }
+// sayHi, symbol, and nothing are all gone!
+```
+
+This method ignores functions, symbols, and undefined values, and changes dates to strings. This can cause surprises!
+
+## Which is Faster?
+
+If your program needs to be super fast, choosing the right copy method is important.
+
+Usually, shallow copy is much faster. The difference can be bigger for larger and more complex objects.
+
+## Structural Sharing: A Smart Way
+
+Some smart programs use a method called structural sharing. It only makes new copies of the parts that change and keeps the rest the same.
+
+```javascript
+function updateNestedObject(obj, path, value) {
+  if (path.length === 1) {
+    return { ...obj, [path[0]]: value };
+  }
+  return {
+    ...obj,
+    [path[0]]: updateNestedObject(obj[path[0]], path.slice(1), value),
+  };
+}
+
+const original = { a: { b: { c: 1, d: 2 }, e: 3 }, f: 4 };
+const updated = updateNestedObject(original, ["a", "b", "c"], 5);
+
+console.log(original.a.b.c); // 1
+console.log(updated.a.b.c); // 5
+console.log(original.a === updated.a); // false
+console.log(original.a.b === updated.a.b); // false
+console.log(original.f === updated.f); // true
+```
+
+This way, we get the safety of a deep copy and the speed of a shallow copy!
+
+Here's what it looks like inside:
+
+```json
+original: {
+  a: {
+    b: { c: 1, d: 2 },
+    e: 3
+  },
+  f: 4
+}
+
+updated: {
+  a: {
+    b: { c: 5, d: 2 },  // New object
+    e: 3
+  },
+  f: 4
+}
+```
+
+- `updated.a.b` is a new object.
+- `updated.a` is also a new object.
+- But `updated.f` and `updated.a.e` are the same as in `original`.
+
+## Wrapping Up
+
+Copying in JavaScript might look simple, but there's a lot to think about!
+
+Sometimes a shallow copy is enough, sometimes you need a deep copy.
+
+And if you need your program to be fast, you might want to use structural sharing.
+
+Next time, we'll learn about using something called a proxy to make deep copies more efficiently.
