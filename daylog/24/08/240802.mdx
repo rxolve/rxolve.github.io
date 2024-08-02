@@ -1,0 +1,93 @@
+---
+title: "트리를 만들 때 필요한 것들"
+date: "240802"
+tags: ["Algorithm"]
+---
+
+어느날 갑자기 트리를 만들라는 질문을 받는다면 무척 당황스러울 것입니다.
+
+그런 날을 대비해서 가장 간단한 트리인 이진 트리를 만들며, 개발에 필요한 기본기를 정리해봤습니다.
+
+## 이진 트리에 대한 아이디어
+
+1. 이진 트리는 노드들의 집합으로 구성됩니다.
+2. 가장 첫 값을 루트 노드로 설정합니다.
+3. 루트 노드보다 작은 값은 왼쪽 자식 노드로, 큰 값은 오른쪽 자식 노드로 재귀적으로 탐색해 삽입합니다.
+4. 중위 순회를 통해 이진 트리의 모든 노드를 방문할 수 있습니다.
+
+   > 중위 순회: 왼쪽 자식 -> 현재 노드 -> 오른쪽 자식
+   >
+   > [https://todaycode.tistory.com/87](https://todaycode.tistory.com/87)
+
+## 노드 클래스
+
+먼저 트리를 구성하는 노드를 정의해야 합니다.
+
+생성자에서 루트 노드의 값을 설정하고, 왼쪽, 오른쪽 자식 노드를 초기화합니다.
+
+```typescript
+// 노드 클래스 정의
+class Node {
+  value: number;
+  left: Node | null;
+  right: Node | null;
+
+  constructor(value: number) {
+    this.value = value;
+    this.left = null;
+    this.right = null;
+  }
+}
+```
+
+## 노드 삽입 함수
+
+```typescript
+// 새로운 노드를 이진 탐색 트리에 삽입하는 함수
+function insert(root: Node | null, key: number): Node {
+  // 트리가 비어 있으면 새로운 노드를 반환
+  if (!root) {
+    return new Node(key);
+  }
+
+  // 현재 노드의 값과 삽입할 값을 비교하여 좌우 자식으로 이동
+  if (key < root.value) {
+    root.left = insert(root.left, key);
+  } else {
+    root.right = insert(root.right, key);
+  }
+  return root;
+}
+```
+
+## 중위 순회 함수
+
+```typescript
+// 중위 순회를 통해 트리의 노드를 출력하는 함수
+function inorderTraversal(root: Node | null): void {
+  if (root) {
+    // 왼쪽 자식을 먼저 순회
+    inorderTraversal(root.left);
+    // 현재 노드의 값을 출력
+    console.log(root.value);
+    // 오른쪽 자식을 순회
+    inorderTraversal(root.right);
+  }
+}
+```
+
+## 사용 예시
+
+```typescript
+let root: Node | null = new Node(10);
+root = insert(root, 20);
+root = insert(root, 5);
+root = insert(root, 15);
+
+console.log("중위 순회 결과:");
+inorderTraversal(root); // 5, 10, 15, 20
+```
+
+트리는 자바스크립트에서 지원하는 자료구조가 아니기 때문에 직접 구현해야 합니다.
+
+가장 기본적인 트리를 만들어봤으니 앞으로 더 복잡한 구조의 트리를 만들어보겠습니다.
