@@ -1,0 +1,151 @@
+# 브레인퍽과 튜링 완전성: 8개의 명령어로 만드는 무한한 가능성의 세계
+
+안녕하세요, 코딩 열정 가득한 여러분! 오늘은 정말 특별한 여행을 떠나볼 거예요. 우리의 목적지는 '브레인퍽'이라는, 이름부터 흥미진진한 프로그래밍 언어의 세계입니다. 이 여행을 통해 우리는 단 8개의 명령어로 어떻게 '튜링 완전성'이라는 놀라운 특성을 달성할 수 있는지, 그리고 이것이 우리 프로그래머들에게 어떤 의미를 가지는지 탐험해볼 거예요. 자, 모험의 세계로 뛰어들 준비되셨나요?
+
+## 튜링 완전성: 컴퓨터 과학의 마법 같은 개념
+
+먼저, '튜링 완전성'이라는 멋진 개념에 대해 알아볼까요? 이름은 어렵게 들리지만, 사실 그 의미는 꽤 매력적답니다.
+
+1920년대, 앨런 튜링이라는 천재적인 수학자가 있었어요. 그는 "과연 모든 계산 문제를 해결할 수 있는 만능의 기계가 있을까?"라는 궁금증을 품었죠. 그래서 그는 '튜링 머신'이라는 이론적인 기계를 고안했어요. 이 가상의 기계는 테이프에 기록된 심볼들을 읽고 쓰면서, 미리 정해진 규칙에 따라 작동하는 아주 단순한 장치였죠.
+
+여기서 '튜링 완전성'이 등장합니다. 어떤 프로그래밍 언어나 시스템이 이론적으로 튜링 머신이 할 수 있는 모든 계산을 수행할 수 있다면, 우리는 그것을 '튜링 완전하다'고 말해요. 쉽게 말해, "이 언어로는 어떤 계산이든 할 수 있어!"라는 뜻이죠.
+
+놀라운 점은 뭘까요? 우리가 일상적으로 사용하는 대부분의 프로그래밍 언어들(Python, JavaScript, Java 등)이 모두 튜링 완전하다는 거예요. 그리고 오늘 우리가 살펴볼 브레인퍽도 마찬가지랍니다!
+
+## 브레인퍽: 미니멀리즘의 극치
+
+자, 이제 우리의 주인공 브레인퍽을 소개할 때가 왔어요. 1993년, Urban Müller라는 프로그래머가 재미 삼아 만든 이 언어는, "가장 작은 컴파일러를 만들어보자"는 도전에서 시작되었어요. 결과는? 단 8개의 명령어로 튜링 완전한 언어를 만들어냈다는 거죠. 정말 대단하지 않나요?
+
+### 브레인퍽의 8가지 마법 주문
+
+여러분, 이제 브레인퍽의 8가지 명령어를 배워볼 거예요. 마치 해리 포터의 마법 주문 같죠?
+
+1. `>` : "오른쪽으로 한 칸!" (포인터를 오른쪽으로 이동)
+2. `<` : "왼쪽으로 한 칸!" (포인터를 왼쪽으로 이동)
+3. `+` : "하나 올려!" (현재 셀의 값을 1 증가)
+4. `-` : "하나 내려!" (현재 셀의 값을 1 감소)
+5. `.` : "보여줘!" (현재 셀의 값을 출력)
+6. `,` : "말해봐!" (입력을 받아 현재 셀에 저장)
+7. `[` : "0 아니면 계속!" (현재 셀이 0이 아니면 계속 실행)
+8. `]` : "0이면 돌아가!" (현재 셀이 0이면 매칭되는 '[' 로 돌아감)
+
+이게 전부예요. 이 8개의 '마법 주문'으로 우리는 어떤 프로그램이든 만들 수 있답니다. 믿기 힘들죠?
+
+## TypeScript로 브레인퍽 해석기 만들기
+
+자, 이제 정말 재미있는 부분이에요. 우리가 평소에 쓰는 TypeScript로 이 신비한 브레인퍽을 해석하는 프로그램을 만들어볼 거예요. 마치 현대 언어로 고대 문자를 해석하는 것 같지 않나요?
+
+```typescript
+import * as fs from "fs";
+
+class BrainfuckInterpreter {
+  private code: string;
+  private bracketMap: Map<number, number>;
+  private cells: number[];
+  private codePtr: number;
+  private cellPtr: number;
+
+  constructor(code: string) {
+    this.code = code.replace(/[^><+\-.,\[\]]/g, "");
+    this.bracketMap = this.mapBrackets();
+    this.cells = [0];
+    this.codePtr = 0;
+    this.cellPtr = 0;
+  }
+
+  private mapBrackets(): Map<number, number> {
+    const map = new Map<number, number>();
+    const stack: number[] = [];
+    for (let i = 0; i < this.code.length; i++) {
+      if (this.code[i] === "[") {
+        stack.push(i);
+      } else if (this.code[i] === "]") {
+        const openBracket = stack.pop();
+        if (openBracket !== undefined) {
+          map.set(openBracket, i);
+          map.set(i, openBracket);
+        }
+      }
+    }
+    return map;
+  }
+
+  public interpret(inputFile: string, outputFile: string): void {
+    const input = fs.readFileSync(inputFile, "utf-8");
+    let inputPtr = 0;
+    let output = "";
+
+    while (this.codePtr < this.code.length) {
+      switch (this.code[this.codePtr]) {
+        case ">":
+          this.cellPtr++;
+          if (this.cellPtr === this.cells.length) {
+            this.cells.push(0);
+          }
+          break;
+        case "<":
+          this.cellPtr = Math.max(0, this.cellPtr - 1);
+          break;
+        case "+":
+          this.cells[this.cellPtr] = (this.cells[this.cellPtr] + 1) % 256;
+          break;
+        case "-":
+          this.cells[this.cellPtr] = (this.cells[this.cellPtr] - 1 + 256) % 256;
+          break;
+        case ".":
+          output += String.fromCharCode(this.cells[this.cellPtr]);
+          break;
+        case ",":
+          this.cells[this.cellPtr] = input.charCodeAt(inputPtr++) || 0;
+          break;
+        case "[":
+          if (this.cells[this.cellPtr] === 0) {
+            this.codePtr = this.bracketMap.get(this.codePtr) || this.codePtr;
+          }
+          break;
+        case "]":
+          if (this.cells[this.cellPtr] !== 0) {
+            this.codePtr = this.bracketMap.get(this.codePtr) || this.codePtr;
+          }
+          break;
+      }
+      this.codePtr++;
+    }
+
+    fs.writeFileSync(outputFile, output);
+  }
+}
+
+// 사용 예
+const helloWorld = `
+++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.
+`;
+const interpreter = new BrainfuckInterpreter(helloWorld);
+interpreter.interpret("input.txt", "output.txt");
+```
+
+와! 이 코드가 하는 일이 무엇인지 상상이 가나요? 이것이 바로 브레인퍽의 8가지 명령어를 해석해서 실행하는 프로그램이에요. 그리고 믿기 힘들겠지만, 이 코드로 "Hello, World!"를 출력할 수 있답니다!
+
+## 브레인퍽과 튜링 완전성이 우리에게 주는 교훈
+
+자, 이제 우리의 여행이 막바지에 접어들었어요. 브레인퍽과 튜링 완전성을 통해 우리가 배울 수 있는 교훈은 무엇일까요?
+
+1. **단순함의 힘**: 브레인퍽은 우리에게 "때론 적은 것이 많은 것"이라는 진리를 가르쳐줘요. 복잡한 문제도 단순한 도구들의 조합으로 해결할 수 있다는 거죠.
+
+2. **창의성의 중요성**: 제한된 도구로 무언가를 만들려면 엄청난 창의력이 필요해요. 이는 실제 프로그래밍에서도 마찬가지죠.
+
+3. **추상화의 가치**: 브레인퍽으로 복잡한 프로그램을 짜본다면, 우리가 평소에 사용하는 고수준 언어들이 얼마나 편리한지 깨달을 수 있어요.
+
+4. **컴퓨팅의 본질**: 브레인퍽은 컴퓨터가 어떻게 동작하는지, 그 근본 원리를 이해하는 데 도움을 줘요.
+
+5. **한계를 넘어서는 힘**: 튜링 완전성은 우리에게 "불가능은 없다"는 메시지를 전해줘요. 어떤 계산 문제든 해결할 수 있다는 거죠!
+
+## 마치며
+
+여러분, 오늘 우리는 브레인퍽이라는 작은 언어를 통해 컴퓨터 과학의 거대한 개념인 튜링 완전성을 탐험해봤어요. 이 여행이 여러분에게 프로그래밍의 무한한 가능성과 아름다움을 보여주었기를 바라요.
+
+다음에 여러분이 복잡한 문제에 부딪혔을 때, 이렇게 생각해보는 건 어떨까요? "이걸 브레인퍽으로 어떻게 풀 수 있을까?" 물론 실제로 그렇게 하진 마세요! 하지만 이런 사고 실험만으로도 문제를 새로운 시각에서 바라볼 수 있을 거예요.
+
+여러분은 어떻게 생각하나요? 이 TypeScript 코드를 더 재미있게 만들 수 있을까요? 아니면 브레인퍽의 철학을 우리 일상 코딩에 적용할 방법이 있을까요? 댓글로 여러분의 창의적인 아이디어를 들려주세요!
+
+자, 이제 충분히 두뇌를 굴렸으니, 맛있는 것도 먹고 휴식도 취할 시간이에요. 여러분의 코딩 여정에 항상 즐거움과 호기심이 가득하기를 바랄게요. 해피 코딩! 😄
