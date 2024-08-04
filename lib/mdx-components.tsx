@@ -1,4 +1,5 @@
 import CodeBlock from "../app/ui/code-block";
+import Mermaid from "@/app/ui/mermaid";
 
 export const mdxComponents = {
   code({ node, inline, className, children, ...props }: any) {
@@ -15,4 +16,5 @@ export const mdxComponents = {
       </code>
     );
   },
+  Mermaid,
 };
