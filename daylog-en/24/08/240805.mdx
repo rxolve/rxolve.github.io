@@ -1,0 +1,81 @@
+---
+title: "Tidy First? 17. Chaining"
+date: "240805"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- Tidying code is like eating potato chips. When you eat one, you want to eat another right away.
+  - So, managing the urge to keep tidying code is also a key skill in code tidying.
+- The author suggests sticking to and trying out a way of tidying code in very small steps.
+  - Optimize each step.
+- Now code tidying becomes a kind of chess game, where you can see the next move.
+
+#### Guard Clauses
+
+- You get the benefit of helping to reveal explanatory helpers or extract explanatory variables.
+
+#### Dead Code
+
+- You'll see ways to arrange code in the order it's read and placements that increase cohesion.
+
+#### Normalize Symmetries
+
+- You can read very similar pieces of code in the order they're grouped.
+
+#### New Interface, Old Implementation
+
+- When you tidy one thing, it leads to a bunch of tidying, and then each of those leads to another bunch.
+  - We'll look at this more when we talk about coupling and power laws.
+
+#### Reading Order
+
+- Opportunities to match symmetry may arise.
+
+#### Cohesion Order
+
+- Elements grouped together become candidates for extraction as sub-elements.
+
+#### Explanatory Variables
+
+- Thanks to the explanation you can know from variable names, you can delete unnecessary comments.
+
+#### Explanatory Constants
+
+- Leads to cohesion-increasing arrangements. If you group constants that change at once, it's good for changing later.
+
+#### Explicit Parameters
+
+- You can group parameter sets into objects and move code.
+
+#### Chunk Statements
+
+- You can attach explanatory comments in front of code chunks. You can also change them to explanatory helpers.
+
+#### Extract Helper
+
+- You can introduce guard clauses, extract explanatory constants or variables, and delete unnecessary comments.
+
+#### One Pile
+
+- You can expect methods like arranging similar code together, organizing explanatory comments, and extracting helpers.
+
+#### Explanatory Comments
+
+- If possible with the introduction of explanatory variables, constants, helpers, and such, move information in comments to code.
+
+#### Delete Redundant Comments
+
+- It helps improve reading order, and opportunities to use explicit parameters come up.
+
+### Conclusion
+
+- Be careful not to change too much, too quickly.
+- Usually, succeeding with small tidying in sequence saves more time than failing with excessive tidying.
+
+> This was a chapter summarizing Part 1. I feel regretful that I may have hastily summarized the book's excellent sentences. I recommend reading the original book.
