@@ -2,7 +2,7 @@
 
 [data-theme="light"],
 :root:not([data-theme="dark"]) {
-  --pico-color: #964d4c;
+  --pico-color: #ca848a;
   --pico-primary: var(--pico-color);
 }
 
