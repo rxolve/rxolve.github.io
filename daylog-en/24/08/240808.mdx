@@ -1,0 +1,110 @@
+---
+title: "Mapped Type: The map function applied to types"
+date: "240808"
+tags: ["TypeScript"]
+---
+
+In TypeScript, when defining types, there are times when you need to modify or extend existing types.
+
+Mapped Types are a feature that allows us to create new types based on existing ones.
+
+This helps us apply the DRY (Don't Repeat Yourself) principle to the type system.
+
+## Basic of Mapped Types
+
+The basic structure of a Mapped Type is as follows:
+
+```typescript
+type MappedType<T> = {
+  [P in keyof T]: T[P];
+};
+```
+
+This structure iterates over all properties of the existing type `T` to create a new type.
+
+Like `Array.prototype.map`, Mapped Types can be thought of as applying a function to each property.
+
+## Example: Readonly and Partial
+
+The built-in `Readonly` and `Partial` utility types in TypeScript are good examples of Mapped Types.
+
+```typescript
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+};
+
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+};
+```
+
+These make all properties read-only or optional, respectively.
+
+## Combining with Conditional Types
+
+Mapped Types become more powerful when combined with Conditional Types.
+
+Conditional Types have the form `T extends U ? X : Y`, which chooses the type `X` or `Y` based on whether `T` extends `U`.
+
+```typescript
+type ConditionalMapped<T> = {
+  [K in keyof T]: T[K] extends Function ? K : never;
+}[keyof T];
+```
+
+This type extracts only the keys of properties in `T` that are functions.
+
+## Example: Creating API Response Types
+
+```typescript
+type ApiResponse<T> = {
+  [K in keyof T]: {
+    data: T[K];
+    loading: boolean;
+    error: Error | null;
+  };
+};
+
+interface UserData {
+  profile: { name: string; age: number };
+  posts: { title: string; content: string }[];
+}
+
+type UserApiResponse = ApiResponse<UserData>;
+
+// UserApiResponse expands to:
+// {
+//   profile: {
+//     data: { name: string; age: number }
+//     loading: boolean
+//     error: Error | null
+//   }
+//   posts: {
+//     data: { title: string; content: string }[]
+//     loading: boolean
+//     error: Error | null
+//   }
+// }
+```
+
+Using this pattern allows you to manage API response types consistently and flexibly.
+
+## Performance Considerations
+
+While Mapped Types are powerful, they can affect the performance of the TypeScript compiler when dealing with complex types.
+
+This is especially true with deep nesting or when combined with complex Conditional Types.
+
+```typescript
+type DeepMapped<T> = {
+  [K in keyof T]: T[K] extends object ? DeepMapped<T[K]> : T[K];
+};
+```
+
+Such recursive mappings can significantly increase compile times when applied to large objects.
+
+## Conclusion
+
+Mapped Types make the TypeScript type system more expressive and flexible.
+
+They help reduce repetition, increase type safety, and clearly express complex type relationships.
