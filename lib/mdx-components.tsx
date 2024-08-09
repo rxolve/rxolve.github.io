@@ -1,5 +1,6 @@
 import CodeBlock from "../app/ui/code-block";
-import Mermaid from "@/app/ui/mermaid";
+import dynamic from "next/dynamic";
+const Mermaid = dynamic(() => import("@/app/ui/mermaid"), { ssr: false });
 
 export const mdxComponents = {
   code({ node, inline, className, children, ...props }: any) {
