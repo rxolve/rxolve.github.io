@@ -1,0 +1,96 @@
+---
+title: "Fixing Hydration Errors with Dynamic Imports"
+date: "240809"
+tags: ["Next.js"]
+---
+
+Recently, I added Mermaid to MDX to draw a tree. But after refreshing the page, I encountered a Hydration error.
+
+```
+Text content did not match. Server: "" Client: "
+    graph TD
+      A[10] --> B[4]
+      A --> C[17]
+      C --> D[11]
+      C --> E[20]
+  "
+```
+
+That infamous error that you might encounter at least once while developing with Next.js has finally found its way to me.
+
+> [https://nextjs.org/docs/messages/react-hydration-error](https://nextjs.org/docs/messages/react-hydration-error)
+
+## What is a Hydration Error?
+
+A Hydration error occurs when the HTML rendered on the server does not match the component tree rendered on the client.
+
+## Why Hydration Errors Happen
+
+Hydration is the process of connecting the HTML rendered on the server with JavaScript on the client.
+
+If the content on the server doesn't match the content on the client, the error occurs.
+
+## How to Prevent Hydration Errors
+
+#### 1. Using `useEffect`
+
+Place code that should only run on the client inside the `useEffect` hook.
+
+```tsx
+import { useEffect, useState } from "react";
+
+const Component = () => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // Code that runs only on the client
+    fetchData().then(setData);
+  }, []);
+
+  if (!data) return null;
+
+  return <div>{data}</div>;
+};
+```
+
+#### 2. Using Dynamic Imports
+
+Dynamic imports can be used to prevent pre-rendering.
+
+```tsx
+import dynamic from "next/dynamic";
+
+const ClientOnlyComponent = dynamic(() => import("./ClientOnlyComponent"), {
+  ssr: false,
+});
+```
+
+#### 3. Using `suppressHydrationWarning`
+
+The `suppressHydrationWarning` attribute can be used to suppress hydration warnings.
+
+This is useful in cases where the server and client values are expected to differ, like timestamps.
+
+```tsx
+<time datetime="2016-10-25" suppressHydrationWarning />
+```
+
+#### 4. Environment Variable Prefix
+
+Since environment variables can differ between the server and client, use the `NEXT_PUBLIC_` prefix to clearly distinguish environment variables accessible on the client.
+
+## Fixing the Issue with Dynamic Imports
+
+I resolved the issue by using dynamic imports when adding Mermaid to the MDXRemote component.
+
+```tsx
+// lib/mdx-components.tsx
+// import Mermaid from "@/app/ui/mermaid";
+import dynamic from "next/dynamic";
+const Mermaid = dynamic(() => import("@/app/ui/mermaid"), { ssr: false });
+
+export const mdxComponents = {
+  // ... existing components,
+  Mermaid,
+};
+```
