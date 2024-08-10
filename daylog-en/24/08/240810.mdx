@@ -4,40 +4,40 @@ date: "240810"
 tags: ["TidyFirst"]
 ---
 
-How big should code clean-up be before we join and send it out?
+Before integration and deployment, what is the appropriate size for code tidying?
 
-When we do more code clean-up at once, these costs happen:
-
----
-
-#### Clashes
-
-The more code clean-up we do at once, the longer it takes to join, and the more likely our clean-up work will clash with other people's ongoing work.
-
-#### Working Together
-
-When we do many clean-ups at once, we might accidentally change how things work.
-
-#### Guessing
-
-The more clean-ups we do at once, the more code we naturally clean up. This leads to extra costs we didn't expect.
+When the batch size of code tidying increases, the following costs occur.
 
 ---
 
-Because of these things, we usually do fewer clean-ups at once before joining and sending out.
+#### Conflicts
 
-But **in many groups, the fixed cost of checking and sending out one change is quite high.**
+The more code tidying is done in a batch, the longer the delay in integration, and the greater the chance that the tidying will conflict with someone else's ongoing work.
 
-So what should we do?
+#### Interactions
 
-If you want to lower the use of clean-ups, **do more clean-ups to lower the cost of changing how things work.**
+Handling multiple code tidy-ups at once can accidentally lead to changes in behavior.
 
-This can lower the cost of checking.
+#### Guesswork
 
-You and your team need to find a good way to lower checking costs.
+The more code tidying done at once, the more code gets cleaned, which can lead to unexpected additional costs.
 
-If your team has trust and a strong culture, you might not need to check after clean-ups.
+---
 
-It takes at least a few months to reach a level of safety and trust where you don't need to check clean-ups.
+Due to these factors, it's usually better to reduce the number of code tidy-ups per batch before integrating and deploying.
 
-**Practice and try things out. Look at mistakes with your team.**
+However, in many organizations, the fixed cost of reviewing and deploying a single change is quite high.
+
+So, what should be done?
+
+If you want to reduce the use of code tidying, increase the batch size of tidying to lower the cost associated with changes in behavior.
+
+This will reduce the cost of reviews.
+
+You and your team need to find ways to properly reduce review costs.
+
+If there is trust and a strong culture within the team, there is no need to review after code tidying.
+
+It takes at least a few months to reach a level of safety and trust where code tidy-ups no longer need reviews.
+
+Practice, experiment, and review errors with your team.
