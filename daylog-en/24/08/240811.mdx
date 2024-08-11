@@ -1,0 +1,129 @@
+---
+title: "Implementing Efficient Deep Copy Using Proxy"
+date: "240811"
+tags: ["JavaScript"]
+---
+
+In this post, I'll discuss how to implement an efficient deep copy in JavaScript using Proxy.
+
+This technique is useful in terms of performance optimization and memory efficiency.
+
+## Proxy Object
+
+First, let's briefly look at the Proxy object.
+
+A Proxy is a feature introduced in ES6 that allows you to redefine the default behavior (like property access, assignment, iteration, etc.) of an object with user-defined operations.
+
+The basic structure of a Proxy object is as follows:
+
+```javascript
+const proxy = new Proxy(target, handler);
+```
+
+Here:
+
+- `target` is the original object you want to proxy.
+- `handler` is an object that defines traps. Traps are methods that intercept and redefine various operations on the object.
+
+For example, let's create a simple proxy that logs property access on an object.
+
+```javascript
+const target = { name: "rxolve", age: 39 };
+const handler = {
+  get: function (obj, prop) {
+    console.log(`Accessing property: ${prop}`);
+    return obj[prop];
+  },
+};
+
+const proxy = new Proxy(target, handler);
+
+console.log(proxy.name);
+// Logs: Accessing property: name
+// Output: rxolve
+```
+
+In this example, the `get` trap is called whenever a property of the object is accessed, logging the name of the accessed property.
+
+## Lazy Cloning with Proxy
+
+Now, let's implement an efficient deep copy using Proxy.
+
+This method leverages the concept of "lazy evaluation," where copying is delayed until the property is actually accessed.
+
+```javascript
+function lazyDeepClone(obj) {
+  if (typeof obj !== "object" || obj === null) return obj;
+
+  return new Proxy(obj, {
+    get(target, prop) {
+      if (typeof target[prop] === "object" && target[prop] !== null) {
+        return lazyDeepClone(target[prop]);
+      }
+      return target[prop];
+    },
+    set(target, prop, value) {
+      if (target[prop] !== value) {
+        target[prop] = value;
+      }
+      return true;
+    },
+  });
+}
+```
+
+The key ideas in this implementation are:
+
+1. Copying is performed only when a property is accessed (`get` trap).
+2. If the property is an object, a new proxy is recursively created for that object.
+3. Primitive values are returned as is.
+4. When setting a value, the original object is modified (`set` trap).
+
+## Usage Example
+
+Let's look at an example of using the `lazyDeepClone` function.
+
+```javascript
+const original = {
+  name: "rxolve",
+  age: 39,
+  address: {
+    city: "Seoul",
+    country: "Korea",
+  },
+  hobbies: ["reading", "crossfit"],
+};
+
+const cloned = lazyDeepClone(original);
+
+console.log(cloned.name); // rxolve
+console.log(cloned.address.city); // Seoul
+
+cloned.address.city = "Los Angeles";
+console.log(original.address.city); // Seoul (original is unchanged)
+console.log(cloned.address.city); // Los Angeles
+
+cloned.hobbies.push("coding");
+console.log(original.hobbies); // ["reading", "crossfit"] (original is unchanged)
+console.log(cloned.hobbies); // ["reading", "crossfit", "coding"]
+```
+
+As shown in this example, changing properties of the cloned object does not affect the original object.
+
+This is an efficient way to maintain the deep copy characteristic, where copying only occurs when needed.
+
+## Considerations
+
+While lazy deep copying with Proxy is powerful, there are a few things to keep in mind:
+
+- **Reference Equality**: Since the original and cloned objects have different references, be careful when comparing them with the `===` operator.
+
+- **Performance Trade-off**: Every property access goes through a proxy, so in cases of frequent access, performance might actually decrease.
+
+- **Circular References**: This implementation does not handle circular references. You may need additional logic to manage this in real-world use.
+
+## Conclusion
+
+Lazy deep copying using Proxy is a very effective method when dealing with large objects.
+
+By optimizing memory usage and only copying when necessary, you can improve overall performance.
