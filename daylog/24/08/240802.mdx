@@ -27,10 +27,10 @@ tags: ["Algorithm"]
 
 ```typescript
 // 노드 클래스 정의
-class Node {
+class TreeNode {
   value: number;
-  left: Node | null;
-  right: Node | null;
+  left: TreeNode | null;
+  right: TreeNode | null;
 
   constructor(value: number) {
     this.value = value;
@@ -44,10 +44,10 @@ class Node {
 
 ```typescript
 // 새로운 노드를 이진 탐색 트리에 삽입하는 함수
-function insert(root: Node | null, key: number): Node {
+function insert(root: TreeNode | null, key: number): TreeNode {
   // 트리가 비어 있으면 새로운 노드를 반환
   if (!root) {
-    return new Node(key);
+    return new TreeNode(key);
   }
 
   // 현재 노드의 값과 삽입할 값을 비교하여 좌우 자식으로 이동
@@ -64,7 +64,7 @@ function insert(root: Node | null, key: number): Node {
 
 ```typescript
 // 중위 순회를 통해 트리의 노드를 출력하는 함수
-function inorderTraversal(root: Node | null): void {
+function inorderTraversal(root: TreeNode | null): void {
   if (root) {
     // 왼쪽 자식을 먼저 순회
     inorderTraversal(root.left);
@@ -79,7 +79,7 @@ function inorderTraversal(root: Node | null): void {
 ## 사용 예시
 
 ```typescript
-let root: Node | null = new Node(10);
+let root: TreeNode | null = new TreeNode(10);
 root = insert(root, 20);
 root = insert(root, 5);
 root = insert(root, 15);
