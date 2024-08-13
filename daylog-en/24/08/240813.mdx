@@ -1,0 +1,200 @@
+---
+title: "AVL Tree: Self-Balancing Binary Search Tree"
+date: "240813"
+tags: ["Algorithm"]
+---
+
+In the last post, we learned about the Balance Factor. Now, let's use it to implement an AVL tree.
+
+An AVL tree is a self-balancing binary search tree, where the height difference between the left and right subtrees of every node is kept at most 1.
+
+This ensures that the tree height remains logarithmic, guaranteeing a time complexity of O(log n) for search, insertion, and deletion operations.
+
+It was invented in 1962 by two Soviet computer scientists, and the tree is named AVL after the first letters of their last names, Adelson-Velsky and Landis.
+
+## Rotations in an AVL Tree
+
+When the balance of an AVL tree is disrupted, rotations are performed to readjust the structure of the tree.
+
+There are four basic types of rotations:
+
+1. Left Rotation (LL)
+2. Right Rotation (RR)
+3. Left-Right Rotation (LR)
+4. Right-Left Rotation (RL)
+
+#### 1. Left Rotation (LL)
+
+A left rotation is used when the right child causes the imbalance.
+
+```
+    A               B
+     \             / \
+      B    -->    A   C
+       \
+        C
+```
+
+#### 2. Right Rotation (RR)
+
+A right rotation is used when the left child causes the imbalance.
+
+```
+      C           B
+     /           / \
+    B    -->    A   C
+   /
+  A
+```
+
+#### 3. Left-Right Rotation (LR)
+
+A left-right rotation is used when the right subtree of the left child causes the imbalance.
+
+```
+    C           C           B
+   /           /           / \
+  A    -->    B    -->    A   C
+   \         /
+    B       A
+```
+
+#### 4. Right-Left Rotation (RL)
+
+A right-left rotation is used when the left subtree of the right child causes the imbalance.
+
+```
+  A           A           B
+   \           \         / \
+    C    -->    B  -->  A   C
+   /             \
+  B               C
+```
+
+## Implementing AVL Tree
+
+Now, let's implement the rotations for an AVL tree. Add the following functions to the existing code from the previous posts:
+
+- 240802 Things You Need to Make a Tree
+- 240812 Balance Factor: Balancing a Binary Tree
+
+```typescript
+// Right rotation function
+const rightRotate = (y: TreeNode): TreeNode => {
+  const x = y.left!; // y's left child
+  const T2 = x.right; // x's right subtree
+
+  // Perform rotation
+  x.right = y; // Make y the right child of x
+  y.left = T2; // Make T2 the left child of y
+
+  return x;
+};
+
+// Left rotation function
+const leftRotate = (x: TreeNode): TreeNode => {
+  const y = x.right!; // x's right child
+  const T2 = y.left; // y's left subtree
+
+  // Perform rotation
+  y.left = x; // Make x the left child of y
+  x.right = T2; // Make T2 the right child of x
+
+  return y;
+};
+
+// Function to balance a node
+const balanceNode = (node: TreeNode): TreeNode => {
+  const balanceFactor = getBalanceFactor(node);
+
+  // Left-Left case
+  if (balanceFactor > 1 && getBalanceFactor(node.left) >= 0) {
+    return rightRotate(node);
+  }
+
+  // Right-Right case
+  if (balanceFactor < -1 && getBalanceFactor(node.right) <= 0) {
+    return leftRotate(node);
+  }
+
+  // Left-Right case
+  if (balanceFactor > 1 && getBalanceFactor(node.left) < 0) {
+    node.left = leftRotate(node.left!);
+    return rightRotate(node);
+  }
+
+  // Right-Left case
+  if (balanceFactor < -1 && getBalanceFactor(node.right) > 0) {
+    node.right = rightRotate(node.right!);
+    return leftRotate(node);
+  }
+
+  return node;
+};
+
+// Function to insert a new node into the AVL tree
+const insertAVL = (root: TreeNode | null, key: number): TreeNode => {
+  // Perform the normal BST insertion
+  if (!root) {
+    return new TreeNode(key);
+  }
+
+  if (key < root.value) {
+    root.left = insertAVL(root.left, key);
+  } else if (key > root.value) {
+    root.right = insertAVL(root.right, key);
+  } else {
+    // Duplicate keys are not allowed
+    return root;
+  }
+
+  // Balance the node
+  return balanceNode(root);
+};
+```
+
+Now, let's create an AVL tree.
+
+```typescript
+let avlRoot: TreeNode | null = null;
+avlRoot = insertAVL(avlRoot, 10);
+avlRoot = insertAVL(avlRoot, 20);
+avlRoot = insertAVL(avlRoot, 30);
+avlRoot = insertAVL(avlRoot, 40);
+avlRoot = insertAVL(avlRoot, 50);
+avlRoot = insertAVL(avlRoot, 25);
+
+console.log("Inorder traversal of AVL Tree:");
+inorderTraversal(avlRoot);
+
+/*
+Inorder traversal of AVL Tree:
+10
+20
+25
+30
+40
+50
+*/
+
+console.log("\nAVL Tree Balance Factors:");
+printBalanceFactors(avlRoot);
+
+/*
+AVL Tree Balance Factors:
+Node Value: 10, Balance Factor: 0
+Node Value: 20, Balance Factor: 0
+Node Value: 25, Balance Factor: 0
+Node Value: 30, Balance Factor: 0
+Node Value: 40, Balance Factor: -1
+Node Value: 50, Balance Factor: 0
+*/
+```
+
+With this implementation, every node in the tree will always remain balanced.
+
+If the tree becomes unbalanced after an insertion operation, a rotation is performed based on the case to restore balance.
+
+Since AVL trees maintain balance, the time complexity for search, insertion, and deletion operations is always O(log n).
+
+This is more efficient compared to a regular binary search tree, which can have a worst-case time complexity of O(n).
