@@ -1,0 +1,106 @@
+---
+title: "어떻게 타입 이름이 never"
+date: "240819"
+tags: ["TypeScript"]
+---
+
+타입스크립트를 하다보면 가끔 `never` 타입을 만날 수 있습니다.
+
+타입이란 변수가 무엇인지 지정하는 역할을 하는데, `never` 라니요. 그래서 오늘 주제는 `never` 타입입니다.
+
+`never` 타입은 모든 타입의 하위 타입이지만, 그 어떤 값도 가질 수 없는 타입입니다. 즉, `never` 타입은 절대 발생하지 않는 값이나 상황을 표현할 때 사용됩니다.
+
+`never` 타입은 주로 코드의 논리적 오류를 잡거나, 함수가 결코 정상적으로 종료되지 않는다는 것을 명시하는 데 사용됩니다.
+
+```typescript
+function throwError(message: string): never {
+  throw new Error(message);
+}
+```
+
+위 예제에서 `throwError` 함수는 예외를 던지기 때문에 함수가 정상적으로 종료되지 않습니다. 이 경우 함수의 반환 타입은 `never`로 지정됩니다.
+
+#### **`never` 타입의 사용 사례**
+
+`never` 타입은 다양한 상황에서 유용하게 사용될 수 있습니다.
+
+1. **완전한 타입 체크**  
+   `never` 타입은 TypeScript의 `switch` 문에서 모든 가능한 케이스를 처리했는지 확인하는 데 사용될 수 있습니다. 예를 들어, 특정 타입의 모든 가능한 값을 처리하도록 보장할 수 있습니다.
+
+   ```typescript
+   type Shape = "circle" | "square";
+
+   function getArea(shape: Shape): number {
+     switch (shape) {
+       case "circle":
+         return Math.PI * 2; // 가정된 원의 면적 계산
+       case "square":
+         return 4; // 가정된 정사각형의 면적 계산
+       default:
+         const exhaustiveCheck: never = shape;
+         throw new Error(`Unhandled shape: ${exhaustiveCheck}`);
+     }
+   }
+   ```
+
+   위 코드에서 `default` 케이스는 절대 실행되지 않아야 하며, 만약 `Shape` 타입이 나중에 확장되어 새로운 형태가 추가되더라도 컴파일 타임에 타입 체크 에러가 발생하게 됩니다. 이는 코드 유지보수에 매우 유용한 패턴입니다.
+
+2. **유니온 타입에서의 불가능한 조건**  
+   `never` 타입은 조건부 타입에서 불가능한 상황을 필터링하는 데 사용될 수 있습니다. 예를 들어, 함수가 특정 타입을 받을 때마다 서로 다른 동작을 해야 한다면, `never`를 이용해 타입 안전성을 높일 수 있습니다.
+
+   ```typescript
+   type Action = { type: "start" } | { type: "stop" };
+
+   function handleAction(action: Action) {
+     if (action.type === "start") {
+       // 시작 로직
+     } else if (action.type === "stop") {
+       // 중지 로직
+     } else {
+       // TypeScript는 이 부분이 절대 실행되지 않을 것임을 인식
+       const _: never = action;
+     }
+   }
+   ```
+
+   여기서 `else` 블록은 절대 도달할 수 없으며, 이는 TypeScript가 `never` 타입으로 인식합니다. 이 패턴은 유니온 타입의 확장성을 보장하면서도, 모든 가능한 케이스를 처리하도록 코드를 강제할 수 있습니다.
+
+3. **디버깅과 코드 안정성 강화**  
+   복잡한 타입 시스템에서 `never` 타입을 활용하여 의도하지 않은 타입이 함수에 전달되지 않도록 할 수 있습니다. 이 패턴은 대규모 코드베이스에서 특히 유용하며, 예상치 못한 타입 에러를 사전에 방지하는 역할을 합니다.
+
+#### **`never` 타입과 함수의 협업**
+
+`never` 타입은 종종 함수에서 특정 상황을 처리하지 않을 것을 명확히 하기 위해 사용됩니다. 예를 들어, 리듀서(reducer) 함수에서 발생할 수 있는 모든 액션 타입을 처리하지 않을 경우, `never`를 통해 개발자가 이를 명시적으로 확인할 수 있습니다.
+
+```typescript
+type Action = { type: "increment" } | { type: "decrement" };
+
+function reducer(state: number, action: Action): number {
+  switch (action.type) {
+    case "increment":
+      return state + 1;
+    case "decrement":
+      return state - 1;
+    default:
+      // `never` 타입으로 인해 새로운 액션이 추가되면 타입 에러 발생
+      const _: never = action;
+      return state;
+  }
+}
+```
+
+이렇게 하면 새로운 액션 타입이 추가될 때마다 개발자는 리듀서에서 해당 케이스를 반드시 처리해야 함을 알 수 있으며, 그렇지 않으면 컴파일 타임 에러가 발생합니다.
+
+#### **고급 활용: 조건부 타입과의 결합**
+
+`never` 타입은 조건부 타입과 결합하여 더욱 정교한 타입 시스템을 구성할 수 있습니다. 예를 들어, 조건부 타입에서 특정 타입이 절대 발생하지 않도록 제한하는 데 사용될 수 있습니다.
+
+```typescript
+type ExcludeNever<T> = T extends never ? never : T;
+```
+
+이 타입은 유니온 타입에서 `never`를 제거하는 역할을 합니다. 만약 유니온 타입이 `never`로 축소된다면, 이 타입은 완전히 제거되어야 하는데, 이럴 때 `ExcludeNever`를 사용할 수 있습니다.
+
+#### **결론**
+
+TypeScript의 `never` 타입은 단순한 기본 타입처럼 보이지만, 이를 제대로 활용하면 코드의 안정성과 가독성을 크게 향상시킬 수 있습니다. 특히 시니어 개발자로서, `never` 타입을 사용하여 코드베이스에서 발생할 수 있는 오류를 사전에 방지하고, 복잡한 타입 로직을 보다 명확하게 표현할 수 있는 다양한 패턴을 익히는 것이 중요합니다.
