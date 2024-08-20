@@ -1,5 +1,200 @@
 ---
-title: "Reflect API"
-date: "240807"
+title: "자바스트립트에서 리플렉션"
+date: "240820"
 tags: ["JavaScript"]
 ---
+
+## 리플렉션: 프로그래밍의 메타 차원
+
+리플렉션은 프로그램이 자신의 구조와 동작을 검사하고 수정할 수 있는 능력입니다.
+
+이는 단순한 기능을 넘어 메타 프로그래밍으로 가는 새로운 차원을 열어줍니다.
+
+## 언어 간 리플렉션 비교
+
+각 언어마다 리플렉션 구현 방식이 다릅니다.
+
+obj 객체의 myMethod 메서드를 호출하는 코드입니다.
+
+인자로는 "argument"를 넘깁니다.
+
+#### Java
+
+```java
+Method method = MyClass.class.getMethod("myMethod", String.class);
+method.invoke(obj, "argument");
+```
+
+#### Python
+
+```python
+method = getattr(obj, "my_method")
+method("argument")
+```
+
+#### JavaScript (ES6+)
+
+```javascript
+Reflect.get(obj, "myMethod").apply(obj, ["argument"]);
+```
+
+#### C#
+
+```csharp
+var method = typeof(MyClass).GetMethod("MyMethod");
+method.Invoke(obj, new object[] { "argument" });
+```
+
+## 리플렉션 활용
+
+#### 동적 프록시 생성
+
+프록시 패턴을 리플렉션으로 구현하면 런타임에 객체의 동작을 수정할 수 있습니다.
+
+```javascript
+function createProxy(target, interceptor) {
+  return new Proxy(target, {
+    get(target, property, receiver) {
+      if (typeof target[property] === "function") {
+        return function (...args) {
+          interceptor(property, args);
+          return Reflect.apply(target[property], target, args);
+        };
+      }
+      return Reflect.get(target, property, receiver);
+    },
+  });
+}
+
+const obj = {
+  hello(name) {
+    console.log(`Hello, ${name}!`);
+  },
+};
+
+const proxiedObj = createProxy(obj, (method, args) => {
+  console.log(`Method ${method} called with args: ${args}`);
+});
+
+proxiedObj.hello("World");
+// 출력:
+// Method hello called with args: World
+// Hello, World!
+```
+
+#### 메타프로그래밍을 통한 DSL 구현
+
+리플렉션을 활용하여 도메인 특화 언어(DSL)를 구현할 수 있습니다.
+
+```javascript
+class Entity {
+  static fields = {};
+
+  static field(name, type) {
+    this.fields[name] = type;
+  }
+
+  static createTable() {
+    const fields = Object.entries(this.fields)
+      .map(([name, type]) => `${name} ${type}`)
+      .join(", ");
+    return `CREATE TABLE ${this.name} (${fields})`;
+  }
+}
+
+class User extends Entity {
+  static {
+    this.field("id", "INT PRIMARY KEY");
+    this.field("name", "VARCHAR(255)");
+    this.field("email", "VARCHAR(255)");
+  }
+}
+
+console.log(User.createTable());
+// 출력: CREATE TABLE User (id INT PRIMARY KEY, name VARCHAR(255), email VARCHAR(255))
+```
+
+#### 동적 모듈 로딩 및 핫 리로딩
+
+리플렉션을 사용하면 런타임에 모듈을 동적으로 로드하고 교체할 수 있습니다.
+
+```javascript
+class ModuleLoader {
+  static async load(moduleName) {
+    const module = await import(moduleName);
+    return new Proxy(module, {
+      get(target, prop, receiver) {
+        if (prop === "reload") {
+          return async () => {
+            const newModule = await import(`${moduleName}?t=${Date.now()}`);
+            Object.keys(target).forEach((key) => {
+              target[key] = newModule[key];
+            });
+          };
+        }
+        return Reflect.get(target, prop, receiver);
+      },
+    });
+  }
+}
+
+// 사용 예
+(async () => {
+  const myModule = await ModuleLoader.load("./myModule.js");
+  myModule.someFunction();
+
+  // 모듈 핫 리로딩
+  await myModule.reload();
+  myModule.someFunction(); // 업데이트된 함수 호출
+})();
+```
+
+## 리플렉션의 성능 고려사항
+
+리플렉션은 강력하지만 성능 오버헤드가 있습니다. 다음은 최적화 전략입니다.
+
+- 캐싱: 자주 사용되는 리플렉션 결과를 캐시합니다.
+- 지연 로딩: 필요한 시점에만 리플렉션을 수행합니다.
+- 배치 처리: 여러 리플렉션 작업을 한 번에 처리합니다.
+
+```javascript
+const methodCache = new Map();
+
+function invokeMethod(obj, methodName, ...args) {
+  if (!methodCache.has(obj.constructor)) {
+    methodCache.set(obj.constructor, new Map());
+  }
+  const classCache = methodCache.get(obj.constructor);
+
+  if (!classCache.has(methodName)) {
+    classCache.set(methodName, Reflect.get(obj, methodName));
+  }
+
+  return Reflect.apply(classCache.get(methodName), obj, args);
+}
+```
+
+## 리플렉션과 타입 시스템
+
+정적 타입 언어에서 리플렉션은 타입 시스템과 상호작용합니다. TypeScript를 예로 들어보겠습니다.
+
+```typescript
+function createInstance<T>(ctor: new () => T): T {
+  return new ctor();
+}
+
+class MyClass {
+  hello() {
+    console.log("Hello from MyClass");
+  }
+}
+
+const instance = createInstance(MyClass);
+instance.hello(); // TypeScript는 이 호출이 안전하다는 것을 알고 있습니다.
+```
+
+## 마치며
+
+개발자로서 리플렉션을 통해 얻을 수 있는 이점과 그에 따른 비용을 항상 고려해야 합니다.
+
+리플렉션은 프레임워크 개발, 플러그인 시스템 구현, 테스트 도구 제작 등에 특히 유용하며, 그 진가를 발휘합니다.
