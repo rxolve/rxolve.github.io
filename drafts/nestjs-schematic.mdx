@@ -1,0 +1,94 @@
+---
+title: "NestJS에서 커스텀 스키매틱 만들기"
+date: "240825"
+tags: ["JavaScript"]
+---
+
+개발을 하다 보면 반복적인 작업이 많아집니다. 새로운 컴포넌트를 생성하거나, 설정 파일을 수정하는 등의 작업이 반복될 때마다 효율성이 떨어지죠. 이런 작업을 자동화할 수 있는 강력한 도구가 바로 **스키매틱(Schematic)**입니다. NestJS에서도 이 도구를 활용해 개발 생산성을 높일 수 있습니다.
+
+## 스키매틱(Schematic)이란?
+
+스키매틱은 CLI(Command Line Interface)에서 특정 작업을 자동화하기 위한 템플릿 또는 스크립트입니다. Angular CLI에서 처음 도입된 개념으로, 코드 생성을 자동화하고 프로젝트 구조를 일관되게 유지하는 데 사용됩니다. 스키매틱을 통해 우리는 개발 시간을 절약하고, 실수를 줄이며, 코드베이스를 표준화할 수 있습니다.
+
+## NestJS에서 스키매틱을 활용해야 하는 이유
+
+NestJS는 모듈 기반의 백엔드 프레임워크로, Angular와 비슷한 구조를 가지고 있습니다. 따라서 Angular의 스키매틱 개념을 그대로 적용할 수 있습니다. 예를 들어, 새로운 모듈을 생성하거나, 기본 설정을 자동으로 추가하는 등의 작업을 스키매틱을 통해 자동화할 수 있습니다.
+
+### 사용자 정의 스키매틱을 사용하는 이유
+
+- **반복 작업 자동화**: 예를 들어, REST API 엔드포인트를 추가할 때마다 기본적인 컨트롤러, 서비스, DTO 등을 생성해야 합니다. 스키매틱을 사용하면 이 모든 과정을 단일 명령어로 자동화할 수 있습니다.
+- **코드 일관성 유지**: 프로젝트 규모가 커질수록 코드 스타일과 구조의 일관성이 중요해집니다. 스키매틱은 일관된 구조를 유지하는 데 도움을 줍니다.
+- **생산성 향상**: 개발자가 반복 작업에 소모하는 시간을 줄이고, 실제 로직 개발에 집중할 수 있게 됩니다.
+
+## NestJS에서 사용자 정의 스키매틱 만들기
+
+이제 NestJS에서 사용자 정의 스키매틱을 만들어보겠습니다.
+
+### 1. NestJS 프로젝트 생성
+
+먼저, 새로운 NestJS 프로젝트를 생성합니다.
+
+```bash
+npm install -g @nestjs/cli
+nest new my-nest-app
+cd my-nest-app
+```
+
+### 2. 스키매틱 패키지 생성
+
+이제 사용자 정의 스키매틱을 포함할 라이브러리 패키지를 생성합니다.
+
+```bash
+nest generate library my-schematics
+```
+
+이 명령어를 실행하면 `projects/my-schematics` 폴더가 생성됩니다.
+
+### 3. 스키매틱 구현
+
+스키매틱의 실제 동작을 구현하기 위해 `src/schematics/my-schematic/index.ts` 파일을 생성하고, 아래와 같이 코드를 작성합니다.
+
+```typescript
+import { Rule, SchematicContext, Tree } from "@angular-devkit/schematics";
+
+export function myCustomSchematic(_options: any): Rule {
+  return (tree: Tree, _context: SchematicContext) => {
+    // 여기서 원하는 파일 생성 또는 수정 작업을 수행합니다.
+    tree.create("/hello.txt", "Hello, NestJS Schematic!");
+    return tree;
+  };
+}
+```
+
+이 예제에서는 `/hello.txt` 파일을 생성하고, 그 안에 `"Hello, NestJS Schematic!"` 텍스트를 추가하는 간단한 스키매틱을 만들었습니다.
+
+### 4. 템플릿 파일 추가
+
+필요에 따라 `files` 폴더에 템플릿 파일을 추가할 수 있습니다. 예를 들어, 기본적인 모듈 구조를 포함한 파일들을 생성하는 스키매틱을 작성할 수 있습니다.
+
+```bash
+mkdir -p src/schematics/my-schematic/files
+```
+
+그리고 여기에 필요한 파일 템플릿을 추가합니다.
+
+### 5. 빌드 및 테스트
+
+스키매틱이 제대로 동작하는지 확인하기 위해 로컬에서 빌드하고 테스트합니다.
+
+```bash
+npm run build
+npm link
+```
+
+이제 다른 NestJS 프로젝트에서 이 스키매틱을 사용하여 파일을 생성하거나 수정할 수 있습니다.
+
+### 6. 스키매틱 실행
+
+다른 프로젝트에서 이 스키매틱을 사용하려면 다음 명령어를 실행합니다.
+
+```bash
+nest generate my-schematics:my-custom-schematic
+```
+
+이 명령어를 실행하면 `hello.txt` 파일이 생성되고, 지정된 내용이 파일에 추가됩니다.
