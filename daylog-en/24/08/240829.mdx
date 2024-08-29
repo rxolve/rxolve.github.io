@@ -1,0 +1,93 @@
+---
+title: "How is npx different from npm?"
+date: "240829"
+tags: ["Tool"]
+---
+
+I've been using npm for a long time, but at some point, npx showed up.
+
+I've been using it without even realizing it, so I decided to figure out the differences and when to use each tool.
+
+#### npm (Node Package Manager)
+
+npm is the default package manager for Node.js, and it's a tool for **managing** packages.
+
+It mainly does the following:
+
+- Manages dependencies
+- Installs packages (locally or globally)
+- Manages versions
+- Runs scripts
+
+The main feature of npm is managing project dependencies through the `package.json` file.
+
+This is important for ensuring consistency in your project.
+
+Let’s briefly see what happens when npm installs a package.
+
+1. Resolving dependencies: It analyzes the dependencies listed in `package.json`.
+2. Downloading packages: It downloads the required packages from the npm registry.
+3. Extracting and installing: It extracts and installs the downloaded packages into the `node_modules` directory.
+4. Linking binaries: If needed, it creates symbolic links to executable files in the `node_modules/.bin/` directory.
+
+#### npx (Node Package Execute)
+
+npx is a tool that comes built-in with npm starting from version 5.2.0, and it’s used to **execute** npm packages.
+
+It’s mainly used for:
+
+- Running commands from locally installed packages
+- Running one-off commands (without installing the package)
+- Running scripts with a specific version of Node.js
+- Directly running scripts from a GitHub gist or repository
+
+Here’s how npx executes a command:
+
+1. Command search: It first looks for the command in the local `node_modules/.bin/` directory.
+2. Cache check: If not found, it checks the npx cache for the command.
+3. Temporary installation: If still not found, it temporarily installs the package from the npm registry.
+4. Execution and cleanup: It runs the command and removes the temporarily installed package.
+
+npx is useful in CI/CD environments where you need to run tools without installing global packages.
+
+```yaml
+# Example in GitHub Actions
+steps:
+  - uses: actions/checkout@v2
+  - name: Use Node.js
+    uses: actions/setup-node@v2
+    with:
+      node-version: "14"
+  - run: npx prettier --check .
+```
+
+#### Version Management
+
+- npm uses version ranges in `package.json`, but npx always uses the latest version.
+
+```bash
+# Install a specific version with npm
+npm install cowsay@1.4.0
+
+# Run the latest version with npx
+npx cowsay "Hello"
+```
+
+#### Using Them Together
+
+- You can simplify complex tasks by combining npm scripts with npx.
+
+  ```json
+  {
+    "scripts": {
+      "build": "npm run clean && npx webpack && npm run test"
+      // ...
+    }
+  }
+  ```
+
+#### Summary
+
+npm is used to manage project dependencies and provide a consistent development environment.
+
+npx is useful for running one-time tasks or quickly executing tools with different versions.
