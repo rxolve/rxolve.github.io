@@ -1,0 +1,82 @@
+---
+title: "NextJS Snake #2: 뱀 그리기"
+date: "240831"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+지난번엔 그리드를 그려 게임판을 만들었습니다.
+
+이번에는 뱀을 만들어 볼 차례입니다.
+
+#### 아이디어
+
+뱀의 위치를 배열로 저장하고, 이 배열을 이용해 셀의 색을 바꾸는 것입니다.
+
+```typescript
+{Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
+  const x = index % GRID_SIZE;
+  const y = Math.floor(index / GRID_SIZE);
+  const isSnake = snake.some((pos) => pos[0] === x && pos[1] === y);
+
+  return (
+    <div
+      key={index}
+      style={{
+        width: `${CELL_SIZE}px`,
+        height: `${CELL_SIZE}px`,
+        backgroundColor: isSnake ? "blue" : "white",
+      }}
+    />
+  );
+})}
+```
+
+x 좌표를 구하는 데 나머지 연산자(%)를 사용하는 이유는 2차원 그리드를 1차원 배열로 표현할 때 효율적이고 간단한 방법이기 때문입니다.
+
+y 좌표를 구할 때는 동일한 이유로 나눗셈 연산자(/)를 사용합니다.
+
+아래 코드는 5x5 2차원 그리드를 1차원으로 매핑한 것입니다.
+
+```
+0  1  2  3  4
+5  6  7  8  9
+10 11 12 13 14
+15 16 17 18 19
+20 21 22 23 24
+```
+
+- index 7의 x 좌표: 7 % 5 = 2, y 좌표: 7 / 5 = 1
+- index 13의 x 좌표: 13 % 5 = 3, y 좌표: 13 / 5 = 2
+- index 20의 x 좌표: 20 % 5 = 0, y 좌표: 20 / 5 = 4
+
+몫은 y 좌표, 나머지는 x 좌표가 됩니다.
+
+#### 뱀 상태 관리
+
+여기서 사용되는 `snake` 상태와 타입을 정의해 보겠습니다.
+
+```typescript
+type Position = [number, number];
+
+const INITIAL_SNAKE: Position[] = [
+  [2, 2],
+  [2, 3],
+];
+
+const Snake: React.FC = () => {
+  const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
+  // ...
+};
+```
+
+Position 타입은 x, y 좌표를 나타내는 배열입니다.
+
+useState 훅을 사용해 `snake` 상태를 관리합니다.
+
+이러면 움직이지 않는 점 두개가 그리드에 나타납니다.
+
+그렇습니다. 오늘의 주인공 뱀입니다.
+
+다음 포스팅에는 이 뱀을 움직이게 만들어 생명력을 불어넣어 보겠습니다.
