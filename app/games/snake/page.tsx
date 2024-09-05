@@ -15,23 +15,23 @@ const INITIAL_SNAKE: Position[] = [
 const Snake: React.FC = () => {
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
 
-  // const moveSnake = useCallback(() => {
-  //   const newSnake = [...snake];
-  //   const head = newSnake[0];
-  //   const newHead: Position = [
-  //     (head[0] + 1 + GRID_SIZE) % GRID_SIZE,
-  //     (head[1] + 1 + GRID_SIZE) % GRID_SIZE,
-  //   ];
+  const moveSnake = useCallback(() => {
+    const newSnake = [...snake];
+    const head = newSnake[0];
+    const newHead: Position = [
+      (head[0] + 1 + GRID_SIZE) % GRID_SIZE,
+      (head[1] + 1 + GRID_SIZE) % GRID_SIZE,
+    ];
 
-  //   newSnake.pop();
-  //   newSnake.unshift(newHead);
-  //   setSnake(newSnake);
-  // }, [snake]);
+    newSnake.pop();
+    newSnake.unshift(newHead);
+    setSnake(newSnake);
+  }, [snake]);
 
-  // useEffect(() => {
-  //   const gameLoop = setInterval(moveSnake, 400);
-  //   return () => clearInterval(gameLoop);
-  // }, [moveSnake]);
+  useEffect(() => {
+    const gameLoop = setInterval(moveSnake, 500);
+    return () => clearInterval(gameLoop);
+  }, [moveSnake]);
 
   return (
     <main className="text-center">
