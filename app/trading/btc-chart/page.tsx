@@ -1,14 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import axios from "axios";
+import dayjs from "dayjs";
 
 interface PriceData {
   time: string;
@@ -21,14 +14,23 @@ const BtcChart = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          "https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1s&limit=60"
+        const response = await axios.get(
+          "https://api.binance.com/api/v3/klines",
+          {
+            params: {
+              symbol: "BTCUSDT",
+              interval: "1s",
+              limit: 10,
+            },
+          }
         );
-        const rawData: any[][] = await response.json();
+
+        const rawData: any[][] = response.data;
         const processedData: PriceData[] = rawData.map((d) => ({
-          time: new Date(d[0]).toLocaleTimeString(),
+          time: dayjs(d[0]).format("HH:mm:ss"),
           price: parseFloat(d[4]),
         }));
+
         setData(processedData);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -45,29 +47,12 @@ const BtcChart = () => {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Bitcoin Price</h1>
       <div className="w-full h-[400px]">
-        <p>{JSON.stringify(data)}</p>
-        {/* <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="time" />
-            <YAxis />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="price"
-              stroke="#8884d8"
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer> */}
+        {data.map((d) => (
+          <div key={d.time} className="flex justify-between">
+            <span>{d.time}</span>
+            <span>{d.price}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
