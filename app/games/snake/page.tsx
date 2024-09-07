@@ -11,16 +11,18 @@ const INITIAL_SNAKE: Position[] = [
   [2, 2],
   [2, 3],
 ];
+const INITIAL_DIRECTION: Position = [1, 0];
 
 const Snake: React.FC = () => {
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
+  const [direction, setDirection] = useState<Position>(INITIAL_DIRECTION);
 
   const moveSnake = useCallback(() => {
     const newSnake = [...snake];
     const head = newSnake[0];
     const newHead: Position = [
-      (head[0] + 1 + GRID_SIZE) % GRID_SIZE,
-      (head[1] + 1 + GRID_SIZE) % GRID_SIZE,
+      (head[0] + direction[0] + GRID_SIZE) % GRID_SIZE,
+      (head[1] + direction[1] + GRID_SIZE) % GRID_SIZE,
     ];
 
     newSnake.pop();
@@ -29,9 +31,34 @@ const Snake: React.FC = () => {
   }, [snake]);
 
   useEffect(() => {
-    const gameLoop = setInterval(moveSnake, 500);
+    const gameLoop = setInterval(moveSnake, 200);
     return () => clearInterval(gameLoop);
   }, [moveSnake]);
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowUp":
+          setDirection([0, -1]);
+          break;
+        case "ArrowDown":
+          setDirection([0, 1]);
+          break;
+        case "ArrowLeft":
+          setDirection([-1, 0]);
+          break;
+        case "ArrowRight":
+          setDirection([1, 0]);
+          break;
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
 
   return (
     <main className="text-center">
