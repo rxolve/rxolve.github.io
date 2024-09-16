@@ -1,5 +1,6 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { mdxComponents } from "@/lib/mdx-components";
+import { mdxOptions } from "@/lib/mdx-options";
 import { PostData } from "@/type/post.type";
 import TagButton from "./tag-button";
 
@@ -22,7 +23,14 @@ const ArticleList = ({ list, date }: ArticleListProps) => {
             <summary>
               {post.date} {post.title}
             </summary>
-            <MDXRemote source={post.content} components={mdxComponents} />
+            <MDXRemote
+              source={post.content}
+              components={mdxComponents}
+              options={{
+                parseFrontmatter: true,
+                mdxOptions: mdxOptions,
+              }}
+            />
             {post.tags &&
               post.tags.map((tag) => (
                 <TagButton key={tag} tagItem={{ tag, count: 0 }} />
