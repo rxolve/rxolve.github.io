@@ -1,0 +1,50 @@
+---
+title: "Tidy First? 26. Options"
+date: "240923"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+In the previous chapter, we explained the economic value of a software system as the sum of discounted future cash flows.
+
+Decades ago, the author was working on developing trading software on Wall Street and came across the concept of option pricing.
+
+Around the same time, the author was developing test-driven development (TDD) and was looking for practice topics.
+
+First, they implemented the existing option pricing formula in code.
+
+Through this process, the author gained an intuitive understanding of options, which started to influence their general thoughts on software design.
+
+- The question, "What functionality can I implement next?" has value even before you implement it. In most cases, we get paid for what we might do next.
+- The question becomes more valuable the more options you have for what to implement next. If you can increase the number of options, you’ve created value.
+- You don’t need to worry about which option is the most valuable as long as you keep your options open.
+- The most important lesson is this: The more uncertain the future value is, the more valuable it is to keep your options open rather than implement something right away.
+
+> The following section explains financial options using potatoes as an analogy, but we will skip that here.
+
+A call option gives you the right, but not the obligation, to purchase something at a fixed price in the future.
+
+Financial options have several key parameters:
+
+- The underlying asset you can buy
+- The price of the underlying asset, including its volatility
+- The option premium, or the price you pay today
+- The duration of the option, or the period during which you must decide whether to buy the underlying asset (some options allow you to buy at any time before the expiration date)
+
+What does this mean for software design?
+
+The designs we make today are like paying a premium for the "option" to change a feature tomorrow.
+
+Once the focus shifted to balancing between creating options and implementing features, something that used to feel scary became exciting.
+
+- The more uncertain the potential value of a feature change, the better.
+- The longer the development timeline, the better.
+- Of course, it’s better if we can develop more cheaply in the future, but that’s only a small part of the overall value.
+- If we can create options with smaller design tasks, that’s even better.
+
+However, the author was still facing the tricky problem they had previously glossed over with the phrase “balancing between creating options and implementing features.”
