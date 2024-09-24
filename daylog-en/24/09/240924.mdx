@@ -1,0 +1,106 @@
+---
+title: "Event-Driven Architecture"
+date: "240924"
+tags: ["Article"]
+---
+
+> https://newsletter.systemdesigncodex.com/p/3-interview-questions-on-event-driven?utm_campaign=post&utm_medium=web
+
+The chapter lead shared this article with me.
+
+The feature another team member is enhancing heavily relies on asynchronous background processing, so we’ve been discussing event-driven architecture.
+
+Since event-driven patterns are unfamiliar to me, I wanted to read and summarize this article.
+
+---
+
+## Competing Consumer Pattern
+
+The Competing Consumer Pattern is a method to increase system throughput and distribute load by having multiple consumers process messages simultaneously. This is a straightforward approach using queues.
+
+### Key Features
+
+- Multiple consumers retrieve and process messages from a queue at the same time.
+- Each consumer operates independently, competing to take messages.
+- Consumers can be added or removed dynamically based on the system's load.
+
+### Advantages
+
+- **Scalability**: When there are more messages to process, you can add more consumers to increase throughput.
+- **High availability**: If one consumer fails, others can continue processing.
+- **Load distribution**: Distributes tasks among multiple consumers, improving overall system performance.
+
+### Considerations
+
+- The message queue must support multiple consumers accessing it simultaneously.
+- Each message should only be processed once (to avoid duplication).
+- You need to decide how to distribute tasks between consumers (e.g., round-robin, weighted distribution).
+
+---
+
+## Retry Messages Pattern
+
+The Retry Messages Pattern automatically retries processing messages that fail due to temporary errors.
+
+### Main Components
+
+- **Main Queue**: The queue for processing messages sequentially.
+- **Dead Letter Queue (DLQ)**: A queue that stores messages that still fail after several retry attempts.
+- **Retry Queue**: A temporary queue for messages that need to be retried.
+- **Exponential Backoff Strategy**: A method where the retry intervals increase gradually.
+
+### How It Works
+
+1. When message processing fails, the message is moved to the Retry Queue.
+2. After some time, the message is retrieved from the Retry Queue for another attempt.
+3. If the retry fails, the system waits longer (following the exponential backoff strategy) and moves the message back to the Retry Queue.
+4. If the maximum retry attempts are exceeded, the message is sent to the DLQ.
+
+### Advantages
+
+- Prevents message loss due to temporary errors.
+- Increases the system’s resilience.
+- The exponential backoff strategy helps avoid overwhelming the system.
+
+### Considerations
+
+- You need to set retry limits and intervals appropriately.
+- It’s essential to monitor and manage messages in the DLQ.
+- Ensure idempotency so that repeated processing of the same message doesn’t cause problems.
+
+---
+
+## Async Request-Response Pattern
+
+The Async Request-Response Pattern overcomes the limitations of synchronous communication, improving system scalability and responsiveness.
+
+### How It Works
+
+1. The client sends a request to a message queue.
+2. The server retrieves and processes the request from the queue.
+3. Once processing is complete, the server sends a response to a separate response queue.
+4. The client receives the response by polling the queue or through a callback.
+
+### Key Components
+
+- **Request Queue**: Stores the client’s requests.
+- **Response Queue**: Stores the server’s responses.
+- **Correlation ID**: A unique identifier used to match requests with responses.
+
+### Advantages
+
+- **Scalability**: Buffers the difference in processing speeds between the client and server.
+- **Loose coupling**: Since the client and server aren’t directly connected, the system is more flexible.
+- **Peak load management**: The request queue acts as a buffer to handle sudden spikes in load.
+
+### Considerations
+
+- Use correlation IDs to accurately match requests and responses.
+- Implement timeout handling in case a response doesn’t arrive.
+- Choose the appropriate method for receiving responses (polling or callback).
+
+---
+
+Understanding the characteristics of each pattern and combining them appropriately will help build a more robust and efficient system.
+
+I'll keep an eye on how the implementation unfolds and think about where I can offer support.
