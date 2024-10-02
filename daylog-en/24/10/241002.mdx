@@ -1,0 +1,38 @@
+---
+title: "Tidy First? 29. Coupling"
+date: "241002"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+Edward Yourdon and Larry Constantine conducted research while preparing their classic book, _Structured Design_, to figure out why some programs were more expensive to build.
+
+They discovered that all expensive programs had one thing in common:
+
+When you change one part of the program, you have to change another part too.
+
+They called this "coupling," a characteristic where changes spread from one part of the system to another.
+
+Simply looking at the source code isn't enough to analyze coupling. First, you need to know what changes have happened or are likely to happen.
+
+We focus on coupling because it has two key properties:
+
+- **One-to-Many (1-N)**: When a change happens, one part can be connected to many other parts.
+- **Cascading**: Once a change occurs, it can spread from one part to another, triggering more changes along the way.
+
+While development tools can help manage the one-to-many problem, cascading changes are more serious. The cost of changes tends to follow a power-law distribution.
+
+By designing software carefully, we can reduce the likelihood and impact of cascading changes.
+
+Over time, the term "coupling" has lost its original meaning and now often refers to any relationship between system elements.
+
+In large, complex systems, coupling can be subtle. When we say a system is "complex," it often means that changes have unexpected consequences.
+
+Take a moment to review a catalog of code-cleaning techniques and see how you can reduce coupling.
+
+Coupling significantly affects software costs. Next, we'll explore how to manage it properly.
