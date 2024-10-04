@@ -1,0 +1,90 @@
+---
+title: "Event-Driven Architecture with Kafka and Redis"
+date: "241004"
+tags: ["Tool"]
+---
+
+> After watching a talk on microservices, I realized it would be helpful to summarize the basics of Kafka and Redis.
+
+With the rise of microservice architecture, asynchronous communication and event-driven designs have become essential in modern systems. Many companies are considering distributed messaging systems, and **Apache Kafka** and **Redis** are two popular choices. Here, we’ll look at the characteristics of Kafka and Redis and explore how they can complement each other.
+
+## Apache Kafka
+
+Kafka is a **distributed message streaming platform** designed for large-scale data streaming and event processing. It's commonly used in environments where **high traffic volumes** and **distributed processing** are required.
+
+#### Key Concepts in Kafka
+
+- **Producer and Consumer**: Clients that create and consume messages.
+- **Topic**: A logical grouping where messages are collected.
+- **Partition**: Each topic is divided into multiple partitions to enable parallel processing.
+- **Broker**: A server that stores and manages messages.
+
+#### Advantages of Kafka
+
+- **High durability**: Data is stored on disk and replicated to minimize data loss.
+- **Scalability**: Kafka can scale horizontally, adding brokers and partitions as needed.
+- **Message order guarantee**: Kafka ensures message order within a partition, making it easier to manage event flow.
+
+#### Disadvantages of Kafka
+
+- Complex configuration and operational management.
+- Can be excessive for small projects or simple message handling.
+
+## Redis
+
+Redis is an **in-memory data store** known for its fast data retrieval and caching capabilities. While Redis Streams and Pub/Sub provide simple message queuing, Redis is primarily suited for **short-lived data processing**.
+
+#### Key Concepts in Redis
+
+- **In-Memory Storage**: Data is stored in memory, providing very fast retrieval times.
+- **Pub/Sub**: Supports a simple messaging system.
+- **Redis Streams**: Handles streaming data but lacks Kafka's advanced streaming features.
+
+#### Advantages of Redis
+
+1. **High speed**: As an in-memory system, Redis has extremely fast read/write speeds.
+2. **Simple setup**: Redis is easy to configure and deploy.
+3. **Pub/Sub**: Suitable for simple messaging, like real-time notifications.
+
+#### Disadvantages of Redis
+
+- Limited data durability and unsuited for large-scale data storage.
+- Lacks the advanced streaming functionality of Kafka.
+
+## Benefits of Using Kafka and Redis Together
+
+Because Kafka and Redis have different strengths, **using them together can amplify their benefits**. In a distributed environment, their combination helps manage large-scale event streaming, real-time data handling, and fast data retrieval—all useful in a microservices or event-driven system. Kafka handles durable storage and large-scale distributed processing, while Redis improves real-time response with fast caching and retrieval. Let’s go over some scenarios that highlight the combined benefits:
+
+### High-Performance Real-Time Data Streaming
+
+Kafka efficiently manages large-scale event streaming and asynchronous messaging, but because it stores data on disk, **latency may occur** when immediate responses are required. Redis can help by **caching data in memory**, enabling real-time response and **low latency**.
+
+- **Example**: In real-time financial transactions, Kafka collects and processes all transactions, while Redis caches recent transactions for quick access.
+
+### Instant State Lookup and Separation of Asynchronous Processing
+
+By using Kafka for asynchronous tasks and Redis for up-to-date state storage, you can **check the current status** even if asynchronous processing isn’t complete—making it useful in **real-time feedback services**.
+
+- **Example**: In an order processing system, Kafka manages the background processing of orders, while Redis stores the current status (“Processing,” “Completed”) for immediate lookups. Clients can check Redis to instantly view the status, improving user experience.
+
+### Reducing Load on Kafka with an Intermediate Cache
+
+When Kafka has multiple consumers, Redis can serve as an **intermediate cache** to reduce Kafka’s load. Frequently requested data can be cached in Redis, which **reduces the need for direct Kafka queries**, saving resources and optimizing performance.
+
+- **Example**: Data collected in Kafka can be cached in Redis if frequently accessed, and services can retrieve it quickly from Redis. This method decreases load on Kafka and accelerates data access.
+
+### Improved Data Recovery and Real-Time Monitoring
+
+Kafka’s durability ensures that data is safely stored for logs and recovery, while Redis enables real-time monitoring by caching **critical data** for fast access.
+
+- **Example**: In a real-time log monitoring system, Kafka logs all events, and Redis caches recent errors or critical events, making them available in real time for quick checks on the management console.
+
+### Simplified Task Scheduling and Status Management
+
+Kafka’s message queuing and asynchronous processing can be combined with Redis’s **state storage** to simplify complex task scheduling. Kafka handles the distributed delivery of tasks, while Redis quickly stores the status or result, which can be checked immediately.
+
+- **Example**: In a video encoding service, Kafka sends encoding requests for distributed processing, and Redis stores each job’s status, which can be quickly checked on a monitoring dashboard.
+
+### In Summary
+
+Together, Kafka and Redis offer complementary functions for distributed processing and real-time performance. Kafka becomes the **core** for durable message streaming and event management, while Redis supports tasks requiring **real-time response** and caching, enabling faster data retrieval. Combining both technologies provides an effective approach for **high performance, scalability, and data consistency** in systems with real-time processing requirements.
