@@ -1,7 +1,7 @@
 export type LangMap = typeof langKo;
 
 export const langKo = {
-  homeSubTitle: "💻 매일 LLM과 대화하는 개발자의",
+  homeSubTitle: "💻 LLM과 대화하며 정리한",
   homeTitle: {
     t1: "그",
     t2: "저",
