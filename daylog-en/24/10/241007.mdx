@@ -1,0 +1,57 @@
+---
+title: "Tidy First? 30. Constantine’s Equivalence"
+date: "241007"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+The author remembers hearing a shocking report during their early programming days: 70% of software development costs are spent on maintenance.
+
+Seventy percent!
+
+In the first study on coupling and cohesion, _Structured Design_, it was assumed that the goal of software design is to minimize the cost of software.
+
+According to a concept the author calls "Constantine’s Equivalence," the cost of software is almost the same as the cost of changing it.
+
+> Cost(software) ~= Cost(change)
+
+If you graph the cumulative cost over the software lifecycle, it looks like a logarithmic curve.
+
+The pre-release period takes up a small part of the total time and a small portion of the overall cost.
+
+Then, one day, we apply a change that seems similar to previous ones, but this time, it blows up right in front of us.
+
+Suddenly, the cost increases not just by one unit but by 10x, 100x, or even 1,000x. This happens because of friction with the existing system.
+
+If you’re familiar with power law distributions, you’ll understand what's happening here.
+
+A key feature of the power law is that a small number of large "outliers" have an outsized impact.
+
+Together, they have a bigger effect than a large number of "normal" events. The five biggest storms cause more damage than 10,000 smaller ones.
+
+In other words, the cost of change is almost equal to the cost of the big changes.
+
+> Cost(total changes) ~= Cost(big changes)
+
+Why are big changes so expensive? What causes changes to "spread"? It's coupling.
+
+> Cost(big changes) ~= Coupling
+
+Now we have the full Constantine’s equation.
+
+> Cost(software) ~= Cost(total changes) ~= Cost(big changes) ~= Coupling
+
+So, to reduce the cost of software, we need to reduce coupling.
+
+But reducing coupling isn’t free, and trade-offs are unavoidable.
+
+---
+
+> The title of this chapter seems to be named after Larry Constantine, the author of _Structured Design_.
+>
+> Constantine was one of the first to study software design.

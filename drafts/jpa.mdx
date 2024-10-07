@@ -1,0 +1,208 @@
+---
+title: "TypeORM과 JPA의 닮은 점"
+date: "241007"
+tags: ["NestJS"]
+---
+
+NestJS에서의 TypeORM과 스프링에서의 JPA는 둘 다 ORM을 기반으로 하여 객체 지향 프로그래밍과 관계형 데이터베이스 사이의 불일치를 해결해주는 역할을 합니다.
+
+이 두 프레임워크는 서로 다른 언어(node.js와 Java) 환경에서 동작하지만, 기능과 개념 면에서는 많은 유사점이 있습니다.
+
+## ORM의 목적
+
+TypeORM (NestJS)와 JPA (Spring) 모두 자바스크립트/타입스크립트 또는 자바 객체를 데이터베이스의 테이블과 매핑해주는 ORM 기술입니다.
+
+이를 통해 개발자는 데이터베이스 작업을 객체 지향적으로 처리할 수 있고, SQL 쿼리를 직접 작성할 필요 없이 데이터베이스 작업을 할 수 있습니다.
+
+- 유사점:
+  - 객체(엔티티)와 데이터베이스 테이블 간의 매핑을 자동으로 관리.
+  - 데이터베이스를 직접 다루지 않고, 객체 지향적인 방식으로 데이터 작업 가능.
+
+## 엔티티
+
+- TypeORM과 JPA 모두 엔티티(Entity) 개념을 도입하여 데이터베이스 테이블을 클래스에 매핑합니다.
+- 클래스의 필드는 데이터베이스 테이블의 컬럼에 매핑되고, 클래스 자체는 테이블을 나타냅니다.
+
+TypeORM 예시 (NestJS):
+
+```typescript
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  email: string;
+}
+```
+
+JPA 예시 (Spring):
+
+```java
+@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "email")
+    private String email;
+}
+```
+
+- 유사점:
+  - 클래스에 `@Entity`와 같은 어노테이션을 붙여서 해당 클래스가 데이터베이스 테이블과 매핑됨.
+  - 컬럼에 대응되는 필드에 `@Column` 어노테이션을 붙여 데이터베이스 필드와 매핑.
+  - `@PrimaryGeneratedColumn` 또는 `@Id`로 기본 키를 설정.
+
+### 3. 리포지토리 패턴
+
+- TypeORM의 Repository와 JPA의 JpaRepository는 데이터베이스와 상호작용하는 인터페이스로, 엔티티를 사용한 CRUD 작업을 쉽게 처리할 수 있게 해줍니다.
+
+TypeORM (NestJS):
+
+```typescript
+@Injectable()
+export class UserService {
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>
+  ) {}
+
+  findAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  findOne(id: number): Promise<User> {
+    return this.userRepository.findOneBy({ id });
+  }
+}
+```
+
+JPA (Spring):
+
+```java
+@Service
+public class UserService {
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> findOne(Long id) {
+        return userRepository.findById(id);
+    }
+}
+```
+
+- 유사점:
+  - Repository 패턴을 사용하여 데이터베이스 CRUD 작업을 쉽게 처리.
+  - 자동으로 제공되는 메서드(`find`, `findById`, `save` 등)로 기본적인 CRUD 작업을 실행 가능.
+
+### 4. 트랜잭션 관리
+
+- TypeORM과 JPA 모두 트랜잭션을 지원하며, 복수의 데이터베이스 작업을 하나의 트랜잭션 내에서 처리할 수 있습니다. 이는 데이터 일관성을 유지하는 데 중요한 역할을 합니다.
+
+- TypeORM (NestJS):
+
+  ```typescript
+  await this.connection.transaction(async (manager) => {
+    const user = await manager.save(User, newUser);
+    // 다른 트랜잭션 내 작업
+  });
+  ```
+
+- JPA (Spring):
+
+  ```java
+  @Transactional
+  public User createUser(User user) {
+      return userRepository.save(user);
+  }
+  ```
+
+- 유사점:
+  - 트랜잭션을 통해 데이터베이스 작업의 원자성을 보장.
+  - 트랜잭션 내에서 여러 데이터베이스 작업을 처리하고, 성공 또는 실패에 따라 작업을 커밋하거나 롤백.
+
+### 5. 지연 로딩(Lazy Loading)과 즉시 로딩(Eager Loading)
+
+- TypeORM과 JPA는 연관된 엔티티 데이터를 지연 로딩(`Lazy Loading`) 또는 즉시 로딩(`Eager Loading`)할 수 있습니다. 지연 로딩은 필요할 때만 데이터를 로드하고, 즉시 로딩은 연관된 모든 데이터를 즉시 불러오는 방식입니다.
+
+- TypeORM (NestJS):
+
+  ```typescript
+  @ManyToOne(() => Profile, { eager: true })
+  profile: Profile;
+  ```
+
+- JPA (Spring):
+
+  ```java
+  @ManyToOne(fetch = FetchType.EAGER)
+  private Profile profile;
+  ```
+
+- 유사점:
+  - 연관된 엔티티를 로딩할 때, 지연 로딩(`LAZY`) 또는 즉시 로딩(`EAGER`) 방식을 설정할 수 있음.
+  - 성능 최적화를 위해 지연 로딩이 주로 사용되며, 데이터가 필요한 시점에 로딩됨.
+
+### 6. 데이터베이스 방언(Dialect)
+
+- TypeORM과 JPA는 특정 데이터베이스에 종속되지 않도록 데이터베이스 방언을 사용합니다. 방언은 서로 다른 데이터베이스 시스템의 SQL 문법 차이를 해결하는 역할을 합니다.
+
+- TypeORM (NestJS):
+
+  ```typescript
+  TypeOrmModule.forRoot({
+    type: "mysql",
+    host: "localhost",
+    port: 3306,
+    username: "test",
+    password: "test",
+    database: "test",
+    entities: [User],
+    synchronize: true,
+  });
+  ```
+
+- JPA (Spring):
+
+  ```properties
+  spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL5Dialect
+  ```
+
+- 유사점:
+  - 데이터베이스 독립성을 유지하기 위해 방언을 사용.
+  - 설정을 통해 MySQL, PostgreSQL 등 다양한 데이터베이스와 쉽게 연결 가능.
+
+### 7. 마이그레이션 및 DDL 자동 생성
+
+- TypeORM과 JPA는 데이터베이스 스키마를 엔티티 정의에 따라 자동으로 생성하고 변경할 수 있는 기능을 제공합니다.
+
+- TypeORM (NestJS): `synchronize: true` 옵션을 설정하면, 엔티티에 따라 데이터베이스 테이블을 자동으로 생성하거나 업데이트합니다.
+- JPA (Spring): `hibernate.ddl-auto=update` 옵션을 설정하면 엔티티 변경에 따라 테이블 구조를 자동으로 업데이트할 수 있습니다.
+
+- 유사점:
+  - 엔티티 정의에 따라 데이터베이스 스키마를 자동으로 생성하고, 필요에 따라 업데이트 가능.
+  - 개발 초기 단계에서 스키마 관리에 유용하지만, 운영 단계에서는 마이그레이션 도구를 사용하는 것이 더 권장됨.
+
+### 결론
+
+NestJS에서의 TypeORM과 스프링에서의 JPA는 기본적으로 객체 지향 프로그래밍과 관계형 데이터베이스 사이의 매핑을 해결하고, 데이터베이스와 상호작용할 수 있는 ORM 프레임워크입니다. 둘 다 엔티티, 리포지토리, 트랜잭션 관리, 로딩 전략 등 다양한 유사한 기능을 제공하며, 개발자가 데이터베이스를 쉽게 다룰 수 있도록 돕습니다.
+
+하지만 TypeORM은 TypeScript 및 Node.js 환경에 최적화되어 있고, JPA는 자바 기반 환경에서 사용되며 더 성숙한 ORM 생태계를 가지고 있다는 차이점이 있습니다.
