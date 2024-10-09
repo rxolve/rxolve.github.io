@@ -1,0 +1,44 @@
+---
+title: "Setting Isolation Levels in TypeORM's QueryRunner"
+date: "241009"
+tags: ["NestJS"]
+---
+
+Continuing from yesterday, let's look at how to set the isolation level of a transaction using TypeORM's `QueryRunner`.
+
+When starting a transaction, you can specify the isolation level as an argument in the `startTransaction()` method.
+
+```typescript
+import { getConnection } from "typeorm";
+
+async function runTransaction() {
+  // Create QueryRunner from the database connection
+  const connection = getConnection();
+  const queryRunner = connection.createQueryRunner();
+
+  // Start the transaction and set the isolation level
+  await queryRunner.startTransaction("READ COMMITTED");
+
+  try {
+    // Perform operations within the transaction
+    // Example: Insert or update data
+    await queryRunner.manager.save(/* entity */);
+
+    // Commit the transaction
+    await queryRunner.commitTransaction();
+  } catch (error) {
+    // Rollback if an error occurs
+    await queryRunner.rollbackTransaction();
+  } finally {
+    // Release the QueryRunner
+    await queryRunner.release();
+  }
+}
+```
+
+Here are the available options:
+
+- `'READ UNCOMMITTED'`: Other transactions can read uncommitted data.
+- `'READ COMMITTED'`: Only committed data can be read. This is the default setting in most DBMS.
+- `'REPEATABLE READ'`: Reading the same data multiple times in a transaction will always return the same result.
+- `'SERIALIZABLE'`: The highest isolation level, which makes transactions behave as if they are executed one after another, preventing conflicts with other transactions.
