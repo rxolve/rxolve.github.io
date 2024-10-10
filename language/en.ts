@@ -1,7 +1,7 @@
 import { LangMap } from "./ko";
 
 export const langEn: LangMap = {
-  homeSubTitle: "💻 In conversation with LLM",
+  homeSubTitle: "💻 Talking to LLMs every day",
   homeTitle: {
     t1: "S",
     t2: "o",
