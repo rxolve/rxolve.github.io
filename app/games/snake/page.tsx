@@ -11,7 +11,7 @@ const INITIAL_SNAKE: Position[] = [
   [2, 2],
   [2, 3],
 ];
-const INITIAL_DIRECTION: Position = [0, 1];
+const INITIAL_DIRECTION: Position = [1, 0];
 
 const Snake: React.FC = () => {
   const getRandomPosition = (): Position => {
@@ -27,7 +27,7 @@ const Snake: React.FC = () => {
   const [food, setFood] = useState<Position>(getRandomPosition());
   const [score, setScore] = useState<number>(0);
 
-  const checkCollision = (head: Position, body: Position[]): boolean => {
+  const checkCollisionToWall = (head: Position, body: Position[]): boolean => {
     // 벽과의 충돌 체크
     if (
       head[0] < 0 ||
@@ -39,6 +39,15 @@ const Snake: React.FC = () => {
     }
 
     return false;
+  };
+
+  const checkCollisionToBody = (head: Position, body: Position[]): boolean => {
+    console.log(head);
+    console.log(body);
+    // 머리가 몸통과 부딪혔는지 체크
+    return body.some(
+      (segment) => segment[0] === head[0] && segment[1] === head[1]
+    );
   };
 
   const generateFood = useCallback(() => {
@@ -62,7 +71,13 @@ const Snake: React.FC = () => {
     const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
 
     // 벽 충돌 체크
-    if (checkCollision(newHead, newSnake)) {
+    if (checkCollisionToWall(newHead, newSnake)) {
+      setGameOver(true);
+      return;
+    }
+
+    // 몸통 충돌 체크
+    if (checkCollisionToBody(newHead, newSnake.slice(1))) {
       setGameOver(true);
       return;
     }
@@ -97,28 +112,33 @@ const Snake: React.FC = () => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (gameOver) return;
 
+      const [dx, dy] = direction; // 현재 방향
+
       switch (e.key) {
         case "ArrowUp":
-          setDirection([0, -1]);
+          // 현재 아래로 이동 중일 때 위로 전환 불가
+          if (dy !== 1) setDirection([0, -1]);
           break;
         case "ArrowDown":
-          setDirection([0, 1]);
+          // 현재 위로 이동 중일 때 아래로 전환 불가
+          if (dy !== -1) setDirection([0, 1]);
           break;
         case "ArrowLeft":
-          setDirection([-1, 0]);
+          // 현재 오른쪽으로 이동 중일 때 왼쪽 전환 불가
+          if (dx !== 1) setDirection([-1, 0]);
           break;
         case "ArrowRight":
-          setDirection([1, 0]);
+          // 현재 왼쪽으로 이동 중일 때 오른쪽 전환 불가
+          if (dx !== -1) setDirection([1, 0]);
           break;
       }
     };
 
     window.addEventListener("keydown", handleKeyPress);
-
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [gameOver]);
+  }, [gameOver, direction]);
 
   return (
     <main className="text-center">

@@ -1,0 +1,108 @@
+---
+title: "NextJS Snake #6: 몸통 충돌 처리"
+date: "241011"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+뱀의 몸통 충돌 처리는 아래와 같은 함수로 구현할 수 있습니다.
+
+뱀의 몸통을 순회하며 머리와 같은 위치에 있는지 체크합니다.
+
+```ts
+const checkCollisionToBody = (head: Position, body: Position[]): boolean => {
+  // 머리가 몸통과 부딪혔는지 체크
+  return body.some(
+    (segment) => segment[0] === head[0] && segment[1] === head[1]
+  );
+};
+```
+
+moveSnake 함수에서 벽 충돌 체크 이후 위 함수를 추가하여 몸통 충돌을 체크합니다.
+
+```ts
+const moveSnake = useCallback(() => {
+  if (gameOver) return;
+
+  const newSnake = [...snake];
+  const head = newSnake[0];
+  const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
+
+  // 벽 충돌 체크
+  if (checkCollisionToWall(newHead, newSnake)) {
+    setGameOver(true);
+    return;
+  }
+
+  // 몸통 충돌 체크
+  if (checkCollisionToBody(newHead, newSnake.slice(1))) {
+    setGameOver(true);
+    return;
+  }
+
+  newSnake.unshift(newHead);
+
+  // 먹이를 먹었는지 체크
+  if (newHead[0] === food[0] && newHead[1] === food[1]) {
+    generateFood(); // 먹이를 먹었으면 새로운 먹이 생성
+    setScore((prevScore) => prevScore + 1); // 점수 증가
+  } else {
+    newSnake.pop(); // 먹이를 먹지 않았으면 꼬리 제거
+  }
+
+  setSnake(newSnake);
+}, [snake, direction, food, gameOver, generateFood]);
+```
+
+INITIAL_DIRECTION을 [1, 0]으로 두면 시작하마자 몸통 충돌이 발생합니다. 이를 방지하기 위해 [0, 1]로 변경합니다.
+
+```ts
+const INITIAL_DIRECTION: Position = [0, 1];
+```
+
+방향키 입력을 받아 방향을 변경할 때, 몸통이 있는 방향으로는 이동할 수 없도록 처리해줬습니다.
+
+게임의 편의성을 위함입니다.
+
+```ts
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (gameOver) return;
+
+    const [dx, dy] = direction; // 현재 방향
+
+    switch (e.key) {
+      case "ArrowUp":
+        // 현재 아래로 이동 중일 때 위로 전환 불가
+        if (dy !== 1) setDirection([0, -1]);
+        break;
+      case "ArrowDown":
+        // 현재 위로 이동 중일 때 아래로 전환 불가
+        if (dy !== -1) setDirection([0, 1]);
+        break;
+      case "ArrowLeft":
+        // 현재 오른쪽으로 이동 중일 때 왼쪽 전환 불가
+        if (dx !== 1) setDirection([-1, 0]);
+        break;
+      case "ArrowRight":
+        // 현재 왼쪽으로 이동 중일 때 오른쪽 전환 불가
+        if (dx !== -1) setDirection([1, 0]);
+        break;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyPress);
+  return () => {
+    window.removeEventListener("keydown", handleKeyPress);
+  };
+}, [gameOver, direction]);
+```
+
+이제 스네이크 게임이 완성되었습니다.
+
+우리의 뱀은 방향키로 제어가 가능하고, 먹이를 먹으면 커지며, 벽과 몸통에 부딪히면 게임이 종료됩니다.
+
+다음 시간에는 뱀에 자율주행 모드를 추가하겠습니다.
+
+몇 판을 하니 게임이 지루해졌기 때문입니다.
