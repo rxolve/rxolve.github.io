@@ -1,0 +1,46 @@
+---
+title: "Creating Custom Exception in NestJS"
+date: "241015"
+tags: ["NestJS"]
+---
+
+While building an API, I needed to return data with a `409` error.
+
+By default, the exceptions provided by NestJS are designed to only send an error message.
+
+If you want to include extra data (like a `data` object) in the response to the client, you need to create a **custom exception** by extending one of the default exceptions.
+
+```ts
+import { ConflictException, HttpStatus } from "@nestjs/common";
+
+export class CustomConflictException extends ConflictException {
+  constructor(message = "Conflict occurred", data?: any) {
+    super({
+      statusCode: HttpStatus.CONFLICT,
+      message,
+      data, // Including extra data
+    });
+  }
+}
+```
+
+Next, modify the **global exception filter** so the `data` is included in the response.
+
+```ts
+// ...
+const data =
+  exceptionResponse instanceof Object ? exceptionResponse["data"] : null;
+
+response.status(status).json({
+  // ...
+  data,
+});
+```
+
+Here’s how you can use it:
+
+```ts
+throw new CustomConflictException(`Product conflict detected`, {
+  productId: 1,
+});
+```
