@@ -1,0 +1,89 @@
+---
+title: "NextJS Snake #7: Autonomous Mode"
+date: "241017"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+Controlling the snake with the keyboard every time can be quite exhausting.
+
+Let's change the game into a relaxing experience where the snake automatically finds the food by itself, and you can just watch it play.
+
+First, we remove the arrow key controls and create a function that calculates the next direction.
+
+The function calculates the distance to the food using **Manhattan distance** for all possible directions and moves the snake towards the closest one.
+
+```ts
+const calculateNextDirection = useCallback((): Position | null => {
+  const [headX, headY] = snake[0];
+  const [foodX, foodY] = food;
+
+  // Filter out directions that lead to a collision with walls or the snake’s body
+  const validDirections = DIRECTIONS.filter(([dx, dy]) => {
+    const newHead: Position = [headX + dx, headY + dy];
+    return (
+      !checkCollisionToWall(newHead) &&
+      !checkCollisionToBody(newHead, snake.slice(1))
+    );
+  });
+
+  // If there are no valid directions, the game ends
+  if (validDirections.length === 0) return null;
+
+  // Pick the direction with the shortest Manhattan distance to the food
+  const bestDirection = validDirections.reduce((best, current) => {
+    const [currentDx, currentDy] = current;
+    const newHead: Position = [headX + currentDx, headY + currentDy];
+
+    const bestDistance =
+      Math.abs(best[0] + headX - foodX) + Math.abs(best[1] + headY - foodY);
+    const currentDistance =
+      Math.abs(newHead[0] - foodX) + Math.abs(newHead[1] - foodY);
+
+    return currentDistance < bestDistance ? current : best;
+  });
+
+  return bestDirection;
+}, [snake, food]);
+```
+
+The `moveSnake` function is updated like this:
+
+Now, instead of reacting to arrow key inputs, it uses the `calculateNextDirection` function to decide the next move.
+
+```ts
+const moveSnake = useCallback(() => {
+  if (gameOver) return;
+
+  const newDirection = calculateNextDirection();
+  if (!newDirection) {
+    setGameOver(true); // End the game if no valid path is available
+    return;
+  }
+
+  const newSnake = [...snake];
+  const head = newSnake[0];
+  const newHead: Position = [
+    head[0] + newDirection[0],
+    head[1] + newDirection[1],
+  ];
+
+  newSnake.unshift(newHead);
+
+  if (newHead[0] === food[0] && newHead[1] === food[1]) {
+    generateFood();
+    setScore((prevScore) => prevScore + 1);
+  } else {
+    newSnake.pop();
+  }
+
+  setSnake(newSnake);
+}, [snake, gameOver, calculateNextDirection, generateFood]);
+```
+
+We also remove the arrow key event listener since it’s no longer needed.
+
+Finally, there are still some bugs to fix, such as situations where the snake traps itself.
+
+If we improve the direction calculation algorithm further, the snake might eventually fill the entire screen!

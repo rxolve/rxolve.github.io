@@ -13,6 +13,13 @@ const INITIAL_SNAKE: Position[] = [
 ];
 const INITIAL_DIRECTION: Position = [1, 0];
 
+const DIRECTIONS: Position[] = [
+  [0, -1], // 위
+  [0, 1], // 아래
+  [-1, 0], // 왼쪽
+  [1, 0], // 오른쪽
+];
+
 const Snake: React.FC = () => {
   const getRandomPosition = (): Position => {
     return [
@@ -22,29 +29,17 @@ const Snake: React.FC = () => {
   };
 
   const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
-  const [direction, setDirection] = useState<Position>(INITIAL_DIRECTION);
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [food, setFood] = useState<Position>(getRandomPosition());
   const [score, setScore] = useState<number>(0);
 
-  const checkCollisionToWall = (head: Position, body: Position[]): boolean => {
-    // 벽과의 충돌 체크
-    if (
-      head[0] < 0 ||
-      head[0] >= GRID_SIZE ||
-      head[1] < 0 ||
-      head[1] >= GRID_SIZE
-    ) {
-      return true;
-    }
-
-    return false;
+  const checkCollisionToWall = (head: Position): boolean => {
+    return (
+      head[0] < 0 || head[0] >= GRID_SIZE || head[1] < 0 || head[1] >= GRID_SIZE
+    );
   };
 
   const checkCollisionToBody = (head: Position, body: Position[]): boolean => {
-    console.log(head);
-    console.log(body);
-    // 머리가 몸통과 부딪혔는지 체크
     return body.some(
       (segment) => segment[0] === head[0] && segment[1] === head[1]
     );
@@ -52,7 +47,6 @@ const Snake: React.FC = () => {
 
   const generateFood = useCallback(() => {
     let newFood: Position;
-
     do {
       newFood = getRandomPosition();
     } while (
@@ -63,41 +57,68 @@ const Snake: React.FC = () => {
     setFood(newFood);
   }, [snake]);
 
+  const calculateNextDirection = useCallback((): Position | null => {
+    const [headX, headY] = snake[0];
+    const [foodX, foodY] = food;
+
+    // 가능한 모든 방향 중 벽과 몸통에 충돌하지 않는 방향 필터링
+    const validDirections = DIRECTIONS.filter(([dx, dy]) => {
+      const newHead: Position = [headX + dx, headY + dy];
+      return (
+        !checkCollisionToWall(newHead) &&
+        !checkCollisionToBody(newHead, snake.slice(1))
+      );
+    });
+
+    // 유효한 방향이 없다면 게임 종료
+    if (validDirections.length === 0) return null;
+
+    // 유효한 방향 중 먹이와의 맨해튼 거리가 가장 짧은 방향 선택
+    const bestDirection = validDirections.reduce((best, current) => {
+      const [currentDx, currentDy] = current;
+      const newHead: Position = [headX + currentDx, headY + currentDy];
+
+      const bestDistance =
+        Math.abs(best[0] + headX - foodX) + Math.abs(best[1] + headY - foodY);
+      const currentDistance =
+        Math.abs(newHead[0] - foodX) + Math.abs(newHead[1] - foodY);
+
+      return currentDistance < bestDistance ? current : best;
+    });
+
+    return bestDirection;
+  }, [snake, food]);
+
   const moveSnake = useCallback(() => {
     if (gameOver) return;
 
+    const newDirection = calculateNextDirection();
+    if (!newDirection) {
+      setGameOver(true); // 유효한 경로가 없을 경우 게임 종료
+      return;
+    }
+
     const newSnake = [...snake];
     const head = newSnake[0];
-    const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
-
-    // 벽 충돌 체크
-    if (checkCollisionToWall(newHead, newSnake)) {
-      setGameOver(true);
-      return;
-    }
-
-    // 몸통 충돌 체크
-    if (checkCollisionToBody(newHead, newSnake.slice(1))) {
-      setGameOver(true);
-      return;
-    }
+    const newHead: Position = [
+      head[0] + newDirection[0],
+      head[1] + newDirection[1],
+    ];
 
     newSnake.unshift(newHead);
 
-    // 먹이를 먹었는지 체크
     if (newHead[0] === food[0] && newHead[1] === food[1]) {
-      generateFood(); // 먹이를 먹었으면 새로운 먹이 생성
-      setScore((prevScore) => prevScore + 1); // 점수 증가
+      generateFood();
+      setScore((prevScore) => prevScore + 1);
     } else {
-      newSnake.pop(); // 먹이를 먹지 않았으면 꼬리 제거
+      newSnake.pop();
     }
 
     setSnake(newSnake);
-  }, [snake, direction, food, gameOver, generateFood]);
+  }, [snake, gameOver, calculateNextDirection, generateFood]);
 
   const restartGame = () => {
     setSnake(INITIAL_SNAKE);
-    setDirection(INITIAL_DIRECTION);
     setGameOver(false);
     setScore(0);
     generateFood();
@@ -108,45 +129,13 @@ const Snake: React.FC = () => {
     return () => clearInterval(gameLoop);
   }, [moveSnake]);
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (gameOver) return;
-
-      const [dx, dy] = direction; // 현재 방향
-
-      switch (e.key) {
-        case "ArrowUp":
-          // 현재 아래로 이동 중일 때 위로 전환 불가
-          if (dy !== 1) setDirection([0, -1]);
-          break;
-        case "ArrowDown":
-          // 현재 위로 이동 중일 때 아래로 전환 불가
-          if (dy !== -1) setDirection([0, 1]);
-          break;
-        case "ArrowLeft":
-          // 현재 오른쪽으로 이동 중일 때 왼쪽 전환 불가
-          if (dx !== 1) setDirection([-1, 0]);
-          break;
-        case "ArrowRight":
-          // 현재 왼쪽으로 이동 중일 때 오른쪽 전환 불가
-          if (dx !== -1) setDirection([1, 0]);
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [gameOver, direction]);
-
   return (
     <main className="text-center">
       <h1>Snake Game</h1>
       {gameOver ? (
         <div className="mt-4">
           <h2 className="text-xl font-bold text-red-600">Game Over!</h2>
-          <p>Final Score: {score}</p> {/* 점수 표시 */}
+          <p>Final Score: {score}</p>
           <button
             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
             onClick={restartGame}
@@ -167,7 +156,7 @@ const Snake: React.FC = () => {
             const x = index % GRID_SIZE;
             const y = Math.floor(index / GRID_SIZE);
             const isSnake = snake.some((pos) => pos[0] === x && pos[1] === y);
-            const isFood = food[0] === x && food[1] === y; // 먹이 체크
+            const isFood = food[0] === x && food[1] === y;
 
             return (
               <div
@@ -175,7 +164,7 @@ const Snake: React.FC = () => {
                 style={{
                   width: `${CELL_SIZE}px`,
                   height: `${CELL_SIZE}px`,
-                  backgroundColor: isSnake ? "blue" : isFood ? "red" : "white", // 먹이는 빨간색
+                  backgroundColor: isSnake ? "blue" : isFood ? "red" : "white",
                 }}
               />
             );
