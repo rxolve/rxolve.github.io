@@ -3,13 +3,13 @@
   "type": "module",
   "scripts": {
     "sitemap": "next-sitemap --config next-sitemap.config.cjs",
+    "generate:tag": "npx tsx scripts/generate-tag-json.ts",
     "postbuild": "npm run sitemap",
-    "build": "next build",
+    "build": "npm run generate:tag && next build",
     "dev": "next dev",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "seed": "node -r dotenv/config ./scripts/seed.js",
     "start": "next start"
   },
   "dependencies": {

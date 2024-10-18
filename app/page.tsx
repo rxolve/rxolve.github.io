@@ -34,8 +34,8 @@ const Home = async ({ isEn }: HomeProps) => {
           <VisitorCount />
         </div>
       </article>
-      <TagList list={allPosts} isEn={isEn} />
-      <ArticleList list={allPosts} />
+      <TagList isEn={isEn} />
+      <ArticleList list={allPosts.slice(0, 30)} />
     </main>
   );
 };

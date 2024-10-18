@@ -1,34 +1,23 @@
 import TagButton from "./tag-button";
-import { PostData } from "@/type/post.type";
 
 interface TagListProps {
-  list: PostData[];
   isEn?: boolean;
 }
 
-const TagList = (props: TagListProps) => {
-  const { list, isEn = false } = props;
-  const tagItemList: TagItem[] = [];
+const getTags = (isEn: boolean) => {
+  return isEn ? require("@/data/tags-en.json") : require("@/data/tags.json");
+};
 
-  for (const post of list) {
-    if (!post.tags) continue;
-    for (const tag of post.tags) {
-      const index = tagItemList.findIndex((item) => item.tag === tag);
-      if (index === -1) {
-        tagItemList.push({ tag, count: 1 });
-      } else {
-        tagItemList[index].count += 1;
-      }
-    }
-  }
+const TagList = async (props: TagListProps) => {
+  const { isEn = false } = props;
 
-  const sortedTagItemList = tagItemList.sort((a, b) => b.count - a.count);
+  const tags = getTags(isEn);
 
   return (
     <>
       <article>
-        {sortedTagItemList?.map((tagItem) => (
-          <TagButton key={tagItem.tag} tagItem={tagItem} isEn={isEn} />
+        {tags?.map((tag: TagItem) => (
+          <TagButton key={tag.tag} tagItem={tag} isEn={isEn} />
         ))}
       </article>
     </>

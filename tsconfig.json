@@ -28,7 +28,6 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     "lib/placeholder-data.js",
-    "scripts/seed.js",
     "app/mdx-page/page.tsx"
   ],
   "exclude": ["node_modules"]
