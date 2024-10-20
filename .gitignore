@@ -4,4 +4,3 @@ node_modules
 .env
 out
 public/*.xml
-gen-data
