@@ -22,7 +22,7 @@ const generateTagJson = async (isEn: boolean) => {
   console.log(sortedTagItemList);
 
   const fileName = isEn ? "tags-en.json" : "tags.json";
-  const jsonPath = path.join(process.cwd(), "data", fileName);
+  const jsonPath = path.join(process.cwd(), "gen-data", fileName);
   fs.writeFileSync(jsonPath, JSON.stringify(sortedTagItemList));
   console.log("tags.json 생성 완료!");
 };

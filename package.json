@@ -3,9 +3,9 @@
   "type": "module",
   "scripts": {
     "sitemap": "next-sitemap --config next-sitemap.config.cjs",
-    "generate:tag": "npx tsx scripts/generate-tag-json.ts",
+    "generate": "npx tsx scripts/generate-tag-json.ts",
     "postbuild": "npm run sitemap",
-    "build": "npm run generate:tag && next build",
+    "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
     "prettier": "prettier --write --ignore-unknown .",

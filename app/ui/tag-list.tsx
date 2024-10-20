@@ -5,7 +5,9 @@ interface TagListProps {
 }
 
 const getTags = (isEn: boolean) => {
-  return isEn ? require("@/data/tags-en.json") : require("@/data/tags.json");
+  return isEn
+    ? require("@/gen-data/tags-en.json")
+    : require("@/gen-data/tags.json");
 };
 
 const TagList = async (props: TagListProps) => {
