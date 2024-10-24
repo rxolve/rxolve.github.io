@@ -1,0 +1,189 @@
+---
+title: "Struggling with Circular References in NestJS"
+date: "241024"
+tags: ["NestJS"]
+---
+
+<img
+  src="https://images.pexels.com/photos/39656/staircase-spiral-architecture-interior-39656.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
+  width={700}
+  alt="spiral staircase"
+/>
+
+Today, I spent a lot of time solving circular reference issues.
+
+Let’s summarize how to fix circular reference problems in NestJS.
+
+## Why Do Circular References Occur?
+
+Let’s use an example with User and Post entities.
+
+```typescript
+@Injectable()
+export class UserService {
+  constructor(private postService: PostService) {}
+
+  async getUser(id: string) {
+    const user = await this.userRepo.findOne(id);
+    const posts = await this.postService.getPostsByUser(id);
+    return { ...user, posts };
+  }
+}
+
+@Injectable()
+export class PostService {
+  constructor(private userService: UserService) {}
+
+  async getPost(id: string) {
+    const post = await this.postRepo.findOne(id);
+    const user = await this.userService.getUser(post.userId);
+    return { ...post, user };
+  }
+}
+```
+
+When you write it this way, a circular reference error occurs.
+
+## How to Prevent Circular References
+
+Preventing circular references is the most important step. Here are some patterns to help.
+
+### Approach from DDD Perspective
+
+```typescript
+// 👎 This increases the risk of circular references
+@Injectable()
+export class UserService {
+  async getFullUserInfo(id: string) {
+    // Calling different services...
+  }
+}
+
+// 👍 Clearly define domain boundaries!
+@Injectable()
+export class UserDomainService {
+  async getUserCore(id: string) {
+    return this.userRepo.findOne(id);
+  }
+}
+
+@Injectable()
+export class UserApplicationService {
+  constructor(
+    private userDomainService: UserDomainService,
+    private postQueryService: PostQueryService
+  ) {}
+}
+```
+
+### Use Event-Driven Architecture
+
+Often, you can switch parts that frequently cause circular references to events.
+
+```typescript
+// Define an event
+export class UserCreatedEvent {
+  constructor(public readonly userId: string) {}
+}
+
+// Publish the event
+@Injectable()
+export class UserService {
+  constructor(private eventEmitter: EventEmitter2) {}
+
+  async createUser() {
+    // ... User creation logic
+    this.eventEmitter.emit("user.created", new UserCreatedEvent(user.id));
+  }
+}
+
+// Subscribe to the event
+@Injectable()
+export class PostService {
+  @OnEvent("user.created")
+  handleUserCreated(event: UserCreatedEvent) {
+    // Handle as needed
+  }
+}
+```
+
+### Optimize Queries to Remove Circular References
+
+Sometimes, simply optimizing queries can eliminate circular references.
+
+```typescript
+// 👎 This can cause N+1 issues and increase circular reference risks
+async getUser(id: string) {
+  const user = await this.userRepo.findOne(id);
+  const posts = await this.postService.getPostsByUser(id);
+  return { ...user, posts };
+}
+
+// 👍 Fetching in one go makes it cleaner!
+async getUser(id: string) {
+  return this.userRepo
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.posts', 'posts')
+    .where('user.id = :id', { id })
+    .getOne();
+}
+```
+
+## What If Circular References Still Happen?
+
+Sometimes, circular references are unavoidable. In that case, you can:
+
+### Use `forwardRef()`
+
+```typescript
+@Injectable()
+export class UserService {
+  constructor(
+    @Inject(forwardRef(() => PostService))
+    private postService: PostService
+  ) {}
+}
+```
+
+### Extract Common Interfaces
+
+```typescript
+interface IUserData {
+  id: string;
+  name: string;
+}
+
+@Injectable()
+export class UserService {
+  async getBasicUserInfo(id: string): Promise<IUserData> {
+    // Return minimal information
+  }
+}
+```
+
+## How to Validate Circular References
+
+1. Draw a Module Dependency Graph
+
+   - Visualizing dependencies helps you easily spot circular references.
+   - You can use tools like a sketchbook or libraries like Mermaid.
+
+2. Validate with Test Code
+
+```typescript
+describe("Circular Dependency Check", () => {
+  it("should initialize application without circular dependency errors", async () => {
+    const app = await NestFactory.create(AppModule);
+    expect(app).toBeDefined();
+    await app.close();
+  });
+});
+```
+
+## Conclusion
+
+It’s best to avoid circular references if you can, but sometimes they are unavoidable.
+
+You can prevent about 80% of them during the design phase.
+
+The remaining 20% occur as business logic gets more complex, and at that point, you can use the solutions mentioned above in combination.
