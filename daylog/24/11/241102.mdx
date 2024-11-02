@@ -1,0 +1,67 @@
+---
+title: "CROSS JOIN"
+date: "241102"
+tags: ["RDS"]
+---
+
+## CROSS JOIN 기본 개념
+
+- 정의: 두 테이블의 각 행이 상대 테이블의 모든 행과 결합됩니다.
+- 결과: 만약 첫 번째 테이블에 *n*개의 행, 두 번째 테이블에 *m*개의 행이 있다면, 결과 집합에는 총 *n × m*개의 행이 반환됩니다.
+- 표현 방법: 명시적으로 `CROSS JOIN`을 사용하거나, FROM 절에서 두 테이블을 쉼표로 구분하여 작성할 수 있습니다.
+
+```sql
+-- 명시적 표현
+SELECT * FROM table1 CROSS JOIN table2;
+
+-- 암시적 표현(동일한 결과)
+SELECT * FROM table1, table2;
+```
+
+## 예제: 실제 사용 사례
+
+예를 들어, 상품과 색상을 저장하는 두 테이블 `products`와 `colors`가 있다고 가정해봅니다.
+
+```sql
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name TEXT
+);
+
+CREATE TABLE colors (
+  id SERIAL PRIMARY KEY,
+  color TEXT
+);
+```
+
+모든 상품과 색상의 조합을 얻으려면 다음과 같이 CROSS JOIN을 사용합니다.
+
+```sql
+SELECT p.name, c.color
+FROM products p
+CROSS JOIN colors c;
+```
+
+이 쿼리는 `products` 테이블의 각 상품 이름과 `colors` 테이블의 각 색상이 결합된 모든 경우를 반환합니다.
+
+## 사용 시 주의사항
+
+1. 결과 집합의 크기  
+   두 테이블의 행 수가 많을 경우, 결과의 행 수가 매우 커질 수 있으므로 성능에 영향을 미칠 수 있습니다.  
+   예를 들어, 1000행 × 1000행인 경우 1,000,000행이 반환됩니다.
+
+2. 의도된 사용 상황  
+   CROSS JOIN은 모든 가능한 조합을 계산해야 할 때 유용합니다.  
+   하지만, 대부분의 경우 INNER JOIN이나 다른 조인 방식으로 원하는 결과를 더 효율적으로 얻을 수 있으므로, 사용 목적을 명확히 해야 합니다.
+
+3. 필터링  
+   종종 CROSS JOIN 후에 WHERE 절을 사용하여 결과를 제한할 수 있습니다. 예를 들어, 특정 색상과의 조합만 필요하다면
+
+   ```sql
+   SELECT p.name, c.color
+   FROM products p
+   CROSS JOIN colors c
+   WHERE c.color = 'red';
+   ```
+
+   위와 같이 작성하면 모든 조합 중에서 색상이 'red'인 경우만 필터링할 수 있습니다.

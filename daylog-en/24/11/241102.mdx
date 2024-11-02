@@ -1,0 +1,65 @@
+---
+title: "CROSS JOIN"
+date: "241102"
+tags: ["RDS"]
+---
+
+## Basic Concept of CROSS JOIN
+
+- Definition: A CROSS JOIN combines every row from one table with every row from the other table.
+- Result: If the first table contains _n_ rows and the second table contains _m_ rows, the resulting dataset will have a total of _n × m_ rows.
+- Syntax: You can explicitly use the `CROSS JOIN` keyword or simply separate the table names with a comma in the FROM clause.
+
+```sql
+-- Explicit syntax
+SELECT * FROM table1 CROSS JOIN table2;
+
+-- Implicit syntax (produces the same result)
+SELECT * FROM table1, table2;
+```
+
+## Example: A Real-World Use Case
+
+Consider two tables, `products` and `colors`, which store product names and colors respectively:
+
+```sql
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name TEXT
+);
+
+CREATE TABLE colors (
+  id SERIAL PRIMARY KEY,
+  color TEXT
+);
+```
+
+To generate every possible combination of products and colors, you can use a CROSS JOIN as follows:
+
+```sql
+SELECT p.name, c.color
+FROM products p
+CROSS JOIN colors c;
+```
+
+This query returns all combinations where each product name from the `products` table is paired with each color from the `colors` table.
+
+## Considerations When Using CROSS JOIN
+
+1. Result Set Size  
+   When both tables contain a large number of rows, the result set can become enormous, potentially impacting performance. For instance, with 1,000 rows in each table, the query would yield 1,000,000 rows.
+
+2. Intended Use Cases  
+   A CROSS JOIN is useful when you need to compute every possible combination. However, in most cases, you might be able to achieve your desired outcome more efficiently using an INNER JOIN or another join type, so it’s important to clarify your purpose.
+
+3. Filtering  
+   Often, a WHERE clause is applied after a CROSS JOIN to restrict the results. For example, if you only need combinations with a specific color:
+
+   ```sql
+   SELECT p.name, c.color
+   FROM products p
+   CROSS JOIN colors c
+   WHERE c.color = 'red';
+   ```
+
+   This query filters the dataset to include only those rows where the color is 'red'.
