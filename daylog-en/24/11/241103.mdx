@@ -1,0 +1,92 @@
+---
+title: "Exponential Backoff"
+date: "241103"
+tags: ["Concept"]
+---
+
+## What is Exponential Backoff?
+
+Exponential backoff is a retry strategy that gradually increases the waiting time between retries when a temporary failure occurs in network requests or API calls.  
+Instead of retrying at fixed intervals, this approach exponentially increases the delay after each failure. This helps reduce server load and prevents excessive simultaneous retry attempts.
+
+## How It Works and Why It’s Needed
+
+### How It Works
+
+1. Initial attempt: When a request fails, it does not immediately retry but instead waits for a specified delay.
+2. Exponential growth: The delay after the first retry is short, but it doubles (e.g., 2x, 4x, 8x, etc.) after each failure.
+3. Maximum limit: A maximum delay (`max delay`) is set to prevent excessive wait times.
+
+For example, if the initial delay is set to 1 second, the retry intervals will follow this pattern: 1s, 2s, 4s, 8s, ....
+
+### Why Is It Needed?
+
+- Reduces server load: If all clients retry at the same time during network failures or temporary server issues, the server load can spike.
+- Improves network stability: It provides time for transient issues to be resolved, increasing the likelihood of a successful retry.
+- Prevents resource waste: By reducing unnecessary requests, it conserves network resources and server capacity.
+
+## Combining Exponential Backoff with Jitter
+
+Using only exponential backoff may still lead to clients retrying at the same time.  
+To mitigate this issue, a technique called jitter is applied.
+
+- Full Jitter: Picks a random value between `0` and the calculated delay.
+- Equal Jitter: Adds a random value to half of the calculated delay to distribute requests more evenly.
+- Decorrelated Jitter: Randomizes the next delay value independently of the previous delay.
+
+By applying jitter, concurrent retry spikes can be further minimized, reducing server congestion.
+
+## Code Example (TypeScript)
+
+Below is a simple function implementing exponential backoff.  
+It calculates the waiting time based on the retry count and limits it with a maximum delay.
+
+```typescript
+/
+ * Function to calculate exponential backoff delay
+ * @param attempt - Current retry count (starting from 0)
+ * @param minDelay - Minimum delay (ms)
+ * @param maxDelay - Maximum delay (ms)
+ * @returns Computed delay (ms)
+ */
+function getExponentialBackoffDelay(
+  attempt: number,
+  minDelay: number = 1000,
+  maxDelay: number = 32000
+): number {
+  // Compute exponentially increasing delay
+  const delay = Math.min(minDelay * Math.pow(2, attempt), maxDelay);
+  return delay;
+}
+
+// Example usage
+async function makeRequestWithBackoff(requestFn: () => Promise<any>) {
+  let attempt = 0;
+  const maxAttempts = 5;
+
+  while (attempt < maxAttempts) {
+    try {
+      const result = await requestFn();
+      return result; // Return result on success
+    } catch (error) {
+      const delay = getExponentialBackoffDelay(attempt);
+      console.warn(`Retry #${attempt + 1}: Retrying after ${delay}ms`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      attempt++;
+    }
+  }
+  throw new Error("Max retry attempts exceeded");
+}
+```
+
+This code applies exponential backoff when a network request or API call fails.  
+You can further enhance it by adding jitter logic to introduce randomness.
+
+## Conclusion
+
+Exponential backoff is a highly effective retry strategy for distributed systems and network applications.
+
+- It helps prevent server overload and improves network stability.
+- When combined with jitter, it effectively resolves concurrent retry issues.
+
+Implementing this strategy can enhance system resilience and improve user experience in cases of temporary failures.

@@ -1,0 +1,92 @@
+---
+title: "지수 백오프"
+date: "241103"
+tags: ["Concept"]
+---
+
+## 지수 백오프란?
+
+지수 백오프는 네트워크 요청이나 API 호출 등에서 일시적인 오류가 발생했을 때, 재시도 간의 대기 시간을 점진적으로 늘려가는 재시도 전략입니다.  
+단순히 일정 시간마다 재시도하는 것이 아니라, 매번 실패할 때마다 대기 시간을 지수적으로 증가시킴으로써 서버의 부하를 완화하고, 동시 재시도로 인한 폭주 현상을 예방하는 효과가 있습니다.
+
+## 동작 원리와 필요성
+
+#### 동작 원리
+
+1. 초기 시도: 요청을 보내고 실패하면, 바로 즉시 재시도하지 않고 일정한 대기 시간을 둡니다.
+2. 지수적 증가: 첫 번째 재시도 후의 대기 시간은 짧지만, 실패할 때마다 대기 시간이 2배, 4배, 8배 등으로 늘어납니다.
+3. 최대 한계: 무한히 증가하지 않도록 최대 대기 시간(max delay)을 설정합니다.
+
+예를 들어, 초기 대기 시간을 1초로 설정했다면 재시도 간의 대기 시간은 1초, 2초, 4초, 8초…와 같이 증가하게 됩니다.
+
+#### 왜 필요한가?
+
+- 서버 부하 완화: 네트워크 장애나 일시적 서버 오류 발생 시 모든 클라이언트가 동시에 재시도하면 서버 부하가 급증할 수 있습니다.
+- 네트워크 안정성 향상: 일시적인 장애가 해결될 시간을 제공하여 재시도 시 성공률을 높입니다.
+- 자원 낭비 방지: 불필요한 요청을 줄여 네트워크 자원과 서버의 처리 능력을 보존할 수 있습니다.
+
+## 지터(Jitter)와의 결합
+
+지수 백오프만 사용하면, 모든 클라이언트가 동일한 재시도 타이밍에 맞춰 재시도할 위험이 있습니다.  
+이를 보완하기 위해 지터(Jitter) 기법을 도입합니다.
+
+- Full Jitter: 0과 계산된 대기 시간 사이의 무작위 값을 선택합니다.
+- Equal Jitter: 계산된 대기 시간의 절반에 무작위 값을 추가하여 보다 균등하게 분포시킵니다.
+- Decorrelated Jitter: 이전 대기 시간과는 상관없이 랜덤하게 결정된 값을 사용합니다.
+
+지터를 적용하면 동시 재시도로 인한 서버 과부하를 더욱 효과적으로 완화할 수 있습니다.
+
+## 코드 예시 (TypeScript)
+
+아래는 간단한 지수 백오프 함수의 예시입니다.  
+재시도 횟수에 따라 대기 시간을 계산하고, 필요에 따라 최대 대기 시간으로 제한하는 방식입니다.
+
+```typescript
+/
+ * 지수 백오프를 적용한 대기 시간 계산 함수
+ * @param attempt - 현재 재시도 횟수 (0부터 시작)
+ * @param minDelay - 최소 대기 시간 (ms)
+ * @param maxDelay - 최대 대기 시간 (ms)
+ * @returns 계산된 대기 시간 (ms)
+ */
+function getExponentialBackoffDelay(
+  attempt: number,
+  minDelay: number = 1000,
+  maxDelay: number = 32000
+): number {
+  // 지수적으로 증가하는 대기 시간 계산
+  const delay = Math.min(minDelay * Math.pow(2, attempt), maxDelay);
+  return delay;
+}
+
+// 사용 예시
+async function makeRequestWithBackoff(requestFn: () => Promise<any>) {
+  let attempt = 0;
+  const maxAttempts = 5;
+
+  while (attempt < maxAttempts) {
+    try {
+      const result = await requestFn();
+      return result; // 성공 시 결과 반환
+    } catch (error) {
+      const delay = getExponentialBackoffDelay(attempt);
+      console.warn(`재시도 #${attempt + 1}: ${delay}ms 후 재시도`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      attempt++;
+    }
+  }
+  throw new Error("최대 재시도 횟수 초과");
+}
+```
+
+위 코드는 네트워크 요청이나 API 호출 실패 시, 재시도 로직에 지수 백오프를 적용한 예시입니다.  
+필요에 따라 지터 로직을 추가하여 더욱 무작위성을 도입할 수 있습니다.
+
+## 정리
+
+지수 백오프는 분산 시스템 및 네트워크 애플리케이션에서 매우 유용한 재시도 전략입니다.
+
+- 서버 과부하 방지와 네트워크 안정성 향상에 기여하며,
+- 지터와 결합하면 동시 재시도의 문제도 효과적으로 해결할 수 있습니다.
+
+이와 같은 전략을 통해, 시스템 장애에 대한 복원력을 높이고 사용자 경험을 개선할 수 있습니다.
