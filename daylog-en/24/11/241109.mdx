@@ -1,0 +1,108 @@
+---
+title: "Session Sharing in a Multi-Instance Environment"
+date: "241109"
+tags: ["AWS", "AdminJS"]
+---
+
+When operating AdminJS, you may encounter various challenges with session management in a multi-instance (or scale-out) environment that simply don’t appear on a single server.  
+Here, we’ll explore why session sharing is important and review the most common methods to address it.
+
+## Why Is Session Sharing Necessary in a Multi-Instance Environment?
+
+HTTP is inherently a stateless protocol.  
+This means each request from a client is processed independently, so to maintain state information such as login status or user-specific settings, sessions are required.  
+On a single server, storing sessions in memory is sufficient; however, in an environment where a load balancer distributes requests across multiple servers (instances), the session information stored on one server is not available on the others, which leads to issues.
+
+For example, if a user logs in and the first request creates a session on Server A, but subsequent requests are directed to Server B, Server B will not have that session information and will require re-authentication.  
+To solve this issue, all instances must share the session information.
+
+## Representative Solutions for Session Sharing
+
+There are three primary methods to implement session sharing in a multi-instance environment.
+
+#### Sticky Session
+
+Sticky Session is a method where the load balancer always directs a specific user’s request to the server where the session was initially created.  
+In other words, based on the information stored in the client’s cookie, requests are fixed to a particular server so that the session stored in that server’s memory can be reused.
+
+Advantages:
+
+- Resolves the issue without requiring additional session-sharing infrastructure.
+- Simple to implement.
+
+Disadvantages:
+
+- Traffic can become concentrated on a specific server.
+- If that server fails, all users connected to it are affected.
+
+> The Sticky Session approach might serve as a short-term solution, but it has limitations in terms of availability and scalability.
+
+#### Session Clustering
+
+Session clustering is a feature provided by web application servers (e.g., Tomcat) that replicates session information created on one server to other servers in real time.  
+In this method, the user’s session is replicated and stored across multiple servers, ensuring that regardless of which server handles the request, the same session data is available.
+
+Advantages:
+
+- Maintains session consistency regardless of which server is accessed.
+- Allows other servers to immediately take over in case of a failure.
+
+Disadvantages:
+
+- As the number of servers increases, the overhead from replication (in terms of memory and network usage) also increases.
+- There are performance limitations in large-scale cluster environments.
+  > Note that Tomcat’s all-to-all session replication method is generally suitable for small clusters.
+
+#### Using External Session Storage (e.g., Redis)
+
+The most common and scalable solution is to adopt an external session storage system (such as Redis or Memcached).  
+In this approach, each instance does not store sessions in its own memory; instead, all instances access a centralized storage system to read and write session information.
+
+Example code (Node.js Express + Redis):
+
+```javascript
+const session = require("express-session");
+const RedisStore = require("connect-redis")(session);
+const redis = require("redis");
+
+const redisClient = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  // Additional configuration for authentication if needed
+});
+
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: process.env.NODE_ENV === "production" },
+  })
+);
+```
+
+Advantages:
+
+- Since all servers reference a centralized storage, the session inconsistency issue is completely resolved.
+- Provides scalability and high availability (with replication and clustering options available).
+
+Disadvantages:
+
+- Requires the setup and maintenance of separate infrastructure.
+- Potential issues such as network latency may arise due to the nature of external storage.
+
+> Many projects prefer using Redis because it integrates easily with various frameworks such as Spring and Node.js.
+
+## Considerations When Choosing a Method
+
+- Traffic Volume: For small-scale environments, Sticky Sessions or session clustering might suffice, but for high-traffic environments, external session storage is a safer bet.
+- Availability: It’s important not to depend on a single instance; prepare for failures by configuring replication on the centralized storage.
+- Operational Complexity: Additional infrastructure setup and monitoring are required, so consider your team’s operational capabilities when choosing a solution.
+
+## Conclusion
+
+The session sharing issue in a multi-instance environment is critical not only from a development perspective but also in terms of operations and scalability.  
+Generally, using an external session storage solution (particularly Redis) is the most widely adopted approach, as it ensures both stability and scalability.  
+Of course, each method has its own pros and cons, so it is essential to choose the optimal method based on your service’s characteristics and traffic volume.  
+For our in-house admin system, I plan to configure Sticky Sessions.
