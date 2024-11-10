@@ -1,0 +1,142 @@
+---
+title: "Automating AWS RDS Read Replica Creation/Deletion"
+date: "241110"
+tags: ["AWS"]
+---
+
+In scenarios where traffic surges occur during specific periods, it is crucial to operate RDS instances cost-effectively by automating the creation and deletion of read replicas around peak hours.  
+This can be automated using Lambda functions with the AWS SDK in a Node.js environment.  
+Furthermore, by setting up scheduled triggers with AWS EventBridge, you can run these tasks in a fully serverless architecture without requiring a dedicated server.
+
+## Managing AWS RDS Read Replicas Using Node.js
+
+#### Setting up AWS SDK for JavaScript
+
+First, note that the AWS SDK is provided by default in the Node.js runtime on Lambda functions, so no additional installation is required.  
+If necessary, you can install it locally using the following command:
+
+```bash
+npm install aws-sdk
+```
+
+#### Read Replica Creation Function
+
+Below is an example of an AWS Lambda function that creates a read replica:
+
+```javascript
+// createReplica.js
+const AWS = require("aws-sdk");
+const rds = new AWS.RDS({ region: "ap-northeast-2" }); // e.g., Seoul region
+
+exports.handler = async (event) => {
+  try {
+    const params = {
+      DBInstanceIdentifier: "my-read-replica", // Identifier for the read replica to be created
+      SourceDBInstanceIdentifier: "my-primary-db", // Identifier for the source DB instance
+      DBInstanceClass: "db.t3.medium", // Choose the instance class as needed
+      // Additional options (storage, security groups, etc.) can be configured
+    };
+
+    const result = await rds.createDBInstanceReadReplica(params).promise();
+    console.log("Read replica creation request succeeded:", result);
+    return { status: "success", result };
+  } catch (error) {
+    console.error("Read replica creation failed:", error);
+    throw error;
+  }
+};
+```
+
+#### Read Replica Deletion Function
+
+The following code is an example Lambda function for deleting a read replica:
+
+```javascript
+// deleteReplica.js
+const AWS = require("aws-sdk");
+const rds = new AWS.RDS({ region: "ap-northeast-2" }); // e.g., Seoul region
+
+exports.handler = async (event) => {
+  try {
+    const params = {
+      DBInstanceIdentifier: "my-read-replica", // Identifier for the read replica to be deleted
+      SkipFinalSnapshot: true, // Modify snapshot options as needed
+    };
+
+    const result = await rds.deleteDBInstance(params).promise();
+    console.log("Read replica deletion request succeeded:", result);
+    return { status: "success", result };
+  } catch (error) {
+    console.error("Read replica deletion failed:", error);
+    throw error;
+  }
+};
+```
+
+## Scheduling Automation: Using AWS EventBridge
+
+With AWS EventBridge, you can trigger the above Lambda functions at specified times.
+
+#### Creating EventBridge Rules
+
+1. Log in to the AWS Management Console and navigate to EventBridge.
+2. Click the **Create rule** button.
+3. Select **Schedule** as the Event Source and use a CRON expression to customize the peak start time (e.g., 9 AM) and end time (e.g., 6 PM).
+4. For each rule, designate the appropriate Lambda function (either the read replica creation or deletion function) as the target.
+
+For example, you can set a CRON expression to create the read replica at 8:50 AM and delete it at 6:10 PM.
+
+### Example Schedule Expressions
+
+- **Read Replica Creation:**  
+  `cron(50 8 * * ? *)`  
+  _(Adjust based on UTC time as necessary)_
+
+- **Read Replica Deletion:**  
+  `cron(10 18 * * ? *)`
+
+## Using node-cron in Local or Server Environments
+
+If you prefer scheduling on an EC2 instance or within a container environment instead of AWS Lambda, you can use the [node-cron](https://www.npmjs.com/package/node-cron) package. Here’s a simple example:
+
+```javascript
+const cron = require("node-cron");
+const AWS = require("aws-sdk");
+const rds = new AWS.RDS({ region: "ap-northeast-2" });
+
+// Create a read replica every day at 9 AM
+cron.schedule("0 9 * * *", async () => {
+  try {
+    const params = {
+      DBInstanceIdentifier: "my-read-replica",
+      SourceDBInstanceIdentifier: "my-primary-db",
+      DBInstanceClass: "db.t3.medium",
+    };
+    const result = await rds.createDBInstanceReadReplica(params).promise();
+    console.log("Read replica created:", result);
+  } catch (error) {
+    console.error("Creation failed:", error);
+  }
+});
+
+// Delete the read replica every day at 6 PM
+cron.schedule("0 18 * * *", async () => {
+  try {
+    const params = {
+      DBInstanceIdentifier: "my-read-replica",
+      SkipFinalSnapshot: true,
+    };
+    const result = await rds.deleteDBInstance(params).promise();
+    console.log("Read replica deleted:", result);
+  } catch (error) {
+    console.error("Deletion failed:", error);
+  }
+});
+```
+
+This method requires a continuously running server, so for cost and operational efficiency, the AWS Lambda + EventBridge approach is generally recommended.
+
+## Conclusion
+
+In a Node.js environment, you can automate the creation and deletion of read replicas using Lambda functions with the AWS SDK, and set up scheduling with AWS EventBridge to run these tasks at predetermined times.  
+This approach allows you to efficiently manage resources during traffic peaks while optimizing costs.
