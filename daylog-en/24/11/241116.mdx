@@ -1,0 +1,68 @@
+---
+title: "PR Size for Efficient Code Reviews"
+date: "241116"
+tags: ["Git"]
+---
+
+## Why is the Size of a PR Important?
+
+- Review Efficiency:  
+  If a PR is too large, the reviewer must process too many changes at once. This can lead to decreased concentration and, ultimately, lower review quality. Conversely, an appropriately sized PR allows the reviewer to inspect the entire change in under an hour, enabling detailed feedback.
+
+- Collaboration and Communication:  
+  When a PR contains a single feature or issue, the purpose and intent of the code become clear, which in turn facilitates smooth communication among team members. This not only helps with understanding code changes but also aids in grasping the overall project direction.
+
+## Pros and Cons of Small vs. Large PRs
+
+### Advantages of Small PRs
+
+- Ease of Review: Smaller changes make it easier for reviewers to quickly understand the code and provide prompt feedback.
+- Quick Feedback: Short PRs enable fast reviews and merges, allowing subsequent work to be integrated swiftly.
+- Minimized Conflicts: When work is divided by feature, there is a lower chance of conflicts with other team members’ code.
+
+### Disadvantages of Large PRs
+
+- Increased Review Burden: Bundling too many changes together means reviewers may miss critical details.
+- Longer Review Times: Extensive PRs require significantly more time to review, potentially delaying the overall development process.
+
+## Concrete Criteria for a Good PR
+
+#### Appropriate Size
+
+- Line Count:  
+  It is commonly recommended that an ideal PR consists of about 200–400 lines of changes. In particular, changes in the range of 200–300 lines allow reviewers to comfortably inspect the entire code and provide specific feedback.
+- Review Time:  
+  Aim for a review time of under one hour. If the review takes too long, the reviewer’s concentration may wane, making this a key criterion for adjusting PR size.
+
+#### Separation by Feature
+
+- A PR should have a clear, singular purpose (e.g., adding one feature, fixing a bug, or refactoring). This clarity in scope and intent enables reviewers to quickly grasp the changes.
+- Related commits should be grouped appropriately, and commit messages should concisely explain why the changes are necessary.
+
+#### Clear Explanation and Documentation
+
+- PR Description:  
+  Write a detailed description that covers the PR’s purpose, main changes, and testing methods. This aids the reviewer in understanding the full context.
+- Commit Messages:  
+  Each commit should clearly document what was changed and why, ensuring the history is useful for future reference and potential rollbacks.
+
+#### Flexible Application of Guidelines
+
+- Instead of applying the same criteria in every situation, adjust the PR’s size and scope based on the project’s characteristics and the team’s needs.
+- For new feature development or complex refactoring, PRs may naturally be larger. In these cases, using PR templates or the Draft PR feature to gather interim feedback can be very effective.
+
+## Flexible Approaches for Different Scenarios
+
+- New Feature Development:  
+  In the early stages, it may be challenging to deliver the complete feature all at once. Utilizing a Draft PR to share the initial framework and then progressively refining it through feedback is an effective strategy.
+- Refactoring:  
+  When the scope of changes is wide, consider breaking the work into several small PRs or organizing commits clearly so that the reviewer can understand the changes at a glance.
+- Team Feedback Culture:  
+  Adopting established PR guidelines or templates within the team ensures that everyone reviews code based on consistent standards, greatly enhancing collaborative efficiency.
+
+## Summary
+
+A good PR is not just a record of “code changes” but a well-organized deliverable that represents a meaningful unit of work that reviewers can quickly and accurately understand.
+
+- Appropriate size, clear purpose, and systematic explanations all contribute to enhancing review efficiency, which in turn improves overall code quality and fosters a better collaborative culture.
+- When these standards are shared within the team and continuous feedback is encouraged, both productivity and code quality will naturally improve.
