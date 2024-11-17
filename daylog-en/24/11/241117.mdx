@@ -1,0 +1,35 @@
+---
+title: "String Whitespace Trimming Function"
+date: "241117"
+tags: ["NestJS"]
+---
+
+This is a utility function for trimming whitespace in strings, which can be used universally in NestJS services or DTO transformations.  
+It replaces all whitespace characters, including newlines (`\n`), tabs (`\t`), and multiple consecutive spaces (`\s+`), with either a single space or an empty string.
+
+#### Whitespace Trimming Utility Function
+
+```typescript
+export const trimAllSpaces = (input: string, replaceWith = ""): string => {
+  return input.replace(/\s+/g, replaceWith).trim();
+};
+```
+
+#### Usage Example
+
+```typescript
+const str = `  Hello,   
+    this is a    sample project.\t\tTesting in progress. `;
+
+console.log(trimAllSpaces(str));
+// Output: "Hello,thisisasampleproject.Testinginprogress."
+
+console.log(trimAllSpaces(str, " "));
+// Output: "Hello, this is a sample project. Testing in progress."
+```
+
+#### Explanation
+
+- `\s+`: Matches all whitespace characters (spaces, newlines, tabs, etc.).
+- `replaceWith`: Defaults to `''` (an empty string) but can be set to `' '` (a single space) if needed.
+- `trim()`: Removes leading and trailing whitespace.
