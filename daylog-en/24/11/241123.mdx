@@ -1,0 +1,95 @@
+---
+title: "Swagger Circular Dependency Issue"
+date: "241123"
+tags: ["NestJS"]
+---
+
+When using Swagger to automatically generate API documentation, circular dependency errors often occur.
+
+## How Swagger Extracts Metadata
+
+The Swagger plugin in NestJS utilizes TypeScript decorators to read property and type information from each class.  
+For example, consider the following class:
+
+```typescript
+export class User {
+  @ApiProperty({ description: "User name", example: "John Doe" })
+  name: string;
+
+  @ApiProperty({ description: "User age", example: 30 })
+  age: number;
+}
+```
+
+Swagger generates the schema for the `User` class based on the metadata provided through the `@ApiProperty` decorator.  
+During this process, it recursively analyzes the type of each field (e.g., string, number, or nested object) to construct the final schema.
+
+## Difference Between Regular Classes and Enums
+
+#### In the Case of Classes
+
+Regular classes contain instance properties and methods.  
+When analyzing these classes, Swagger scans all properties and their types within the class.  
+For example, the following class structure allows Swagger to document its schema correctly:
+
+```typescript
+@Entity()
+export class Job {
+  @ManyToOne(() => Customer, (customer) => customer.jobs)
+  @ApiProperty({ type: () => Customer }) // Using a lazy resolver
+  customer: Customer;
+}
+```
+
+#### In the Case of Enums
+
+Enums are simply a collection of constant values.  
+Since they do not contain instance properties like a class, if Swagger mistakenly treats an enum as a regular class and tries to analyze its structure, issues arise.  
+For example, the following incorrect approach can cause Swagger to attempt a recursive analysis of the enum’s values, leading to a circular dependency error:
+
+```typescript
+@ApiProperty({
+  description: 'Customer information',
+  type: Customer, // ❌ Incorrectly treating an enum as a class
+  nullable: false,
+})
+customer: Customer;
+```
+
+## Cause of the Circular Dependency Issue
+
+Swagger assumes that the given type is a regular class and attempts to recursively scan its internal properties.  
+However, enums do not contain actual instance properties—only constant values exist within them.  
+Thus, when Swagger tries to analyze an enum:
+
+- It may attempt to recursively explore internal values.
+- It may try to extract unexpected metadata, leading to a circular reference structure.
+
+In such cases, Swagger throws an error:  
+"A circular dependency has been detected."
+
+This issue is particularly common when an entity with a bidirectional relationship contains an enum, as Swagger may get stuck in an infinite loop while exploring its structure.
+
+## Correct Solution: Using the `enum` Option
+
+The solution is simple—explicitly indicate that the type is an enum by using the `enum` option in `@ApiProperty`.
+
+```typescript
+@ApiProperty({
+  description: 'Customer information',
+  enum: Customer, // ✅ Correctly specifying the type as an enum
+  nullable: false,
+})
+customer: Customer;
+```
+
+With this approach, Swagger recognizes `Customer` as an enum, not a class, and directly includes its defined constant values in the schema.  
+Since recursive analysis is no longer needed, the circular dependency issue is avoided.
+
+## Conclusion
+
+NestJS Swagger recursively explores type information when generating class-based model schemas.  
+However, since enums are simple collections of constant values, treating them the same way as classes can cause circular dependency issues.
+
+To prevent this, always use the `enum` option instead of `type` when defining an enum in Swagger.  
+By understanding how Swagger processes metadata and applying the correct options, you can generate clean API documentation without circular dependency errors.

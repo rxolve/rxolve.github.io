@@ -1,0 +1,93 @@
+---
+title: "Swagger 순환 참조 문제"
+date: "241123"
+tags: ["NestJS"]
+---
+
+Swagger를 사용하여 API 문서를 자동으로 생성할 때, 종종 순환 참조 에러가 발생합니다.
+
+## Swagger의 메타데이터 추출 방식
+
+NestJS의 Swagger 플러그인은 TypeScript 데코레이터를 활용하여 각 클래스의 프로퍼티 및 타입 정보를 읽어 들입니다.  
+예를 들어, 아래와 같은 클래스가 있다고 가정해봅니다.
+
+```typescript
+export class User {
+  @ApiProperty({ description: "사용자 이름", example: "홍길동" })
+  name: string;
+
+  @ApiProperty({ description: "사용자 나이", example: 30 })
+  age: number;
+}
+```
+
+Swagger는 `@ApiProperty` 데코레이터를 통해 전달받은 메타데이터를 바탕으로, User 클래스의 스키마를 생성합니다.  
+이때 내부에 정의된 각 필드의 타입(예: 문자열, 숫자, 혹은 중첩 객체 등)을 재귀적으로 탐색하여 최종 스키마를 구성합니다.
+
+## 일반 클래스와 열거형의 차이
+
+#### Class의 경우
+
+일반 클래스는 인스턴스 프로퍼티와 메서드를 포함합니다.  
+Swagger는 이러한 클래스를 분석하면서, 클래스 내부에 존재하는 모든 프로퍼티와 그 타입을 탐색합니다.  
+예를 들어, 아래와 같이 작성된 클래스는 Swagger가 내부 구조를 그대로 탐색해 문서를 생성할 수 있습니다.
+
+```typescript
+@Entity()
+export class Job {
+  @ManyToOne(() => Customer, (customer) => customer.jobs)
+  @ApiProperty({ type: () => Customer }) // lazy resolver 사용
+  customer: Customer;
+}
+```
+
+#### Enum의 경우
+
+열거형은 단순히 상수 값들의 집합입니다.  
+내부에는 클래스처럼 탐색할 만한 인스턴스 프로퍼티가 없으므로, Swagger가 열거형을 일반 클래스처럼 취급하여 내부 구조를 분석하려고 하면 문제가 발생합니다.  
+예를 들어, 아래와 같이 작성하면 Swagger는 열거형을 "일반 클래스"로 오인하여 내부의 값들을 재귀적으로 탐색하려 시도하게 되고, 이 과정에서 순환 참조 문제가 발생할 수 있습니다.
+
+```typescript
+@ApiProperty({
+  description: '고객 정보',
+  type: Customer, // ❌ 열거형을 일반 클래스처럼 처리
+  nullable: false,
+})
+customer: Customer;
+```
+
+## 순환 참조 문제 발생 원인
+
+Swagger는 일반 클래스라고 가정하고, 전달된 타입의 내부 프로퍼티들을 재귀적으로 탐색합니다.  
+열거형(enum)의 경우, 내부에는 실제 인스턴스 프로퍼티가 없고, 단순한 상수 값들만 존재합니다.  
+이 때문에 Swagger가 열거형을 분석하려 할 때,
+
+- 재귀적으로 내부 값을 탐색하려고 하거나
+- 예상치 못한 메타데이터를 추출하려고 시도하면서 순환 참조 구조로 빠지게 됩니다.
+
+이러한 상황에서는 Swagger가 "A circular dependency has been detected"라는 에러를 발생시킵니다.  
+특히 양방향 관계를 가진 엔티티에서 열거형이 포함되어 있다면, Swagger가 내부 구조를 탐색하는 도중 순환 참조 문제에 빠지기 쉽습니다.
+
+## 올바른 해결 방법: enum 옵션 사용
+
+해결책은 간단합니다. 열거형임을 Swagger에 명시적으로 알려주기 위해, `@ApiProperty`의 옵션으로 `enum`을 사용합니다.
+
+```typescript
+@ApiProperty({
+  description: '고객 정보',
+  enum: Customer, // enum 옵션을 사용하여 열거형임을 명시
+  nullable: false,
+})
+customer: Customer;
+```
+
+이렇게 작성하면 Swagger는 Customer를 일반 클래스가 아닌 열거형으로 인식하고, 내부에 정의된 상수 값 목록을 그대로 스키마에 반영합니다.  
+따라서 재귀적 탐색이 발생하지 않아 순환 참조 문제가 해결됩니다.
+
+## 마치며
+
+NestJS Swagger는 클래스 기반의 모델 스키마를 생성할 때 재귀적으로 타입 정보를 탐색합니다.  
+하지만 열거형은 단순한 상수 값의 집합이기 때문에 일반 클래스와 동일한 방식으로 처리하면 순환 참조 문제를 유발할 수 있습니다.  
+따라서 열거형을 사용할 때는 `type` 대신 `enum` 옵션을 사용하여 Swagger가 올바르게 메타데이터를 추출하도록 해야 합니다.
+
+이처럼 Swagger의 동작 원리를 이해하고 적절한 옵션을 사용하면, 순환 참조 문제 없이 깔끔한 API 문서를 생성할 수 있습니다.
