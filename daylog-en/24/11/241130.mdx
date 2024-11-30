@@ -1,0 +1,39 @@
+---
+title: "The Reference Target of this in Different Execution Contexts"
+date: "241130"
+tags: ["JavaScript"]
+---
+
+| Execution Context              | Target of `this`                            | Description and Examples                                                                                                                                             |
+| ------------------------------ | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Global Context                 | Global Object (`window` / `global`)         | In top-level code, `this` refers to `window` in browsers and `global` in Node.js.                                                                                    |
+| Regular Function (non-strict)  | Global Object                               | In a regular function call (when not in strict mode), `this` refers to the global object. Example: `function foo() { console.log(this); }`                           |
+| Regular Function (strict mode) | `undefined`                                 | When `'use strict';` is used, `this` inside a function is `undefined` by default.                                                                                    |
+| Method Call                    | The Calling Object                          | When calling an object's method, `this` refers to the object that owns the method. Example: `obj.method()` → `this` refers to `obj`.                                 |
+| Constructor Function           | Newly Created Instance                      | When calling a constructor function with `new`, `this` refers to the newly created object. Example: `new Person()`                                                   |
+| `call` / `apply` / `bind`      | The Explicitly Specified Object             | These methods allow explicitly setting `this` to a specific object when calling a function.                                                                          |
+| Arrow Function                 | Lexical `this` (from the surrounding scope) | Arrow functions do not have their own `this`; instead, they inherit `this` from their surrounding lexical scope.                                                     |
+| Event Handler                  | The Element that Triggered the Event        | In a browser event handler, `this` refers to the element that triggered the event (e.g., a button or input field). (Note: In strict mode, this behavior may differ.) |
+
+#### Additional Notes
+
+- Global Context and Function Calls  
+  In global execution or when calling a regular function in non-strict mode, `this` refers to the global object.  
+  However, in strict mode, `this` is `undefined` to prevent accidental access to the global object.
+
+- Methods and Constructor Functions  
+  Inside a method, `this` refers to the object that owns the method.  
+  In a constructor function, `this` is bound to the new instance being created.  
+  These cases are fundamental to object-oriented programming in JavaScript.
+
+- `call`, `apply`, and `bind`  
+  These methods help explicitly set the value of `this` when calling a function.  
+  They improve function reusability and allow executing functions in the desired context.
+
+- Lexical `this` in Arrow Functions  
+  Unlike regular functions, arrow functions do not have their own `this`.  
+  Instead, they inherit `this` from the surrounding lexical scope, making them useful for nested functions.
+
+- `this` in Event Handlers  
+  Inside an event listener, `this` refers to the element that triggered the event.  
+  This is helpful for DOM manipulation but should be used carefully, as behavior can vary based on the context.
