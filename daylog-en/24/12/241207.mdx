@@ -1,0 +1,70 @@
+---
+title: "Difference Between `undefined` and `null` in TypeORM"
+date: "241207"
+tags: ["NestJS"]
+---
+
+## `undefined` vs `null`
+
+#### `undefined`
+
+- Represents "a value has not been assigned" at the JavaScript/TypeScript level.
+- When calling TypeORM’s `save()` (or `insert()`), if a property is `undefined`, that column is excluded from the SQL query.
+- If the column has a `@Column({ default: ... })` setting, the DB automatically fills it in with the DEFAULT value.
+
+> Analogy:
+>
+> - It’s like leaving an item completely off the order form → “I’ll just have the chef’s default dish!”
+
+#### `null`
+
+- Indicates an explicit intent to leave the value empty.
+- TypeORM includes the property in the SQL query and performs `INSERT INTO ... (col) VALUES (NULL)` or `UPDATE ... SET col = NULL`.
+- You must set `nullable: true` on the column for this to work without throwing an error.
+
+> Analogy:
+>
+> - It’s like writing “please remove this item” on the order form.
+
+## When the `default` Value Is Applied
+
+1. Schema-level behavior:
+
+   ```ts
+   @Column({ default: 'guest' })
+   role: string;
+   ```
+
+   Declaring it like this adds a constraint to the database:  
+   `ALTER TABLE ... ADD COLUMN role varchar DEFAULT 'guest'`.
+
+2. Application-level behavior:
+   - If the property is `undefined` → the column is skipped in the query, and the DB’s DEFAULT is applied.
+   - If the property is `null` → the DB’s DEFAULT is ignored, and `NULL` is stored instead.
+
+## Development Tips
+
+#### Use `undefined` for Partial Updates
+
+Since `save()` skips properties that are `undefined`, it’s useful for updating only selected fields from a DTO.
+
+```ts
+const dto = { nickname: "junior" }; // Only want to update nickname!
+await userRepository.save({ id: 1, ...dto });
+// Only nickname gets updated; other fields remain untouched
+```
+
+#### When to Use `null` Intentionally
+
+- If you want to clear a value (flush), assign `null` — but only after setting `nullable: true` on the column.
+- To explicitly update a column to `NULL`, use `null` in your entity.
+
+## Summary
+
+| Value       | Included in Query   | Result                            |
+| ----------- | ------------------- | --------------------------------- |
+| `undefined` | Skipped             | DB DEFAULT may be applied         |
+| `null`      | Explicitly included | `NULL` is stored; DEFAULT ignored |
+
+- `undefined` → “Left off the order” → DEFAULT
+- `null` → “Marked for removal” → NULL
