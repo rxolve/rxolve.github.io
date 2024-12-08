@@ -1,0 +1,112 @@
+---
+title: "Cursor Rules"
+date: "241208"
+tags: ["IDE"]
+---
+
+The `.cursorrules` file defines project-specific rules for the Cursor AI editor, helping the AI understand your coding style and architecture to generate consistent, high-quality code.  
+Rules can be divided into Global Rules and Project Rules. With a simple Markdown syntax, you can define your team’s coding conventions, file structure, test coverage expectations, and more.  
+This helps reduce code review time, accelerates onboarding for new team members, and automates repetitive tasks.
+
+---
+
+## Understanding `.cursorrules`
+
+- **Global Rules**: Defined in Cursor's settings and applied across all projects.
+- **Project Rules**: Defined in the `.cursorrules` file at the project root and applied only within that project.
+
+---
+
+## Creating the Rules File
+
+1. Create a `.cursorrules` file in the project root.
+2. Write rules using Markdown format.
+3. Enable the “Include `.cursorrules` file” option in Cursor settings.
+
+```markdown
+# Example .cursorrules
+
+## Code Style
+
+- Always use TypeScript strict mode.
+- Define interfaces explicitly.
+- Avoid using the `any` type.
+
+## Component Development (React)
+
+- Use only functional components.
+- Always define types for props.
+- Use CSS Modules.
+
+## Testing
+
+- Maintain at least 80% unit test coverage.
+- Use React Testing Library.
+```
+
+---
+
+## Common Rule Types and Examples
+
+#### Code Conventions
+
+- **Naming**: camelCase for variables, PascalCase for components
+- **File Structure**: Use directories like `components/`, `hooks/`, `utils/`
+- **Style**: Line length of 80 characters, semicolon preference, tabs vs. spaces
+
+#### Architecture Guidelines
+
+- Separation of concerns: “One responsibility per file”
+- Layered structure: Use `domain/`, `application/`, and `infrastructure/` directories
+
+#### Automation & Validation
+
+- Minimum test coverage comments
+- Pre-commit hooks for linting and unit tests in CI pipelines
+
+---
+
+## Example Use Cases
+
+#### NestJS API Project
+
+```markdown
+# NestJS Rules
+
+- Controllers must be within 10 lines max.
+- Services must not access DB directly (use Repositories).
+- DTOs must always use class-validator decorators.
+```
+
+#### Next.js Static Blog
+
+```markdown
+# Next.js Blog Rules
+
+- Page files must be located in `src/pages/**/*.tsx`
+- Always use `getStaticProps`
+- Use `Image` component to render all images
+```
+
+---
+
+## Team Collaboration & Maintenance
+
+- **Version Control**: Include the `.cursorrules` file in Git.
+- **Documentation**: Summarize rules in your README.md.
+- **Onboarding**: Ask new members to read the rules file.
+
+---
+
+## Pro Tips
+
+- **Conditional Rules**: Use `@file` directives to define file-pattern-specific rules.
+- **External References**: Use modular files under `.cursor/rules/*.mdc` for better structure and reuse.
+- **Interactive Feedback**: Enable automatic suggestions when rules are violated.
+
+---
+
+## Conclusion
+
+The `.cursorrules` file is not just a settings file for an AI tool—it’s your team’s **code manifesto**.  
+A well-crafted set of rules can boost code quality tenfold, drastically reduce review times, and significantly improve team productivity.
