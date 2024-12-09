@@ -1,0 +1,88 @@
+---
+title: 'S3 Stream Wrapper'
+date: '241209'
+tags: ['AWS']
+---
+
+The **S3 Stream Wrapper** is a feature provided by the AWS SDK for PHP, allowing you to interact with objects in an S3 bucket as if they were local files using the `s3://` scheme (URI format).
+
+---
+
+## Why Use It?
+
+- **Transparency**: You can work with S3 data using standard PHP file functions like `fopen()`, `fread()`, and `file_get_contents()`.
+- **Convenience**: Instead of using complex `getObject()`/`putObject()` API calls, you can simply change the file path to reuse existing code.
+- **Performance**: When only a portion of the file (like the header) is needed, it avoids downloading the whole file. Since it uses stream-based access, memory usage is minimized.
+
+---
+
+## How to Use
+
+1. **Install the AWS SDK**
+
+   ```bash
+   composer require aws/aws-sdk-php
+   ```
+
+2. **Register the Stream Wrapper**
+
+   ```php
+   use Aws\S3\S3Client;
+
+   // ① Create the S3 client
+   $s3 = new S3Client([
+       'version'     => 'latest',
+       'region'      => 'ap-northeast-2',
+       'credentials' => [
+           'key'    => 'YOUR_AWS_KEY',
+           'secret' => 'YOUR_AWS_SECRET',
+       ],
+   ]);
+
+   // ② Register the S3 stream wrapper with PHP
+   $s3->registerStreamWrapper();
+   ```
+
+3. **Use the `s3://` Path**
+
+   ```php
+   $bucket = 'my-bucket';
+   $key    = 'path/to/file.wav';
+   $uri    = "s3://{$bucket}/{$key}";
+
+   // Example: Read only the header to calculate length
+   $fp = fopen($uri, 'rb');
+   $header = fread($fp, 44);
+   fclose($fp);
+   // ...parse header logic...
+   ```
+
+   Alternatively:
+
+   ```php
+   // Download the entire file
+   copy($uri, '/local/path/file.wav');
+
+   // Or read it directly into a string
+   $contents = file_get_contents($uri);
+   ```
+
+---
+
+## How It Works Internally
+
+- The AWS SDK registers a handler for the `s3://` protocol in PHP’s stream wrapper registry.
+- When you call `fopen('s3://...')`, the SDK internally triggers S3 API calls like `GetObject`, streaming the requested byte range.
+- By default, range-based (partial) requests are supported, allowing efficient access to only the necessary parts of the file.
+
+---
+
+## Cautions
+
+- The stream wrapper may be restricted or disabled in containerized or limited execution environments.
+- Reading large files with `file_get_contents()` may cause memory issues — use stream-based functions like `fread()` instead.
+- When writing (`fopen('s3://bucket/key', 'w')`), the entire object will be re-uploaded. For delta updates or multipart uploads, consider using the API directly.
+
+---
+
+With this setup, you can interact with S3 objects transparently, almost as if you're working with a local filesystem — all while reusing your existing file I/O code with minimal changes.

@@ -1,0 +1,88 @@
+---
+title: 'S3 스트림 래퍼'
+date: '241209'
+tags: ['AWS']
+---
+
+“S3 스트림 래퍼”는 AWS SDK가 제공하는 기능으로, `s3://` 스킴(URI 포맷)을 통해 S3 버킷의 객체를 마치 일반 파일처럼 읽고 쓸 수 있게 해 줍니다.
+
+---
+
+## 왜 쓰나?
+
+- **투명성**: `fopen()`, `fread()`, `file_get_contents()` 등 PHP의 표준 파일 함수만으로 S3의 데이터를 다룰 수 있습니다.
+- **편리성**: 복잡한 `getObject()`/`putObject()` 호출 대신, 파일 경로를 바꿔치기하는 것만으로 코드 재사용이 가능해집니다.
+- **성능**: 헤더만 읽어야 할 때 전체 다운로드를 피할 수 있고, 스트림 방식으로 처리하므로 메모리 사용을 최소화할 수 있습니다.
+
+---
+
+## 사용법
+
+1. **AWS SDK 설치**
+
+   ```bash
+   composer require aws/aws-sdk-php
+   ```
+
+2. **스트림 래퍼 등록**
+
+   ```php
+   use Aws\S3\S3Client;
+
+   // ① S3 클라이언트 생성
+   $s3 = new S3Client([
+       'version'     => 'latest',
+       'region'      => 'ap-northeast-2',
+       'credentials' => [
+           'key'    => 'YOUR_AWS_KEY',
+           'secret' => 'YOUR_AWS_SECRET',
+       ],
+   ]);
+
+   // ② PHP의 스트림 래퍼에 S3 등록
+   $s3->registerStreamWrapper();
+   ```
+
+3. **`s3://` 경로 사용하기**
+
+   ```php
+   $bucket = 'my-bucket';
+   $key    = 'path/to/file.wav';
+   $uri    = "s3://{$bucket}/{$key}";
+
+   // 예: 헤더만 읽어서 길이 계산
+   $fp = fopen($uri, 'rb');
+   $header = fread($fp, 44);
+   fclose($fp);
+   // ...헤더 파싱 로직...
+   ```
+
+   또는,
+
+   ```php
+   // 전체 파일 다운로드
+   copy($uri, '/local/path/file.wav');
+
+   // 문자열로 바로 가져오기
+   $contents = file_get_contents($uri);
+   ```
+
+---
+
+## 내부 동작 원리
+
+- AWS SDK가 PHP의 스트림 래퍼 레지스트리에 `s3://` 프로토콜 핸들러를 등록합니다.
+- PHP가 `fopen('s3://…')`를 호출하면, SDK가 내부적으로 S3 API (`GetObject` 등)를 호출하여 해당 바이트 범위를 스트리밍합니다.
+- 기본적으로 헤더(바이트 범위 요청)가 가능하고, 필요한 부분만 읽어올 수 있어 효율적입니다.
+
+---
+
+## 주의사항
+
+- 컨테이너나 일부 제한된 환경에서는 스트림 래퍼 기능이 막혀 있을 수 있습니다.
+- 대용량 파일을 `file_get_contents()` 로 한 번에 읽으면 메모리 문제를 일으킬 수 있으니, 스트림 방식(`fread`)을 권장합니다.
+- 쓰기(`fopen('s3://bucket/key', 'w')`) 시에는 객체 전체를 다시 업로드하므로, 델타 업로드나 멀티파트 업로드가 필요한 경우 별도 API를 사용하는 편이 낫습니다.
+
+---
+
+이렇게 설정해 두면, 기존의 파일 I/O 코드를 거의 수정하지 않고도 S3를 파일 시스템처럼 투명하게 사용할 수 있게 됩니다.
