@@ -1,0 +1,121 @@
+---
+title: 'MySQL 쿼리 결과를 CSV 파일로 추출하는 두 가지 방법'
+date: '241214'
+tags: ['RDS']
+---
+
+MySQL에서 쿼리 결과를 CSV 파일로 추출해야 할 때, 크게 두 가지 방식이 널리 사용됩니다.
+
+- 서버 측 파일 생성: `SELECT … INTO OUTFILE` 문을 사용
+- 클라이언트 측 파일 생성: `mysql` CLI + 리디렉션(`>`) + `sed` 활용
+
+각 방법의 특징·제한 사항과 실제 예시를 살펴보고, 헤더 추가, 권한 문제 해결 등의 팁을 함께 정리하겠습니다.
+
+## 방법 1. `INTO OUTFILE` 사용 (서버 측 파일 생성)
+
+```sql
+SELECT
+  u.id            AS user_id,
+  u.phone         AS phone,
+  GROUP_CONCAT(CONCAT(ur.record_id, ',')
+               ORDER BY ur.record_id
+               SEPARATOR '') AS record_ids
+FROM users AS u
+INNER JOIN (
+  SELECT DISTINCT user_id
+  FROM memberships
+) AS m ON u.id = m.user_id
+LEFT JOIN user_records AS ur
+  ON u.id = ur.user_id
+GROUP BY
+  u.id, u.phone
+INTO OUTFILE '/var/lib/mysql-files/result.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+```
+
+### ⚙️ 주요 특징
+
+- 서버 파일 시스템에 바로 저장
+- MySQL 사용자에게 `FILE` 권한 필요
+- `secure_file_priv` 설정에 따라 쓰기 가능한 디렉토리가 제한될 수 있음
+- 이미 존재하는 파일을 덮어쓰지 않으며, 존재 시 오류 발생
+
+### 🔧 설정 확인 및 권한
+
+```sql
+-- secure_file_priv 경로 확인
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- FILE 권한 확인
+SHOW GRANTS FOR CURRENT_USER();
+```
+
+## 방법 2. `mysql` CLI + 리디렉션 + `sed` (클라이언트 측 파일 생성)
+
+```bash
+# 1) 결과를 저장할 디렉토리 준비
+mkdir -p /dev/dump
+
+# 2) 헤더 추가 + 쿼리 수행 + sed로 CSV 포맷팅
+(
+  # CSV 헤더
+  echo "user_id,phone,record_ids"
+  # 실제 쿼리 (–batch: 탭 구분, –raw: 이스케이프 해제)
+  mysql -u your_user -p -D your_database \
+    --batch --raw \
+    -e "
+      SELECT
+        u.id            AS user_id,
+        u.phone         AS phone,
+        GROUP_CONCAT(CONCAT(ur.record_id, ',')
+                     ORDER BY ur.record_id
+                     SEPARATOR '') AS record_ids
+      FROM users AS u
+      INNER JOIN (SELECT DISTINCT user_id FROM memberships) AS m
+        ON u.id = m.user_id
+      LEFT JOIN user_records AS ur
+        ON u.id = ur.user_id
+      GROUP BY u.id, u.phone;
+    "
+) | sed 's/\t/\",\"/g; s/^/\"/; s/$/\"/' \
+  > /dev/dump/result.csv
+```
+
+### ⚙️ 주요 특징
+
+- 클라이언트(로컬) 머신에 저장
+- 서버 설정(`secure_file_priv`) 영향 없음
+- 헤더를 직접 추가할 수 있어 편리
+- `sed` 스크립트를 통해 탭 → 쉼표 변환 및 따옴표 처리
+
+## 주의사항
+
+1. 경로 권한
+
+   - 서버 측 쓰기 권한(`INTO OUTFILE`) vs. 로컬 쓰기 권한(`>`) 확인
+
+2. 파일 덮어쓰기 방지
+
+   - 기존 파일이 있을 경우 백업 또는 다른 이름 사용 권장
+
+3. 문자셋 인코딩
+
+   - 한글 등 멀티바이트 문자가 깨질 수 있으므로 `--default-character-set=utf8mb4` 옵션 활용
+
+   ```bash
+   mysql … --default-character-set=utf8mb4 …
+   ```
+
+4. 대용량 데이터
+
+   - 네트워크 전송 부담 최소화를 위해 서버 측 `INTO OUTFILE` 사용 고려
+   - 클라이언트 방식은 중간 결과를 STDOUT으로 전송하므로 느릴 수 있음
+
+## 정리
+
+- 서버 리소스를 적극 활용하고 싶다면 `INTO OUTFILE`
+- 환경 설정 제한이 있거나 로컬 환경에서 바로 CSV를 생성하려면 CLI+`sed` 방식
+
+두 가지 방법을 상황에 맞게 선택하여 사용하면, MySQL 쿼리 결과를 손쉽게 CSV 파일로 추출할 수 있습니다.

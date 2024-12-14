@@ -1,0 +1,130 @@
+---
+title: 'Two Ways to Export MySQL Query Results to CSV Files'
+date: '241214'
+tags: ['RDS']
+---
+
+When you need to export query results from MySQL to a CSV file, there are two commonly used approaches:
+
+- Server-side file creation: using the `SELECT … INTO OUTFILE` statement
+- Client-side file creation: using the `mysql` CLI + redirection (`>`) + `sed`
+
+In this post, we'll look at the characteristics, limitations, and examples of each method, along with tips for adding headers, handling permissions, and more.
+
+---
+
+## Method 1. Using `INTO OUTFILE` (Server-side File Creation)
+
+```sql
+SELECT
+  u.id            AS user_id,
+  u.phone         AS phone,
+  GROUP_CONCAT(CONCAT(ur.record_id, ',')
+               ORDER BY ur.record_id
+               SEPARATOR '') AS record_ids
+FROM users AS u
+INNER JOIN (
+  SELECT DISTINCT user_id
+  FROM memberships
+) AS m ON u.id = m.user_id
+LEFT JOIN user_records AS ur
+  ON u.id = ur.user_id
+GROUP BY
+  u.id, u.phone
+INTO OUTFILE '/var/lib/mysql-files/result.csv'
+FIELDS TERMINATED BY ','
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n';
+```
+
+### ⚙️ Key Characteristics
+
+- Saves the file directly to the server's file system
+- Requires the MySQL user to have the `FILE` privilege
+- The writable directory may be limited by the `secure_file_priv` setting
+- Will fail if the file already exists (does not overwrite)
+
+### 🔧 Check Configuration & Permissions
+
+```sql
+-- Check secure_file_priv path
+SHOW VARIABLES LIKE 'secure_file_priv';
+
+-- Check FILE privilege
+SHOW GRANTS FOR CURRENT_USER();
+```
+
+---
+
+## Method 2. Using `mysql` CLI + Redirection + `sed` (Client-side File Creation)
+
+```bash
+# 1) Prepare the output directory
+mkdir -p /dev/dump
+
+# 2) Add header + run query + format as CSV using sed
+(
+  # CSV header
+  echo "user_id,phone,record_ids"
+
+  # Run query (--batch: tab-separated, --raw: no escape characters)
+  mysql -u your_user -p -D your_database \
+    --batch --raw \
+    -e "
+      SELECT
+        u.id            AS user_id,
+        u.phone         AS phone,
+        GROUP_CONCAT(CONCAT(ur.record_id, ',')
+                     ORDER BY ur.record_id
+                     SEPARATOR '') AS record_ids
+      FROM users AS u
+      INNER JOIN (SELECT DISTINCT user_id FROM memberships) AS m
+        ON u.id = m.user_id
+      LEFT JOIN user_records AS ur
+        ON u.id = ur.user_id
+      GROUP BY u.id, u.phone;
+    "
+) | sed 's/\t/\",\"/g; s/^/\"/; s/$/\"/' \
+  > /dev/dump/result.csv
+```
+
+### ⚙️ Key Characteristics
+
+- Saves the result directly to the local (client) machine
+- Not affected by server settings like `secure_file_priv`
+- Easy to manually add headers
+- Uses `sed` to convert tab-separated values to properly quoted CSV format
+
+---
+
+## Notes & Considerations
+
+1. Path Permissions
+
+   - Ensure write permission for server (`INTO OUTFILE`) or local filesystem (`>`), depending on the method used
+
+2. Preventing File Overwrites
+
+   - If the target file already exists, consider backing it up or using a different filename
+
+3. Character Encoding
+
+   - For multibyte characters (e.g., Korean), use the `--default-character-set=utf8mb4` option:
+
+   ```bash
+   mysql … --default-character-set=utf8mb4 …
+   ```
+
+4. Large Datasets
+
+   - To reduce network overhead, prefer `INTO OUTFILE` for exporting large datasets
+   - The client-side method sends results over STDOUT, which may be slower
+
+---
+
+## Summary
+
+- Use `INTO OUTFILE` if you want to leverage server-side resources
+- Use the CLI + `sed` method if you have server restrictions or want to generate CSVs directly on your local environment
+
+By choosing the right method for your situation, you can easily export MySQL query results into clean and usable CSV files.
