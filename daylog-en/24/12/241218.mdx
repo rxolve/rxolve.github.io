@@ -1,0 +1,132 @@
+---
+title: 'TypeORM vs Prisma'
+date: '241218'
+tags: ['NestJS']
+---
+
+#### TypeORM
+
+- A traditional ORM written purely in TypeScript/JavaScript that supports Active Record and Data Mapper patterns
+- Entity definitions based on decorators (`@Entity()`, `@Column()`, etc.)
+- Has a large community and ecosystem
+
+#### Prisma
+
+- Classified more as an “ORM-like data access tool” rather than a traditional ORM, defining models via its own DSL (Prisma Schema)
+- Provides type-safe queries through the generated client API
+- Built-in migration and seeding functionality
+
+## Key Feature Comparison
+
+| Aspect                    | TypeORM                                             | Prisma                                                                   |
+| ------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------ |
+| **Model Definition**      | Entity classes with decorators                      | Define DSL in `schema.prisma` file, then run `prisma generate`           |
+| **Query Method**          | Repository/QueryBuilder, Active Record              | Auto-generated `prismaClient` methods (e.g. `prisma.user.findMany`)      |
+| **Type Safety**           | Limited (runtime validation)                        | Fully guaranteed at compile-time (e.g. `.findUnique()` signature checks) |
+| **Migration**             | `typeorm migration:*` CLI                           | `prisma migrate` (automatic/manual)                                      |
+| **Seeding**               | Requires separate scripts                           | Built-in via `prisma db seed`                                            |
+| **Relation Setup**        | Explicit decorators like `@ManyToOne`, `@OneToMany` | Simple relation fields in schema                                         |
+| **Performance**           | Slightly heavier due to runtime logic               | Lightweight client, relatively faster                                    |
+| **Learning Curve**        | Lower if familiar with JS/TS entities               | Additional DSL and code generation step                                  |
+| **Community & Ecosystem** | Long history with many plugins and integrations     | Rapidly growing, rich examples with GraphQL and Next.js                  |
+
+## Pros and Cons
+
+#### TypeORM
+
+- **Pros**
+
+  - Frequently used in official NestJS documentation examples
+  - Entity definitions reside directly in code, making them intuitive
+  - Simple CRUD implementation using Active Record pattern
+
+- **Cons**
+
+  - Runtime SQL query construction can lead to type mismatches
+  - Migration conflicts can be troublesome to resolve
+  - Maintenance pace has slowed somewhat recently
+
+#### Prisma
+
+- **Pros**
+
+  - Complete type safety with query errors caught at compile time
+  - Intuitive API like `prisma.user.create()`, `prisma.post.update()`
+  - Automatically generated migration and seeding tools improve developer experience
+
+- **Cons**
+
+  - Requires learning its own DSL
+  - Style differs from Active Record pattern, which some may prefer
+  - May have limitations with large, complex queries (especially custom SQL)
+
+---
+
+## 4. When to Choose Which?
+
+1. **Maintaining Existing TypeORM Projects**
+
+   - If you already have hundreds of entities, optimizing TypeORM is recommended over switching to Prisma
+   - If you are familiar with decorator-based code, you can maintain it without much hassle
+
+2. **New Projects**
+
+   - Choose **Prisma** if type safety and rapid development speed are top priorities
+   - Choose **TypeORM** if pattern consistency (Active Record/Repository) and plugin integrations are important
+
+3. **Complex Domain Logic**
+
+   - For complex joins and custom SQL, TypeORM’s QueryBuilder offers more flexibility
+   - For simple CRUD and relationship traversal, Prisma’s convenience shines
+
+## NestJS Usage Tips
+
+- **TypeORM**
+
+  ```ts
+  @Module({
+    imports: [
+      TypeOrmModule.forRoot({
+        type: 'postgres',
+        host: process.env.DB_HOST,
+        // ...
+        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        synchronize: false,
+      }),
+      TypeOrmModule.forFeature([User, Post]),
+    ],
+  })
+  export class DatabaseModule {}
+  ```
+
+* **Prisma**
+
+  1. Run `npx prisma init` and define `schema.prisma`
+  2. Migrate with `npx prisma migrate dev --name init`
+  3. Use in NestJS service
+
+     ```ts
+     @Injectable()
+     export class UserService {
+       constructor(private readonly prisma: PrismaClient) {}
+       async findAll() {
+         return this.prisma.user.findMany();
+       }
+     }
+     ```
+
+## Migration Considerations
+
+- It is recommended to write separate migration scripts to safely reflect schema differences
+- For large tables, plan downtime minimization strategies (partitioning, view switching, etc.)
+- When migrating from TypeORM to Prisma:
+
+  1. Try converting entities to Prisma schema using `typeorm-model-generator`
+  2. Manually review fields and relations
+  3. Gradually migrate (start new features with Prisma, keep existing ones on TypeORM)
+
+## Conclusion
+
+Both tools have their own strengths and advantages.
+TypeORM offers a traditional ORM pattern with a rich ecosystem, while Prisma provides superior type safety and developer productivity.
+Choosing depends on your project requirements, team familiarity, and migration costs.

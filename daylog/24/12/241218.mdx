@@ -1,0 +1,131 @@
+---
+title: 'TypeORM vs Prisma'
+date: '241218'
+tags: ['NestJS']
+---
+
+#### TypeORM
+
+- 순수 TypeScript/JavaScript로 작성된 전통적인 Active Record 및 Data Mapper 패턴 지원 ORM
+- 데코레이터(`@Entity()`, `@Column()` 등) 기반 엔티티 정의
+- 넓은 커뮤니티와 생태계 보유
+
+#### Prisma
+
+- “ORM”보다는 “ORM-like 데이터 액세스 툴”로 분류되며, 자체 DSL(Prisma Schema)로 모델을 정의
+- 생성되는 클라이언트 API를 통해 타입 안전(type-safe) 쿼리 제공
+- 마이그레이션·실드(seeding) 기능 내장
+
+## 주요 특징 비교
+
+| 구분                | TypeORM                                    | Prisma                                                        |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| **모델 정의**       | 엔티티 클래스 + 데코레이터                 | `schema.prisma` 파일에 DSL 작성 후 `prisma generate` 실행     |
+| **쿼리 방식**       | Repository/QueryBuilder, Active Record     | 자동생성된 `prismaClient` 메서드 (예: `prisma.user.findMany`) |
+| **타입 안정성**     | 제한적 (런타임 시점 검증)                  | 컴파일 타임에 완전 보장 (`.findUnique()` 등 시그니처 확인)    |
+| **마이그레이션**    | `typeorm migration:*` CLI                  | `prisma migrate` (자동·수동)                                  |
+| **실드·시딩**       | 별도 스크립트 필요                         | `prisma db seed` 내장                                         |
+| **관계 설정**       | `@ManyToOne`, `@OneToMany` 등 직접 지정    | `relation` 필드로 간단 명시                                   |
+| **퍼포먼스**        | 중복된 런타임 로직으로 약간 무거울 수 있음 | 경량화된 클라이언트로 비교적 빠름                             |
+| **학습 곡선**       | JS/TS 엔터티에 익숙하다면 진입장벽 낮음    | DSL + 코드 생성 과정 추가                                     |
+| **커뮤니티·생태계** | 오랜 역사로 플러그인·연동 다양             | 빠르게 성장 중, GraphQL, Next.js 예제 풍부                    |
+
+## 장단점 정리
+
+#### TypeORM
+
+- **장점**
+
+  - NestJS 공식 문서 예시로 자주 사용
+  - 엔티티 정의가 코드 내에 그대로 있어 직관적
+  - Active Record 패턴 활용 시 간단한 CRUD 구현
+
+- **단점**
+
+  - 런타임에 SQL 쿼리를 직접 조립하기 때문에 타입 불일치 가능성
+  - 마이그레이션 충돌 발생 시 해결이 번거로울 수 있음
+  - 최근 유지보수 속도가 다소 더디다는 의견도 존재
+
+#### Prisma
+
+- **장점**
+
+  - 완전한 타입 안전 보장: 컴파일 시점에 쿼리 오류 즉시 포착
+  - 직관적인 API: `prisma.user.create()`, `prisma.post.update()` 등
+  - 자동 생성되는 마이그레이션·시딩 도구로 개발 편의성 ↑
+
+- **단점**
+
+  - 자체 DSL 학습 필요
+  - Active Record 패턴을 선호하는 경우 스타일 차이 존재
+  - 대규모 복잡 쿼리(특히 커스텀 SQL 포함) 시 제한적일 수 있음
+
+---
+
+## 4. 언제 무엇을 선택할 것인가?
+
+1. **기존 TypeORM 프로젝트 유지·보수**
+
+   - 이미 엔티티가 수백 개일 경우, Prisma 전환보다는 TypeORM 최적화 추천
+   - 데코레이터 중심 코드가 익숙하다면 무리 없이 유지 가능
+
+2. **새로운 프로젝트**
+
+   - **타입 안전**과 **빠른 개발 속도**를 우선한다면 **Prisma**
+   - **패턴 일관성**(Active Record/Repository)과 **플러그인 연동**이 중요하다면 **TypeORM**
+
+3. **복잡한 도메인 로직**
+
+   - 복잡한 조인, 커스텀 SQL이 많다면 TypeORM의 QueryBuilder가 더 유연
+   - 단순 CRUD와 관계 탐색 중심이라면 Prisma의 편의성이 돋보임
+
+## NestJS에서 적용 팁
+
+- **TypeORM**
+
+  ```ts
+  @Module({
+    imports: [
+      TypeOrmModule.forRoot({
+        type: 'postgres',
+        host: process.env.DB_HOST,
+        // …
+        entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+        synchronize: false,
+      }),
+      TypeOrmModule.forFeature([User, Post]),
+    ],
+  })
+  export class DatabaseModule {}
+  ```
+
+- **Prisma**
+
+  1. `npx prisma init` → `schema.prisma` 작성
+  2. 마이그레이션: `npx prisma migrate dev --name init`
+  3. NestJS 서비스에서 사용
+
+     ```ts
+     @Injectable()
+     export class UserService {
+       constructor(private readonly prisma: PrismaClient) {}
+       async findAll() {
+         return this.prisma.user.findMany();
+       }
+     }
+     ```
+
+## 마이그레이션 고려사항
+
+- 스키마 차이를 안전하게 반영하려면 **별도 마이그 스크립트** 작성 권장
+- 대용량 테이블 변경 시 다운타임 최소화 전략(파티셔닝·뷰 전환 등) 필요
+- TypeORM→Prisma 전환:
+
+  1. `typeorm-model-generator`로 엔티티를 Prisma 스키마로 변환 시도
+  2. 수동으로 필드 검토·관계 수정
+  3. 점진적 전환(새 기능부터 Prisma, 기존 기능은 TypeORM 유지)
+
+## 결론
+
+두 툴 모두 각자의 장점과 강점을 가지고 있습니다.
+TypeORM은 전통적인 ORM 패턴과 풍부한 생태계, Prisma는 뛰어난 타입 안전성과 개발 생산성이 핵심입니다.
