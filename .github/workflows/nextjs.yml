@@ -70,9 +70,6 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{vars.NEXT_PUBLIC_SUPABASE_URL}}
           NEXT_PUBLIC_SUPABASE_API_KEY: ${{vars.NEXT_PUBLIC_SUPABASE_API_KEY}}
-
-      - name: Postbuild - Generate sitemap
-        run: npm run postbuild
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
