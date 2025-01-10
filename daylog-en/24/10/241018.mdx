@@ -1,0 +1,111 @@
+---
+title: "Improving Tag List Performance"
+date: "241018"
+tags: ["Next.js"]
+---
+
+Currently, the tag list of this blog works by loading all posts and extracting tags from them.
+
+This method becomes inefficient as the number of posts increases, causing performance issues.
+
+I noticed that the blog was getting slower lately, so I decided to improve the tag list.
+
+#### Idea
+
+1. Write a script to create the tag list and save it as a JSON file.
+2. Run this script during the build process to cache the tag list.
+3. Use the cached tag list on the main page.
+
+#### Script to Create the Tag List
+
+I will take the logic used to calculate the tag list and save it in a JSON file.
+
+```ts
+import fs from "fs";
+import path from "path";
+import { getAllPosts } from "@/lib/posts";
+
+const generateTagJson = async (isEn: boolean) => {
+  const allPosts = await getAllPosts({ isEn });
+  const tagItemList: TagItem[] = [];
+
+  for (const post of allPosts) {
+    if (!post.tags) continue;
+    for (const tag of post.tags) {
+      const index = tagItemList.findIndex((item) => item.tag === tag);
+      if (index === -1) {
+        tagItemList.push({ tag, count: 1 });
+      } else {
+        tagItemList[index].count += 1;
+      }
+    }
+  }
+
+  const sortedTagItemList = tagItemList.sort((a, b) => b.count - a.count);
+  console.log(sortedTagItemList);
+
+  const fileName = isEn ? "tags-en.json" : "tags.json";
+  const jsonPath = path.join(process.cwd(), "data", fileName);
+  fs.writeFileSync(jsonPath, JSON.stringify(sortedTagItemList));
+  console.log("tags.json created successfully!");
+};
+
+generateTagJson(false);
+generateTagJson(true);
+```
+
+#### Caching the Tag List During Build
+
+Add the tag list generation script to the build script in `package.json`.
+
+```json
+{
+  "scripts": {
+    // ...
+    "generate:tag": "npx tsx scripts/generate-tag-json.ts",
+    "build": "npm run generate:tag && next build"
+  }
+}
+```
+
+#### Loading the Tag List
+
+The tag list component will load and use the JSON file.
+
+```ts
+import TagButton from "./tag-button";
+
+interface TagListProps {
+  isEn?: boolean;
+}
+
+const getTags = (isEn: boolean) => {
+  return isEn ? require("@/data/tags-en.json") : require("@/data/tags.json");
+};
+
+const TagList = async (props: TagListProps) => {
+  const { isEn = false } = props;
+
+  const tags = getTags(isEn);
+
+  return (
+    <>
+      <article>
+        {tags?.map((tag: TagItem) => (
+          <TagButton key={tag.tag} tagItem={tag} isEn={isEn} />
+        ))}
+      </article>
+    </>
+  );
+};
+
+export default TagList;
+```
+
+#### Result
+
+Simply caching the tag list did not lead to dramatic performance improvements.
+
+However, by limiting the number of posts loaded on the main page to 30, the loading time dropped from over 3 seconds to under 1 second.
+
+Next, I will consider using infinite scrolling to load the posts.

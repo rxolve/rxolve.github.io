@@ -1,0 +1,140 @@
+---
+title: "The Russian Painter Algorithm"
+date: "240914"
+tags: ["Algorithm"]
+---
+
+I recently visited my mom's house and pulled out an old book.
+
+It was _Joel on Software_, and I found an interesting algorithm inside.
+
+---
+
+There was a Russian painter who was painting lines on the road.
+
+On his first day, he took a paint bucket and painted 300 yards.
+
+His boss was amazed and said, "Wow, that's really impressive! You're very fast!" The boss gave him 1 kopeck as a reward.
+
+The next day, the painter only painted 150 yards.
+
+Still, the boss said, "Hmm, not as much as yesterday, but still, you're fast. 150 yards is great too," and gave him another 1 kopeck.
+
+But on the third day, the painter only painted 30 yards.
+
+The boss was furious and said, "Just 30 yards?! This is unacceptable! You painted more than 10 times this amount on your first day! What's wrong?"
+
+The painter, feeling sad, replied, "I couldn't help it. Every day, I have to walk farther from the paint bucket."
+
+---
+
+There’s a line in the book that says, "If you have time, why not calculate the exact numbers?" That’s where I got involved.
+
+On the first day, 300 yards are painted, on the second day, 150 yards are painted (which is half of the first day), and on the third day, only 30 yards are painted, but there is no clear pattern here.
+
+We will create a page that calculates the daily work result and the total amount of work done based on the assumption that each day's work is half of the previous day. Users can input the number of workdays and the number of yards painted on the first day.
+
+```typescript
+"use client";
+
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+
+interface DailyWork { // Daily work result
+  day: number; // Day number
+  yards: number; // Yards painted that day
+  payment: number; // Payment received (kopecks)
+}
+
+const RussianPainter: React.FC = () => {
+  const [days, setDays] = useState<number>(3); // Number of work days (default: 3)
+  const [startYards, setStartYards] = useState<number>(300); // Starting yards (default: 300 yards)
+  const [results, setResults] = useState<DailyWork[]>([]); // Daily work results
+  const [totalYards, setTotalYards] = useState<number>(0); // Total yards painted
+  const [totalPayment, setTotalPayment] = useState<number>(0); // Total payment received
+
+  const russianPainter = (days: number, startYards: number): DailyWork[] => {
+    const result: DailyWork[] = [];
+
+    const paint = (day: number, yards: number): void => { // Recursively calculate daily work
+      if (day > days) return; // Stop after the specified number of days
+
+      const payment = yards >= 30 ? 1 : 0; // 1 kopeck if more than 30 yards painted
+      result.push({ day, yards, payment });
+
+      const nextYards = Math.floor(yards / 2); // Next day's work is half of the previous day
+      paint(day + 1, nextYards); // Calculate the next day (recursion)
+    };
+
+    paint(1, startYards); // Start on the first day
+    return result;
+  };
+
+  const handleRun = () => {
+    const workDays = russianPainter(days, startYards);
+    setResults(workDays);
+
+    const total = workDays.reduce( // Calculate total yards and payment
+      (acc, day) => ({
+        yards: acc.yards + day.yards,
+        payment: acc.payment + day.payment,
+      }),
+      { yards: 0, payment: 0 }
+    );
+
+    setTotalYards(total.yards);
+    setTotalPayment(total.payment);
+  };
+
+  return (
+    <div className="p-4 max-w-md mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Russian Painter Algorithm</h1>
+      <div className="mb-4">
+        {/* Input for number of work days */}
+        <Input
+          type="number"
+          value={days}
+          onChange={(e) => setDays(Number(e.target.value))}
+          placeholder="Number of work days"
+          className="mb-2"
+        />
+        {/* Input for starting yards */}
+        <Input
+          type="number"
+          value={startYards}
+          onChange={(e) => setStartYards(Number(e.target.value))}
+          placeholder="Starting yards"
+          className="mb-2"
+        />
+        {/* Run button */}
+        <Button onClick={handleRun} className="w-full">
+          Run
+        </Button>
+      </div>
+      {/* Display results */}
+      {results.length > 0 && (
+        <div>
+          <h2 className="text-xl font-semibold mb-2">Daily Result:</h2>
+          {/* Display daily work result */}
+          {results.map(({ day, yards, payment }) => (
+            <p key={day} className="mb-1">
+              Day {day}: Painted {yards} yards, Received {payment} kopeck
+            </p>
+          ))}
+          <h2 className="text-xl font-semibold mt-4 mb-2">Total Result:</h2>
+          {/* Display total work and payment */}
+          <p>Total yards painted: {totalYards}</p>
+          <p>Total payment received: {totalPayment} kopecks</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default RussianPainter;
+```
+
+You can check the results on the following page:
+
+> https://rxolve.github.io/algorithms/russian-painter

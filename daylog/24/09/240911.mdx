@@ -1,0 +1,142 @@
+---
+title: "AdminJS 리소스"
+date: "240911"
+tags: ["AdminJS"]
+---
+
+#### Resource
+
+AdminJS는 리소스를 바탕으로 어드민 페이지를 구성합니다.
+
+리소스는 데이터베이스의 테이블과 매핑되는 개념으로, 엔티티를 기반으로 CRUD 기능을 제공합니다.
+
+기본적으로 지원하는 속성은 다음과 같습니다.
+
+```typescript
+{
+  resource: entity, // 엔티티 모델
+  options: {
+    listProperties: [], // 목록 페이지에서 보여줄 속성
+    showProperties: [], // 상세 페이지에서 보여줄 속성
+    filterProperties: [], // 필터링 가능한 속성
+    editProperties: [], // 편집 페이지에서 수정 가능한 속성
+    sort: {}, // 정렬 설정
+    actions: {
+      // 사용자 정의 액션
+    },
+    properties: {
+      // 속성별 설정
+    },
+    navigation: {}, // 네비게이션 설정
+    parent: {}, // 부모 리소스 설정
+    id: '', // 리소스 식별자
+    name: '', // 리소스 이름
+    titleProperty: '', // 제목으로 사용할 속성
+    href: '', // 리소스 링크
+    icon: '', // 아이콘 설정
+    perPage: 10, // 페이지당 항목 수
+    softDelete: false, // 소프트 삭제 사용 여부
+    timestamps: false, // 타임스탬프 사용 여부
+    password: {}, // 비밀번호 필드 설정
+    roles: [], // 접근 권한 설정
+  },
+  features: [
+    // 추가 기능 설정
+  ],
+  actions: {
+    // 전역 액션 설정
+  },
+};
+```
+
+주요한 구성 요소들을 살펴보겠습니다.
+
+#### options.properties
+
+UI를 구성하는 핵심 요소입니다.
+
+이를 통해 각 필드의 표시 방식, 유효성 검사, 사용자 정의 컴포넌트 등을 세밀하게 제어할 수 있습니다.
+
+```typescript
+properties: {
+  title: {
+    type: 'string',
+    isTitle: true,
+  },
+  content: {
+    type: 'richtext',
+    custom: {
+      component: components.customText
+    },
+  },
+  status: {
+    availableValues: [
+      { value: 'draft', label: '초안' },
+      { value: 'published', label: '발행됨' },
+    ],
+  },
+  author: {
+    type: 'reference',
+    reference: 'User',
+    isVisible: {
+      list: true, edit: true, filter: true, show: true,
+    },
+  },
+  createdAt: {
+    type: 'datetime',
+    isVisible: {
+      list: true, edit: false, filter: true, show: true,
+    },
+  },
+}
+```
+
+#### actions
+
+리소스에 대한 사용자 정의 작업을 구현할 수 있습니다.
+
+단일 레코드 또는 여러 레코드에 대한 벌크 작업에 유용합니다.
+
+```typescript
+actions: {
+  bulkPublish: {
+    actionType: 'bulk',
+    icon: 'PublishIcon',
+    handler: async (request, response, context) => {
+      const { records } = context;
+      await Promise.all(records.map(record => record.update({ status: 'published' })));
+      return {
+        records: records.map(record => record.toJSON(context.currentAdmin)),
+      };
+    },
+  },
+}
+```
+
+#### features
+
+리소스에 추가 기능을 구현할 수 있습니다.
+
+주로 파일 업로드, 이미지 처리 등의 복잡한 기능을 추가할 때 사용됩니다.
+
+```typescript
+import uploadFeature from "@adminjs/upload";
+
+features: [
+  uploadFeature({
+    provider: { local: { bucket: "public/uploads" } },
+    properties: {
+      key: "imageKey",
+      mimeType: "imageMimeType",
+      bucket: "imageBucket",
+      size: "imageSize",
+    },
+    validation: {
+      mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
+      maxSize: 5 * 1024 * 1024,
+    },
+  }),
+];
+```
+
+이상으로 AdminJS 리소스와 구성요소에 대해 간략히 알아봤습니다.

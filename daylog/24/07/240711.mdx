@@ -1,0 +1,56 @@
+---
+title: "bind: 함수에 함수를 전달할 때"
+date: "240711"
+tags: ["JavaScript"]
+---
+
+#### bind 가 필요할 때
+
+- 도메인 로직을 작성하다 보면 a 함수를 b 함수에 전달해야 하는 경우가 있습니다.
+- 이때 bind 를 사용해야 예상한 대로 동작합니다.
+
+```ts
+// 잘못된 예시
+Book.createByEntity(entity, this.sourceRepo.getQuestions);
+```
+
+- sourceRepo.getQuestions 메서드는 sourceRepo 객체의 컨텍스트에서 실행되어야 합니다.
+- 그러나 위 코드에서는 Book.createByEntity 에서 실행되므로 getQuestions 를 호출할 때 this 가 다음을 가리킬 수 있습니다.
+  - undefined
+  - 브라우저의 window
+  - 노드의 global
+- 이는 예상치 못한 오류를 발생시킬 수 있습니다.
+
+#### bind 에 대해
+
+- bind는 Function 객체의 메서드입니다.
+- 이 메서드는 새로운 함수를 생성하는데, 이 새 함수는 원본 함수와 동일한 코드를 가집니다.
+- 다만, this 가 bind 의 첫 번째 인자로 설정됩니다.
+
+```ts
+const boundFunction = originalFunction.bind(thisArg[, arg1[, arg2[, ...]]])
+```
+
+- thisArg: bind 된 함수가 호출될 때 this 로 사용될 값
+- arg1, arg2, ...: 원본 함수에 전달될 인자들 (옵션)
+
+#### bind 사용법
+
+- 위 코드를 bind 를 사용하여 수정하면 다음과 같습니다.
+
+```ts
+Book.createByEntity(entity, this.sourceRepo.getQuestions.bind(this.sourceRepo));
+```
+
+- bind를 사용함으로써, getQuestions 메서드가 항상 sourceRepo 객체의 컨텍스트에서 실행되도록 보장합니다.
+
+#### bind 대안
+
+- bind 대신 화살표 함수를 사용할 수도 있습니다.
+
+```ts
+Book.createByEntity(entity, () => this.sourceRepo.getQuestions());
+```
+
+- 화살표 함수는 자신의 this를 가지지 않으므로, 상위 스코프의 this를 그대로 사용합니다.
+- 자신에게 맞는 방식으로 활용하시면 됩니다.

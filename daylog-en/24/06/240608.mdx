@@ -1,0 +1,54 @@
+---
+title: "Merge Sort: Solving by Breaking It Down"
+date: "240608"
+tags: ["Algorithm"]
+---
+
+- The idea starts with the fact that merging two sorted arrays has a time complexity of O(n).
+- The array is split into the smallest units, then sorted and merged.
+
+```typescript
+const mergeSort = (array: number[]): number[] => {
+  // If the array has 1 or fewer elements, it's already sorted, so return it.
+  if (array.length <= 1) {
+    return array;
+  }
+
+  // Split the array in half.
+  const middle = Math.floor(array.length / 2);
+  const left = array.slice(0, middle);
+  const right = array.slice(middle);
+
+  // Recursively sort each half.
+  const sortedLeft = mergeSort(left);
+  const sortedRight = mergeSort(right);
+
+  // Merge the sorted halves.
+  return merge(sortedLeft, sortedRight);
+};
+
+const merge = (left: number[], right: number[]): number[] => {
+  const result: number[] = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+
+  // Compare elements from each array and add the smaller one to the result array.
+  while (leftIndex < left.length && rightIndex < right.length) {
+    const leftItem = left[leftIndex];
+    const rightItem = right[rightIndex];
+
+    if (leftItem < rightItem) {
+      result.push(leftItem);
+      leftIndex += 1;
+    } else {
+      result.push(rightItem);
+      rightIndex += 1;
+    }
+  }
+
+  // Add any remaining elements from both arrays to the result array.
+  return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+};
+```
+
+- Try using this method when organizing a bookshelf or a closet in everyday life!

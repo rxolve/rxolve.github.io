@@ -1,0 +1,104 @@
+---
+title: "bigm_similarity: 유사한 문자열을 검색하는 쿼리"
+date: "240713"
+tags: ["RDS"]
+---
+
+- PostgreSQL 에서 bigm_similarity 함수를 사용하면 유사한 문자열을 검색할 수 있습니다.
+- 이 기능은 오타 교정, 유사 단어 검색, 퍼지 매칭 등 다양한 상황에서 유용하게 사용될 수 있습니다.
+  - 퍼지 매칭(Fuzzy Matching): 다르게 표기된 글자들이 서로 동일한 것인지, 단지 비슷한 것인지에 대한 여부를 판단하는 기술
+- pg_trgm 도 유사도 검색에 많이 쓰이지만, 한글이 검색어 대상이라면 pg_bigm 을 사용하는 것이 좋습니다.
+
+#### pg_bigm 확장 설치
+
+먼저, RDS 파라미터 그룹에서 pg_bigm 을 활성화해야 합니다.
+
+1. AWS 콘솔에 접속해서 RDS 로 이동합니다.
+2. 파라미터 그룹에서 shared_preload_libraries 파라미터를 찾아 pg_bigm 을 추가합니다.
+
+```sql
+shared_preload_libraries = 'pg_stat_statements,pg_bigm'
+```
+
+3. 데이터베이스에 접속하여 익스텐션을 생성합니다.
+
+```sql
+CREATE EXTENSION pg_bigm;
+```
+
+#### 테스트 데이터 생성
+
+- 간단한 예제를 위해 상품 테이블을 만들어 보았습니다.
+
+```PostgreSQL
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+INSERT INTO products (name) VALUES
+('iPhone 15'),
+('iPhone 15 Pro'),
+('Samsung Galaxy S24'),
+('Google Pixel 5'),
+('OnePlus 9');
+```
+
+#### 유사도 검색 구현
+
+- 이제 bigm_similarity 를 사용하여 유사도 검색을 구현해 봅시다.
+
+```sql
+SELECT name, bigm_similarity(name, 'iphone') AS similarity
+FROM products
+WHERE bigm_similarity(name, 'iphone') > 0.3
+ORDER BY similarity DESC;
+```
+
+- 이 쿼리는 'iphone'과 유사한 상품명을 찾아 유사도 순으로 정렬합니다.
+
+```
+name      | similarity
+---------------+-----------
+iPhone 12      |      0.5
+iPhone 12 Pro  |    0.4375
+```
+
+#### 성능 최적화
+
+- 대량의 데이터에 대해 검색을 수행할 때는 인덱스를 사용하여 성능을 향상시키는걸 추천합니다.
+
+```sql
+CREATE INDEX idx_products_name_bigm ON products USING gin (name gin_bigm_ops);
+```
+
+- gin 인덱스를 생성한 후, 다음과 같이 쿼리를 작성하면 인덱스를 사용하여 검색할 수 있습니다.
+
+```sql
+SELECT name, bigm_similarity(name, 'galxy') AS similarity
+FROM products
+WHERE name %> 'galxy' -- 이 연산자는 인덱스를 사용합니다
+ORDER BY similarity DESC;
+```
+
+- 이 쿼리는 'galxy'(Galaxy의 오타)와 유사한 상품을 찾습니다.
+
+```
+name              | similarity
+-------------------+-----------
+Samsung Galaxy S21 | 0.461538
+```
+
+#### 주의사항
+
+- bigm_similarity 는 대소문자를 구분하지 않습니다.
+- 긴 문자열에 대해서는 성능이 저하될 수 있으므로, 필요에 따라 텍스트 길이를 제한하는 것이 좋습니다.
+- 유사도 임계값(위 예제에서는 0.3)은 데이터 특성에 따라 조정이 필요합니다.
+  - 만족스러운 값을 찾기 위해 많은 테스트가 필요합니다.
+
+#### 마치며
+
+- bigm_similarity 를 사용하면 PostgreSQL 에서 간단하게 유사도 검색을 구현할 수 있습니다.
+  - 이로서 사용자 경험을 향상시키는 데 큰 도움이 될 수 있으며, 특히 검색 기능을 구현할 때 유용합니다.
+- 더 복잡한 시나리오에서는 full text search 와 결합하거나, 트리그램(trigram) 기반의 다른 유사도 함수들도 고려해 볼 수 있습니다.
+  - 실제 데이터로 성능을 테스트하고, 필요에 따라 최적화를 진행해야 합니다.

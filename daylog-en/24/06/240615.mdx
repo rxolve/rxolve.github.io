@@ -1,0 +1,51 @@
+---
+title: "Collecting Posts by Tags"
+date: "240615"
+tags: ["Next.js"]
+---
+
+- I made a page where you can see posts grouped by their tags.
+- I thought this feature might be useful in the future to gather scattered writings as I summarize books.
+- Again, GPT was a big help. Working on personal projects during weekends is fun.
+
+```typescript
+interface TagPageProps {
+  params: {
+    tag: string;
+  };
+}
+
+export const generateStaticParams = async () => {
+  const allPosts = getAllPosts();
+  const tagList = new Set(allPosts.flatMap((post) => post.tags));
+
+  return Array.from(tagList).map((tag) => ({
+    tag,
+  }));
+};
+
+const TagPage = ({ params }: TagPageProps) => {
+  const { tag } = params;
+
+  const allPosts = getAllPosts();
+  const postList = allPosts.filter((post) => post.tags?.includes(tag));
+
+  return (
+    <main>
+      <article>
+        <Link href="/">
+          <button className="outline" style={{ margin: "0.5rem 0" }}>
+            &larr;
+          </button>
+        </Link>
+        <h1>{tag}</h1>
+      </article>
+      <ArticleList list={postList} />
+    </main>
+  );
+};
+
+export default TagPage;
+```
+
+- I think my blog now has the basic features it needs.

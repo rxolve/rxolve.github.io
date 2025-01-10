@@ -1,0 +1,153 @@
+---
+title: "Interface vs Type in TypeScript"
+date: "240723"
+tags: ["TypeScript"]
+---
+
+# Interface vs Type
+
+In TypeScript, both `interface` and `type` are used to define types, but there are some important differences. Let's look at them:
+
+## 1. How to Write Them
+
+### Interface
+
+```typescript
+interface Person {
+  name: string;
+  age: number;
+}
+```
+
+### Type
+
+```typescript
+type Person = {
+  name: string;
+  age: number;
+};
+```
+
+## 2. How to Make Them Bigger
+
+### Interface
+
+You can make interfaces bigger using the `extends` keyword:
+
+```typescript
+interface Animal {
+  name: string;
+}
+
+interface Cat extends Animal {
+  meow(): void;
+}
+```
+
+### Type
+
+Types can do something similar using the `&` symbol:
+
+```typescript
+type Animal = {
+  name: string;
+};
+
+type Cat = Animal & {
+  meow(): void;
+};
+```
+
+## 3. Combining Declarations
+
+### Interface
+
+You can declare interfaces with the same name multiple times, and they will automatically combine:
+
+```typescript
+interface Car {
+  brand: string;
+}
+
+interface Car {
+  model: string;
+}
+
+// Result: Car now has both brand and model
+```
+
+### Type
+
+You can't declare types with the same name more than once:
+
+```typescript
+type Car = {
+  brand: string;
+};
+
+// Error: You can't use 'Car' again
+type Car = {
+  model: string;
+};
+```
+
+## 4. Special Type Tricks
+
+### Type
+
+Types can do some cool tricks like mapped types:
+
+```typescript
+type Keys = "firstName" | "lastName";
+type DuplicateString<T extends string> = { [K in T]: string };
+
+type NameFields = DuplicateString<Keys>;
+// Result: { firstName: string; lastName: string; }
+```
+
+### Interface
+
+Interfaces can't do these special tricks directly.
+
+## 5. Union Types
+
+### Type
+
+Types can define union types directly:
+
+```typescript
+type Status = "pending" | "approved" | "rejected";
+```
+
+### Interface
+
+Interfaces can't define union types directly. You need to use a type for this.
+
+## 6. Tuples and Arrays
+
+### Type
+
+Types can easily define tuples:
+
+```typescript
+type Point = [number, number];
+```
+
+### Interface
+
+Interfaces can define something similar to tuples, but it's not as simple:
+
+```typescript
+interface Point {
+  0: number;
+  1: number;
+  length: 2;
+}
+```
+
+## Conclusion
+
+- Use `interface` when you're defining the shape of objects, especially if you need to extend them or combine declarations.
+- Use `type` for more varied type definitions, like union types, intersections, or aliases for basic types.
+
+Usually, people use `interface` for object structures and `type` for other cases (like union types or aliases for basic types). But in newer versions of TypeScript, these two can do many of the same things. So, you can choose based on what your project or team prefers.

@@ -1,0 +1,49 @@
+---
+title: "Tidy First? Chapter 15: Delete Redundant Comments"
+date: "240720"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- If you can understand everything from the code alone, delete the comments.
+- The purpose of writing code is to explain to other programmers what the computer should do.
+  - Sometimes, comments and code don't match up when you look at them later.
+- Sometimes, people who are too strict about communication insist on rules like "every routine must have a comment".
+  - This leads to comments like:
+    ```
+    getX()
+      # return X
+      return X
+    ```
+  - This comment has no benefit and only costs time.
+- Cleaning up code is often connected.
+
+  - Sometimes, comments become redundant after you clean up the code.
+  - Before:
+    ```
+    if (generator)
+       ...code to set up generator...
+    else
+      # If there's no generator, return the default
+      return getDefaultGenerator()
+    ```
+  - After: We clean it up by using a guard clause in the condition.
+
+    ```
+    if (!generator)
+      # If there's no generator, return the default
+      return getDefaultGenerator()
+
+    ...code to set up generator...
+    ```
+
+  - At first, the comment wasn't redundant.
+  - But after cleaning up the code, we can see the comment just repeats what the code says.
+  - So let's delete it. Goodbye!
+
+> That's the end of Part 1: Code Tidying Techniques.

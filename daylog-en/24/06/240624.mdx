@@ -1,0 +1,68 @@
+---
+title: "Hello, Supabase"
+date: "240624"
+tags: ["Tool"]
+---
+
+- The visitor counter I made recently didn't work on GitHub Pages.
+  - GitHub Pages hosts static websites, so it doesn't support server-side rendering (SSR).
+- The Vercel Postgres I was using became useless, so I looked for an alternative. I ended up choosing [Supabase](https://supabase.io/).
+
+1. First, sign up for Supabase and create a new project.
+2. Set up environment variables for Supabase URL and API Key.
+
+   - You can find these when you create a project.
+   - Add the NEXT_PUBLIC prefix so you can use them on the client-side.
+
+   ```bash
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   NEXT_PUBLIC_SUPABASE_API_KEY=your-supabase-key
+   ```
+
+3. Install the `@supabase/supabase-js` library.
+
+   ```bash
+   npm install @supabase/supabase-js
+   ```
+
+4. Set up the Supabase client. Create a file named lib/supabase.ts and write:
+
+   ```typescript
+   import { createClient } from "@supabase/supabase-js";
+
+   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+   const supabaseApiKey = process.env.NEXT_PUBLIC_SUPABASE_API_KEY;
+
+   if (!supabaseUrl || !supabaseApiKey) {
+     throw new Error("Missing env variables for Supabase");
+   }
+
+   export const supabase = createClient(supabaseUrl, supabaseApiKey);
+   ```
+
+5. Implement the visitor counter.
+
+   ```typescript
+   const updateVisitorCount = async () => {
+     const { data, error } = await supabase
+       .from("visitors")
+       .select("count")
+       .eq("id", 1);
+
+     if (error) {
+       console.error(error);
+       return;
+     }
+
+     const visitorCount = data?.length ? data[0].count : 0;
+     await supabase
+       .from("visitors")
+       .update({ count: visitorCount + 1, last_visited: new Date() })
+       .eq("id", 1);
+   };
+   ```
+
+- Supabase has a better user experience and more features compared to Vercel Postgres.
+  - You can easily access the database from both server and client using the Supabase client.
+  - Managing the database in the console is also more convenient.
+- Both can be used for free, but I deleted Vercel Postgres.

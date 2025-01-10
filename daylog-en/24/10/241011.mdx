@@ -1,0 +1,133 @@
+---
+title: "NextJS Snake #6: Handling Body Collision"
+date: "241011"
+tags: ["Snake"]
+---
+
+> [rxolve.github.io/games/snake](https://rxolve.github.io/games/snake)
+
+---
+
+### 1. Detecting Snake Body Collisions
+
+We can handle **body collisions** with a simple function like this:
+
+The function checks if the snake’s head is in the same position as any part of its body.
+
+```ts
+const checkCollisionToBody = (head: Position, body: Position[]): boolean => {
+  // Check if the head collides with the body
+  return body.some(
+    (segment) => segment[0] === head[0] && segment[1] === head[1]
+  );
+};
+```
+
+---
+
+### 2. Adding Collision Check in `moveSnake`
+
+After checking for **wall collisions**, we can use the above function to also check for **body collisions**.
+
+```ts
+const moveSnake = useCallback(() => {
+  if (gameOver) return;
+
+  const newSnake = [...snake];
+  const head = newSnake[0];
+  const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
+
+  // Check for wall collisions
+  if (checkCollisionToWall(newHead)) {
+    setGameOver(true);
+    return;
+  }
+
+  // Check for body collisions
+  if (checkCollisionToBody(newHead, newSnake.slice(1))) {
+    setGameOver(true);
+    return;
+  }
+
+  newSnake.unshift(newHead);
+
+  // Check if food is eaten
+  if (newHead[0] === food[0] && newHead[1] === food[1]) {
+    generateFood(); // Generate new food
+    setScore((prevScore) => prevScore + 1); // Increase score
+  } else {
+    newSnake.pop(); // Remove tail if no food eaten
+  }
+
+  setSnake(newSnake);
+}, [snake, direction, food, gameOver, generateFood]);
+```
+
+---
+
+### 3. Preventing Immediate Collision
+
+If the initial direction is `[1, 0]`, the snake will immediately collide with itself.  
+To prevent this, change the `INITIAL_DIRECTION` to `[0, 1]`.
+
+```ts
+const INITIAL_DIRECTION: Position = [0, 1];
+```
+
+---
+
+### 4. Preventing Reversal into the Body
+
+We also add a **check when changing direction** so that the snake doesn’t reverse into its own body. This improves the player’s experience.
+
+```ts
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (gameOver) return;
+
+    const [dx, dy] = direction; // Current direction
+
+    switch (e.key) {
+      case "ArrowUp":
+        // Prevent reversing downwards
+        if (dy !== 1) setDirection([0, -1]);
+        break;
+      case "ArrowDown":
+        // Prevent reversing upwards
+        if (dy !== -1) setDirection([0, 1]);
+        break;
+      case "ArrowLeft":
+        // Prevent reversing to the right
+        if (dx !== 1) setDirection([-1, 0]);
+        break;
+      case "ArrowRight":
+        // Prevent reversing to the left
+        if (dx !== -1) setDirection([1, 0]);
+        break;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyPress);
+  return () => {
+    window.removeEventListener("keydown", handleKeyPress);
+  };
+}, [gameOver, direction]);
+```
+
+---
+
+### 5. Conclusion
+
+With these changes, the snake game is now fully functional!
+
+- You can control the snake using arrow keys.
+- The snake grows when it eats food.
+- The game ends if the snake hits a wall or its own body.
+
+---
+
+### 6. What’s Next?
+
+In the next post, we’ll **add an auto-play mode** for the snake.
+
+Honestly, after playing a few rounds, the game started to feel a bit boring. 😅

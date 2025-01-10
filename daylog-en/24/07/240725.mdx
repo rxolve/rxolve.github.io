@@ -1,0 +1,137 @@
+---
+title: "Maximum Subarray Sum: Kadane's Algorithm"
+date: "240725"
+tags: ["Algorithm"]
+---
+
+We've learned that Dynamic Programming (DP) is a technique that solves complex problems by breaking them down into smaller subproblems.
+
+Let's explore Kadane's algorithm, which efficiently solves the maximum subarray sum problem, an application of DP and a common algorithmic challenge.
+
+## Problem
+
+Consider the following problem:
+
+> Design and implement an efficient algorithm to find the contiguous subarray with the largest sum within a given integer array.
+
+For example, if given the array `[-2, 1, -3, 4, -1, 2, 1, -5, 4]`, the subarray `[4, -1, 2, 1]` has the maximum sum (6).
+
+## Kadane's Algorithm
+
+Kadane's algorithm is an efficient method that can solve this problem with O(n) time complexity and O(1) space complexity. The core idea of this algorithm is to calculate the maximum subarray sum ending at each position while tracking the overall maximum.
+
+## Implementation Code
+
+```typescript
+function maxSubarraySum(arr: number[]): number {
+  let maxSum: number = Number.NEGATIVE_INFINITY;
+  let currentSum: number = 0;
+
+  for (const num of arr) {
+    currentSum = Math.max(num, currentSum + num);
+    maxSum = Math.max(maxSum, currentSum);
+  }
+
+  return maxSum;
+}
+
+const arr: number[] = [-2, 1, -3, 4, -1, 2, 1, -5, 4];
+console.log(maxSubarraySum(arr)); // Output: 6
+```
+
+1. Initialize `maxSum` to negative infinity. This handles the case where all elements are negative.
+2. Initialize `currentSum` to 0.
+3. Iterate through the array, for each element:
+   - Choose the larger value between `currentSum + num` and `num`. This decides whether to add the current element to the previous subarray or start a new subarray.
+   - Update `maxSum` to track the overall maximum.
+4. Return `maxSum`.
+
+## Complexity
+
+- Time complexity: O(n), as we traverse the array only once.
+- Space complexity: O(1), as we don't use any additional array or data structure.
+
+## Kadane's Algorithm vs. Staircase Problem
+
+Comparing Kadane's algorithm with the basic DP staircase problem, we can note the following differences:
+
+### Purpose
+
+- Staircase problem: Find the maximum score in the process of climbing all stairs.
+- Kadane's algorithm: Find the maximum sum of a contiguous subarray.
+
+### Recurrence Relation
+
+- Staircase problem: dp[i] = dp[i - 1] + dp[i - 2]
+- Kadane's algorithm: current_sum = max(num, current_sum + num)
+
+### Memory Usage
+
+- Staircase problem: Generally uses a DP array to store all states (O(n) space).
+- Kadane's algorithm: Can be solved using only a constant number of variables (O(1) space).
+
+### Implementation Complexity
+
+- Staircase problem: May require more complex logic and conditionals depending on climbing conditions.
+- Kadane's algorithm: Can be implemented with simple logic.
+
+## Determining Applicability of Kadane's Algorithm
+
+### Requirement Analysis
+
+- Does the problem require 'maximization' or 'minimization'?
+- Is it a problem involving contiguous subarrays?
+
+### Data Structure Check
+
+- Is the input in the form of a 1D array?
+- If it's a higher-dimensional data structure, can it be reduced to 1D?
+
+### Associativity of Operations
+
+- Does the operation required by the problem satisfy the associative law?
+  - Associative law: (a op b) op c = a op (b op c)
+  - Example: Addition, multiplication operations
+
+### Constraint Check
+
+- Are there no restrictions on the length of the subarray?
+- Can consecutive elements be freely selected?
+
+### Existence of Optimal Substructure
+
+- Can the optimal solution to the overall problem be constructed from optimal solutions to subproblems?
+
+### Possibility of Greedy Choice
+
+- Does the best choice at each step guarantee the optimality of the overall solution?
+
+## Examples of Determining Applicability
+
+Here are examples of determining the applicability of Kadane's algorithm to various problems:
+
+### Finding the Period of Maximum Profit in Stock Price Fluctuations
+
+- Analysis: Contiguous subarray, maximization problem, 1D data, addition operation
+- Judgment: Kadane's algorithm is applicable
+
+### Finding a Subarray with a Sum Exactly Equal to K in an Array
+
+- Analysis: Contiguous subarray, but requires an exact sum
+- Judgment: Direct application of Kadane's algorithm is not possible, a modified approach is needed
+
+### Finding the Rectangle Area with Maximum Sum in a 2D Matrix
+
+- Analysis: 2D data but can be reduced to 1D, maximization problem
+- Judgment: Can be solved by repeatedly applying Kadane's algorithm
+- **We plan to solve this next**
+
+### Finding the Increasing Subsequence with Maximum Sum in an Array
+
+- Analysis: No continuity condition, additional increasing condition
+- Judgment: Direct application of Kadane's algorithm is not possible, a different DP approach is needed
+
+## Summary
+
+- Always read the detailed conditions of the problem carefully. A single small condition can change the applicability of an algorithm.
+- Even if Kadane's algorithm cannot be directly applied, it may be possible to apply it by slightly modifying the idea or adding a preprocessing step.

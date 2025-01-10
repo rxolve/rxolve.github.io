@@ -1,0 +1,137 @@
+---
+title: "MDX에서 표가 그려지지 않을 때"
+date: "240916"
+tags: ["Next.js"]
+---
+
+MDX에 표를 추가했는데 깨져서 보입니다.
+
+```mdx
+| 항목            | **ASCII**      | **ANSI**              | **유니코드(Unicode)**                               |
+| --------------- | -------------- | --------------------- | --------------------------------------------------- |
+| **출시 연도**   | 1963년         | 1980년대              | 1991년                                              |
+| **비트 수**     | 7비트          | 8비트                 | 16비트 이상                                         |
+| **문자 수**     | 128개          | 256개                 | 143,000개 이상                                      |
+| **지원 언어**   | 영어           | 영어 + 유럽 언어      | 전 세계 모든 언어 + 이모지                          |
+| **인코딩 방식** | 고정 길이      | 고정 길이             | UTF-8, UTF-16, UTF-32 (가변 및 고정 길이 모두 지원) |
+| **확장성**      | 매우 제한적    | 일부 유럽어 확장 가능 | 무한한 확장 가능                                    |
+| **대표성**      | 영어 기반 문서 | 지역마다 다름         | 모든 언어, 문자, 심볼, 특수 기호                    |
+```
+
+next-mdx-remote 공식문서를 찾아봐도 별다른 언급은 없었습니다.
+
+아래와 같은 예시가 전부일뿐...
+
+```javascript
+serialize(
+  // Raw MDX contents as a string
+  "# hello, world",
+  // Optional parameters
+  {
+    // made available to the arguments of any custom MDX component
+    scope: {},
+    // MDX's available options, see the MDX docs for more info.
+    // https://mdxjs.com/packages/mdx/#compilefile-options
+    mdxOptions: {
+      remarkPlugins: [],
+      rehypePlugins: [],
+      format: "mdx",
+    },
+    // Indicates whether or not to parse the frontmatter from the MDX source
+    parseFrontmatter: false,
+  }
+);
+```
+
+검색을 통해 remarkGfm 플러그인을 추가하면 표가 제대로 그려진다는 것을 알게 되었습니다.
+
+## remarkGfm
+
+remarkGfm은 GitHub Flavored Markdown(GFM)을 지원하는 플러그인입니다.
+
+GFM은 GitHub에서 사용하는 Markdown 확장 문법으로, 표, 작업 목록, 취소선, 코드 블록 강조 등을 지원합니다.
+
+```bash
+#### Autolink literals
+
+www.example.com, https://example.com, and contact@example.com.
+
+#### Footnote
+
+A note[^1]
+
+#### Strikethrough
+
+~one~ or ~~two~~ tildes.
+
+#### Table
+
+| a | b  |  c |  d  |
+| - | :- | -: | :-: |
+
+#### Tasklist
+
+* [ ] to do
+* [x] done
+```
+
+#### Autolink literals
+
+www.example.com, https://example.com, and contact@example.com.
+
+#### Footnote
+
+A note[^1]
+
+#### Strikethrough
+
+~one~ or ~~two~~ tildes.
+
+#### Table
+
+| a   | b   |   c |  d  |
+| --- | :-- | --: | :-: |
+
+#### Tasklist
+
+- [ ] to do
+- [x] done
+
+이제 더 풍성한 컨텐츠를 작성할 수 있게 되었습니다.
+
+## 적용하기
+
+먼저 remark-gfm을 설치합니다.
+
+```bash
+npm install remark-gfm
+```
+
+그리고 next-mdx-remote의 options에 remarkGfm을 추가합니다.
+
+```javascript
+<MDXRemote
+  source={post.content}
+  components={mdxComponents}
+  options={{
+    parseFrontmatter: true,
+    mdxOptions: {
+      remarkPlugins: [remarkGfm],
+    };
+  }}
+/>
+```
+
+parseFrontmatter 옵션도 켜서 프론트매터를 파싱할 수 있도록 했습니다.
+
+이제 표가 예쁘게 그려집니다.
+
+| 항목            | **ASCII**      | **ANSI**              | **유니코드(Unicode)**                               |
+| --------------- | -------------- | --------------------- | --------------------------------------------------- |
+| **출시 연도**   | 1963년         | 1980년대              | 1991년                                              |
+| **비트 수**     | 7비트          | 8비트                 | 16비트 이상                                         |
+| **문자 수**     | 128개          | 256개                 | 143,000개 이상                                      |
+| **지원 언어**   | 영어           | 영어 + 유럽 언어      | 전 세계 모든 언어 + 이모지                          |
+| **인코딩 방식** | 고정 길이      | 고정 길이             | UTF-8, UTF-16, UTF-32 (가변 및 고정 길이 모두 지원) |
+| **확장성**      | 매우 제한적    | 일부 유럽어 확장 가능 | 무한한 확장 가능                                    |
+| **대표성**      | 영어 기반 문서 | 지역마다 다름         | 모든 언어, 문자, 심볼, 특수 기호                    |

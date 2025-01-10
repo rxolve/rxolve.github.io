@@ -1,0 +1,50 @@
+---
+title: "104: Connection reset by peer"
+date: "241010"
+tags: ["Issue"]
+---
+
+동료의 제보로 빈스톡에서 간헐적으로 502 Bad Gateway 에러가 발생한다는 사실을 알게 되었습니다.
+
+Nginx 에러 로그를 확인하고 나서야 `104: Connection reset by peer` 에러의 존재를 확인했습니다.
+
+#### 원인 분석
+
+Connection reset by peer 오류는 클라이언트와 서버 간의 연결이 중간에 끊어진 경우 발생합니다.
+
+Nginx가 백엔드 서버에 요청을 보냈을 때, 해당 서버가 연결을 제대로 처리하지 못하면 이러한 오류가 발생할 수 있습니다.
+
+서버의 과부하나 네트워크 불안정성이 원인일 수 있지만, 이 경우에는 Nginx와 백엔드 서버 간의 타임아웃 설정이 일치하지 않아 중간에 연결이 끊어져 발생한 것으로 보였습니다.
+
+#### 해결 방법
+
+Nginx에서의 타임아웃 설정이 너무 짧으면 백엔드 서버가 응답을 보내기 전에 연결이 끊어질 수 있습니다.
+
+이를 방지하기 위해 Nginx의 타임아웃 설정을 조정했습니다.
+
+```nginx
+http {
+    keepalive_timeout 65;  # Keep-Alive 연결 유지 시간 조정
+    proxy_connect_timeout 120;  # 백엔드 서버 연결 대기 시간 증가
+    proxy_read_timeout 120;  # 백엔드 서버 응답 대기 시간 증가
+    proxy_send_timeout 120;  # 클라이언트로 응답 전송 대기 시간 증가
+}
+```
+
+이 설정은 Nginx가 백엔드 서버와 연결할 때 충분한 시간을 줍니다.
+
+추가적으로 아래와 같은 경고도 발생하여 관련된 설정을 추가했습니다.
+
+```shell
+could not build optimal types_hash, you should increase either types_hash_max_size: 1024 or types_hash_bucket_size: 64; ignoring types_hash_bucket_size
+```
+
+```nginx
+http {
+    ...
+    types_hash_max_size 2048;  # types_hash_max_size 2배 증가
+    types_hash_bucket_size 64;  # types_hash_bucket_size 2배 증가
+}
+```
+
+오늘 배포를 마치고 내일부터 모니터링을 진행할 예정입니다.

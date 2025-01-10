@@ -1,0 +1,138 @@
+---
+title: "Understanding AOP in NestJS"
+date: "240927"
+tags: ["NestJS"]
+---
+
+AOP (Aspect-Oriented Programming) is a programming paradigm that helps you separate cross-cutting concerns, making your code more modular and easier to maintain.
+
+It’s mainly used to separate repetitive tasks like logging, transaction management, or authentication from the main business logic, reducing code complexity.
+
+In NestJS, you can also apply AOP concepts using several built-in tools. Let's explore how you can use these features effectively.
+
+## Key Concepts of AOP
+
+AOP is based on concepts like Aspect, Join Point, Advice, Pointcut, and Weaving. Here’s how these concepts can be applied in NestJS.
+
+- **Aspect**: This is the modularization of a concern that cuts across multiple components, like logging or transaction management. In NestJS, interceptors, guards, and middleware can act as aspects.
+
+- **Join Point**: These are specific points in the application where an aspect can be applied, such as before or after a method execution, or when an exception is thrown. In NestJS, method execution or HTTP request handling can be considered join points.
+
+- **Advice**: This defines the action taken by an aspect at a particular join point. In NestJS, you implement advice in interceptor’s `intercept` method or a guard’s `canActivate` method.
+
+- **Pointcut**: This is a way to specify which join points are targeted by an aspect. In NestJS, decorators are used to apply aspects to specific controllers or methods.
+
+- **Weaving**: This is the process of applying aspects to the targeted join points. In NestJS, this is done using decorators to attach interceptors, guards, or middleware.
+
+Now, let's see some practical examples of these concepts in NestJS.
+
+## Using Interceptors for Logging
+
+Interceptors are one of the most effective tools to implement advice in NestJS. They allow you to add common logic before and after a method execution, reducing code duplication and simplifying business logic.
+
+```typescript
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const now = Date.now();
+    console.log(`Request started at: ${new Date(now)}`);
+    return next
+      .handle()
+      .pipe(
+        tap(() => console.log(`Request ended. Duration: ${Date.now() - now}ms`))
+      );
+  }
+}
+```
+
+This `LoggingInterceptor` logs the start and end time for every request. You can apply it to a specific controller like this:
+
+```typescript
+@Controller("users")
+@UseInterceptors(LoggingInterceptor)
+export class UserController {
+  @Get()
+  findAll() {
+    return [];
+  }
+}
+```
+
+Here, the `LoggingInterceptor` is applied to all methods in the `UserController`. You don’t need to add logging code to each method individually.
+
+## Using Guards for Authentication and Authorization
+
+Guards control whether a request is allowed or not based on certain conditions. This is similar to the `Before Advice` in AOP and is great for handling authentication or authorization logic.
+
+```typescript
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const roles = this.reflector.get<string[]>("roles", context.getHandler());
+    if (!roles) {
+      return true;
+    }
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    return roles.some((role) => user.roles.includes(role));
+  }
+}
+```
+
+You can use this guard to restrict access to certain roles:
+
+```typescript
+@UseGuards(RolesGuard)
+@SetMetadata('roles', ['admin'])
+@Post()
+create() {
+  return 'This action adds a new user';
+}
+```
+
+Now, only users with the `admin` role can access the `create` method. Guards help you isolate security logic, making your code easier to maintain.
+
+## Using Middleware for Global Request Handling
+
+Middleware in NestJS works more at the HTTP level, handling requests before they reach the controller. While it’s not purely AOP, it’s useful for applying common logic to all requests, like logging the IP address or filtering requests.
+
+```typescript
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    console.log(`Request... IP: ${req.ip}`);
+    next();
+  }
+}
+```
+
+You can apply this middleware globally to log the IP address for all incoming requests:
+
+```typescript
+// main.ts
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.use(new LoggerMiddleware());
+  await app.listen(3000);
+}
+```
+
+## Combining AOP Concepts: A Practical Example
+
+You can combine interceptors, guards, and middleware to handle complex logic in a simple way. For example, imagine a scenario where you:
+
+1. Log the IP address of all incoming requests with a middleware.
+2. Check if the user has admin privileges using a guard.
+3. Log additional details for admin users using an interceptor.
+
+This way, each piece of logic is separated into its own component, making your code more maintainable and easier to understand.
+
+## Conclusion
+
+Although NestJS doesn’t directly support AOP, you can still use concepts like interceptors, guards, and middleware to effectively apply AOP principles.
+
+AOP helps you separate business logic from common concerns, making your application architecture more robust and maintainable.
+
+Explore these tools in NestJS to take your application’s architecture to the next level!

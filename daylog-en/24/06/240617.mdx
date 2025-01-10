@@ -1,0 +1,70 @@
+---
+title: "Getting Slack Alerts for AWS RDS"
+date: "240617"
+tags: ["AWS"]
+---
+
+- Yesterday, our server went down because the RDS CPU was maxed out.
+- I thought it would be great if we could know about these situations in advance.
+- So, I set up AWS CloudWatch alerts and Slack notifications.
+
+#### Setting up Slack notifications in SNS
+
+1. I made an endpoint on our API server to send messages to Slack.
+   - Here's a simple version of the code:
+
+```typescript
+async createRdsCpuHighAlert(req: Request) {
+    // Check the SNS message type
+    const messageType = req.headers['x-amz-sns-message-type'];
+
+    if (messageType === 'SubscriptionConfirmation') {
+      // Get the subscription confirmation URL
+      const subscribeUrl = req.body['SubscribeURL'];
+
+      // Send a GET request to confirm the subscription
+      axios
+        .get(subscribeUrl)
+        .then((response) => {
+          // ...log subscription confirmation
+          return 'OK';
+        })
+        .catch((error) => {
+          // ...handle errors
+        });
+    } else if (messageType === 'Notification') {
+      // Receive the message
+      const message = JSON.parse(req.body['Message']);
+      // ...send message to Slack
+    }
+    return 'OK';
+}
+```
+
+2. In SNS, choose Topics, then Create topic.
+3. Choose Standard type, give it a name, and create the topic.
+4. Click Create subscription.
+5. Choose HTTPS as the protocol, and enter the API URL we made in step 1 as the endpoint.
+6. Expand Delivery policy (HTTP/S) - Optional and uncheck Use default delivery policy.
+7. Change Content-Type from text/plain to application/json.
+   - This is important so NestJS can read the body.
+   - NestJS's default body parser seems to miss text/plain.
+
+#### Setting up CloudWatch Alerts
+
+1. In CloudWatch, click Create Alarm.
+2. Click Select metric.
+3. Choose RDS, then pick the DB instance and metric you want to watch.
+   - I chose the CPUUtilization metric.
+4. Set Threshold type to Static and enter your conditions.
+   - I put Greater/Equal > 80.
+5. Set up the alarm state and notification. For In alarm, choose the SNS topic we made earlier.
+6. Give your alarm a name and create it.
+
+#### Checking Slack Messages
+
+- I tested by lowering the alarm condition to 20, and the Slack alert came through fine.
+- I'm not sure if getting these alerts is good or bad.
+  - It's normal as our service grows, but it might mean we need to scale up RDS or optimize our queries.
+- It looks like AWS SNS doesn't support payloads for HTTPS API calls, so I couldn't add authentication.
+  - This is something we need to improve.

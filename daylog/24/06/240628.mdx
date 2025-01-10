@@ -1,0 +1,141 @@
+---
+title: "블로그 로고를 만들어 보아요"
+date: "240628"
+tags: ["Next.js", "Design"]
+---
+
+- 블로그의 OG 이미지로 쓰일 로고를 만들어 보았습니다.
+- '그저 그렇고 그런 기록'의 앞글자를 딴 '그그그기'를 사분면에 한글자씩 배치하는 시안입니다.
+  - 그 그
+  - 그 기
+
+1. 페이지를 만들고 정해진 갯수의 사각형을 만드는 작업부터 진행했습니다.
+
+   ```typescript
+   const [width, setWidth] = useState<number>(6);
+   const [height, setHeight] = useState<number>(6);
+   const [rectangles, setRectangles] = useState<boolean[][]>([]);
+
+   useEffect(() => {
+    // false로 채워진 2차원 배열 생성
+   const newRectangles = Array.from({ length: height }, () =>
+       Array(width).fill(false)
+   );
+   setRectangles(newRectangles);
+   }, [width, height]);
+
+   ...
+
+   <div
+   style={{
+       display: "grid",
+       gridTemplateColumns: `repeat(${width}, 50px)`,
+   }}
+   >
+   {rectangles.map((row, rowIndex) =>
+       row.map((col, colIndex) => (
+       <div
+           key={`${rowIndex}-${colIndex}`}
+           style={{
+           width: "50px",
+           height: "50px",
+           backgroundColor: "white",
+           border: "1px solid black",
+           }}
+       ></div>
+       ))
+   )}
+   </div>
+   ```
+
+2. 글자를 칠해주는 부분을 계산하기보단 클릭으로 찍어주는게 편할 것 같아서 클릭 이벤트를 추가했습니다.
+
+   ```typescript
+   const toggleRectangle = (row: number, col: number) => {
+     const newRectangles = rectangles.map((r, rowIndex) =>
+       r.map((c, colIndex) => (rowIndex === row && colIndex === col ? !c : c))
+     );
+     setRectangles(newRectangles);
+   };
+   ```
+
+3. 다운로드를 위해선 캔버스에 동일한 사각형들을 그려주는 작업이 필요했습니다.
+
+   ```typescript
+   const drawOnCanvas = (rectangles: boolean[][]) => {
+     const canvas = canvasRef.current;
+     if (canvas) {
+       const context = canvas.getContext("2d");
+       if (context) {
+         canvas.width = width * 50;
+         canvas.height = height * 50;
+         context.clearRect(0, 0, canvas.width, canvas.height);
+         rectangles.forEach((row, rowIndex) => {
+           row.forEach((col, colIndex) => {
+             context.fillStyle = col ? secondaryColor : primaryColor;
+             context.fillRect(colIndex * 50, rowIndex * 50, 50, 50);
+           });
+         });
+       }
+     }
+   };
+   ```
+
+4. 색상을 변경할 수 있도록 컬러 피커를 추가했습니다.
+
+   - 팬톤 올해의 컬러를 참고했습니다.
+
+   ```typescript
+   const [primaryColor, setPrimaryColor] = useState<string>("#FFBE98");
+   const [secondaryColor, setSecondaryColor] = useState<string>("#CA848A");
+
+   ...
+
+    <label>
+        Primary Color:
+        <input
+        type="color"
+        value={primaryColor}
+        onChange={(e) => setPrimaryColor(e.target.value)}
+        style={{ marginLeft: "5px" }}
+        />
+    </label>
+    <label>
+        Secondary Color:
+        <input
+        type="color"
+        value={secondaryColor}
+        onChange={(e) => setSecondaryColor(e.target.value)}
+        style={{ marginLeft: "5px" }}
+        />
+    </label>
+   ```
+
+5. 글자들의 구분이 가지 않아 아래처럼 캔버스에 직접 하드 코딩을 해서 선을 그려주었습니다.
+
+   ```typescript
+   // 중앙 십자형 하얀색 선 그리기
+   context.strokeStyle = secondaryColor;
+   context.lineWidth = 1;
+
+   // 세로 중앙선
+   context.beginPath();
+   context.moveTo(canvas.width / 2, 0);
+   context.lineTo(canvas.width / 2, canvas.height);
+   context.stroke();
+
+   // 가로 중앙선
+   context.beginPath();
+   context.moveTo(0, canvas.height / 2);
+   context.lineTo(canvas.width, canvas.height / 2);
+   context.stroke();
+
+   ...
+   ```
+
+6. 그렇게 탄생한 로고입니다.
+
+   ![그그그기](https://rxolve.github.io/og-image.png)
+
+7. 페이지는 [여기](https://rxolve.github.io/dot-logo-maker)에서 확인할 수 있습니다.
+   - 앞으로 블로그의 OG 이미지를 업데이트할 때마다 기능을 추가해볼 생각입니다.

@@ -1,0 +1,85 @@
+---
+title: "NextJS Snake #1: 게임판 만들기"
+date: "240825"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+2048이라는 게임을 만들어 보고 싶었습니다.
+
+하지만 설계가 떠오르지 않아, 그보다 간단해보이는 스테이크 게임을 만들어 보기로 했습니다.
+
+구글에 예제도 많고, 지피티가 구현도 금방 해줍니다.
+
+우선 게임판을 만들어 봤습니다. Tailwind를 사용했습니다.
+
+```typescript
+"use client";
+
+import React from "react";
+
+const GRID_SIZE = 20;
+const CELL_SIZE = 20;
+const GAP_SIZE = 1;
+
+const Snake: React.FC = () => {
+  return (
+    <main className="text-center">
+      <h1>Snake Game</h1>
+      <div
+        className="grid bg-gray-300 border border-gray-400 mx-auto"
+        style={{
+          gridTemplateColumns: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
+          gap: "1px",
+          width: `${GRID_SIZE * (CELL_SIZE + GAP_SIZE)}px`,
+        }}
+      >
+        {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => (
+          <div
+            key={index}
+            className="bg-white"
+            style={{
+              width: `${CELL_SIZE}px`,
+              height: `${CELL_SIZE}px`,
+            }}
+          />
+        ))}
+      </div>
+    </main>
+  );
+};
+
+export default Snake;
+```
+
+그리드를 그리고 각 셀에 대응하는 배열을 만드는 단순한 코드입니다.
+
+주요 포인트는 다음과 같습니다.
+
+- GRID_SIZE
+
+  - 그리드의 행과 열의 개수를 나타냅니다.
+  - 여기서는 20x20의 그리드를 만듭니다.
+
+- CELL_SIZE
+
+  - 각 셀의 크기를 나타냅니다.
+  - 각 셀은 가로세로 20px입니다.
+
+- GAP_SIZE
+
+  - 각 셀 사이의 간격을 나타냅니다.
+  - 여기서는 1px의 간격을 두었습니다.
+
+- gridTemplateColumns
+
+  - 그리드의 열을 정의합니다.
+  - GRID_SIZE만큼 열을 만들고, 각 열의 너비는 CELL_SIZE로 설정됩니다.
+
+- Array.from
+
+  - GRID_SIZE \* GRID_SIZE 크기의 배열을 생성한 후, map 메서드를 이용해 각 셀을 렌더링합니다.
+  - 그리드는 2차원이지만, 1차원 배열로 펼쳐서 각 셀을 렌더링합니다.
+
+다음 시간엔 이 게임의 주인공인 뱀을 만들어 보겠습니다.

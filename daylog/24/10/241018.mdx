@@ -1,0 +1,111 @@
+---
+title: "태그 리스트 성능 개선"
+date: "241018"
+tags: ["Next.js"]
+---
+
+현재 이 블로그의 태그 리스트는 모든 포스트를 불러와서 태그를 추출하는 방식으로 동작합니다.
+
+이 방식은 포스트가 많아질수록 성능이 저하되기에 비효율적입니다.
+
+얼마전부터 블로그가 느려진 것을 느꼈기에 태그 리스트를 개선하기로 했습니다.
+
+#### 아이디어
+
+1. 태그 리스트를 미리 만들어 JSON 파일로 저장하는 스크립트를 작성
+2. 빌드 시 해당 스크립트를 실행해 태그 리스트를 캐싱
+3. 메인 페이지에서 캐싱된 태그 리스트를 불러와 사용
+
+#### 태그 리스트 생성 스크립트
+
+현재 태그 리스트에서 연산하는 로직을 스크립트로 가져와 JSON 파일로 저장합니다.
+
+```ts
+import fs from "fs";
+import path from "path";
+import { getAllPosts } from "@/lib/posts";
+
+const generateTagJson = async (isEn: boolean) => {
+  const allPosts = await getAllPosts({ isEn });
+  const tagItemList: TagItem[] = [];
+
+  for (const post of allPosts) {
+    if (!post.tags) continue;
+    for (const tag of post.tags) {
+      const index = tagItemList.findIndex((item) => item.tag === tag);
+      if (index === -1) {
+        tagItemList.push({ tag, count: 1 });
+      } else {
+        tagItemList[index].count += 1;
+      }
+    }
+  }
+
+  const sortedTagItemList = tagItemList.sort((a, b) => b.count - a.count);
+  console.log(sortedTagItemList);
+
+  const fileName = isEn ? "tags-en.json" : "tags.json";
+  const jsonPath = path.join(process.cwd(), "data", fileName);
+  fs.writeFileSync(jsonPath, JSON.stringify(sortedTagItemList));
+  console.log("tags.json 생성 완료!");
+};
+
+generateTagJson(false);
+generateTagJson(true);
+```
+
+#### 빌드 시 태그 리스트 캐싱
+
+package.json의 빌드 스크립트에 태그 리스트 생성 스크립트를 추가합니다.
+
+```json
+{
+  "scripts": {
+    // ...
+    "generate:tag": "npx tsx scripts/generate-tag-json.ts",
+    "build": "npm run generate:tag && next build"
+  }
+}
+```
+
+#### 태그 리스트 불러오기
+
+태그 리스트 컴포넌트에서 JSON 파일을 불러와 사용합니다.
+
+```ts
+import TagButton from "./tag-button";
+
+interface TagListProps {
+  isEn?: boolean;
+}
+
+const getTags = (isEn: boolean) => {
+  return isEn ? require("@/data/tags-en.json") : require("@/data/tags.json");
+};
+
+const TagList = async (props: TagListProps) => {
+  const { isEn = false } = props;
+
+  const tags = getTags(isEn);
+
+  return (
+    <>
+      <article>
+        {tags?.map((tag: TagItem) => (
+          <TagButton key={tag.tag} tagItem={tag} isEn={isEn} />
+        ))}
+      </article>
+    </>
+  );
+};
+
+export default TagList;
+```
+
+#### 결과
+
+태그 리스트를 캐싱하는 것 만으로 드라마틱한 성능 향상을 기대할 순 없었습니다.
+
+대신 메인 페이지에 로딩되는 포스팅을 30개로 제한하면서 로컬에서 3초 이상 걸리던 로딩 시간이 1초 내로 줄어들었습니다.
+
+다음 단계로는 포스트를 무한 스크롤로 불러오는 방식을 고려해보겠습니다.

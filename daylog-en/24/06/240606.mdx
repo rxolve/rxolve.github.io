@@ -1,0 +1,36 @@
+---
+title: "Deploying to Github Pages with Github Actions"
+date: "240606"
+tags: ["GithubPages"]
+---
+
+> [How to deploy a Nextjs app to GitHub pages?](https://medium.com/frontendweb/how-to-deploy-a-nextjs-app-to-github-pages-1de4f6ed762e)
+
+0.  Continuing from yesterday, I worked on changing this site from [https://rxolve-github-io.vercel.app](https://rxolve-github-io.vercel.app) to [https://rxolve.github.io](https://rxolve.github.io).
+    - First, I undid yesterday's work.
+1.  In the repository's Settings - Pages - Source, I changed it to Github Actions.
+2.  I clicked the configure button to create a basic workflow file.
+3.  When I pushed to start the build, an error occurred in the Setup Pages step. It seems MDX wasn't building properly.
+    > [Mdx does not build properly with GitHub Pages (Actions) #58637](https://github.com/vercel/next.js/issues/58637)
+    >
+    > I removed it from the workflow.
+4.  Like yesterday, I added these settings to next.config.js:
+
+    ```javascript
+    output: 'export',
+    images: {
+      unoptimized: true,
+    },
+    ```
+
+    - I added "type": "module" to package.json and changed the filename back from next.config.mjs to next.config.js.
+    - If you can't find the path to static files (like I couldn't yesterday), add assetPrefix in the production environment:
+      ```javascript
+      assetPrefix:
+      process.env.NODE_ENV === 'production' ? '/[repository-name]' : '',
+      ```
+
+5.  Pushing to the main branch starts the build. After deployment, I could see the homepage working properly.
+    - Mr. Pico is back! 🎉
+    - [https://rxolve-github-io.vercel.app](https://rxolve-github-io.vercel.app) was automatically deactivated.
+    - It seems simple now, but I made 14 commits during this process. 😅 I trusted GPT-4o teacher too much.

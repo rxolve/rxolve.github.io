@@ -1,0 +1,9 @@
+@import url("https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css");
+
+[data-theme="light"],
+:root:not([data-theme="dark"]) {
+  --pico-color: #ca848a;
+  --pico-primary: var(--pico-color);
+}
+
+@tailwind utilities;

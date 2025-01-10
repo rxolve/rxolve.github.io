@@ -1,0 +1,123 @@
+---
+title: "How to Keep Lambda Warm"
+date: "240925"
+tags: ["AWS"]
+---
+
+In my previous post, we looked at the cost benefits of Lambda.
+
+While serverless architecture, especially with Lambda, offers great advantages in terms of cost savings and scalability, it also has some downsides.
+
+Let’s explore a few drawbacks you need to consider when adopting a Lambda-based serverless architecture.
+
+## Drawbacks of Lambda
+
+### Cold Start Problem
+
+In a serverless environment, each time a Lambda function is executed, a new container is created, and the code runs inside that container.
+
+During this process, the code is initialized and necessary resources are set up, which takes time. This delay is called a **cold start**.
+
+This problem is especially noticeable when traffic is inconsistent. If there are no requests for a while and then a request suddenly comes in, the initialization time can be long, leading to performance issues.
+
+Languages like **Node.js** and **Python** have shorter cold start times because they are interpreted languages, but compiled languages like **Java** and **C++** take longer to initialize.
+
+### Limited Execution Time
+
+By default, a Lambda function has a maximum execution time of **15 minutes**.
+
+So, for long-running tasks or large batch processing jobs, it may be difficult to handle them with Lambda.
+
+### VPC-related Performance Issues
+
+When a Lambda function needs to access resources inside a **VPC** (like an RDS database), it takes extra time to set up the **ENI** (Elastic Network Interface).
+
+This can make the initialization time for Lambda functions even longer.
+
+### Difficulty with Monitoring and Debugging
+
+Since you don’t have direct access to the server in a serverless architecture, debugging and logging can be more challenging.
+
+While you can view logs and metrics through **CloudWatch**, real-time debugging or tracking down issues is not as straightforward.
+
+### Fixed Computing Resources
+
+Lambda automatically allocates CPU and memory based on its configuration, but you don’t have much control over manually adjusting these resources.
+
+For large-scale computations (e.g., big data processing, running machine learning models) or CPU-heavy tasks, the computing power provided by Lambda might not be enough.
+
+## Solving the Cold Start Problem
+
+Among these issues, let’s focus on solving the cold start problem.
+
+The solution is to keep your Lambda functions **“warm”**. This is where the **Warm-Up pattern** comes in.
+
+### What is the Warm-Up Pattern?
+
+The **Warm-Up pattern** involves regularly invoking the Lambda function before it gets terminated, keeping it ready to respond quickly.
+
+Even during periods of low traffic, regular **pings** are sent to keep the instance warm, preventing it from shutting down.
+
+Lambda instances are terminated after a period of inactivity (usually between 5 and 15 minutes).
+
+If a request comes in within this time, the instance is kept alive, and it can respond quickly without a cold start.
+
+Let’s look at some ways to implement the Warm-Up pattern.
+
+### Regular Invocations Using CloudWatch Events
+
+The simplest way is to use **AWS CloudWatch Events** to invoke the Lambda function at regular intervals.
+
+If you set it to invoke every minute, the Lambda instance stays alive, preventing cold starts.
+
+These invocations don’t need to run your actual business logic; they’re just meant to keep the Lambda instance active.
+
+### Adding a Warm-Up Handler
+
+Inside your Lambda function, you can add a handler to identify **warm-up** requests and skip the actual business logic.
+
+The handler can check for specific parameters or headers to recognize when the request is just meant to keep the instance warm.
+
+```typescript
+export const handler = async (event) => {
+  // Check if it's a keep-alive request
+  if (event.source === "serverless-warmup-plugin") {
+    console.log("Warm up request - keeping Lambda instance alive");
+    return;
+  }
+
+  // Run the actual business logic
+  // ...
+};
+```
+
+This way, you can separate keep-alive requests from normal traffic, avoiding unnecessary processing and optimizing performance.
+
+### Using Serverless Framework Plugins
+
+If you are using the **Serverless Framework**, you can use the handy [**serverless-plugin-warmup**](https://github.com/FidelLimited/serverless-plugin-warmup) to automatically schedule regular Warm-Up invocations.
+
+```yaml
+plugins:
+  - serverless-plugin-warmup
+
+custom:
+  warmup:
+    enabled: true
+    events:
+      - schedule: rate(1 minutes)
+
+functions:
+  myLambdaFunction:
+    warmup: true
+```
+
+With this plugin, you can apply the Warm-Up pattern easily without having to configure CloudWatch separately.
+
+## Conclusion
+
+The cold start issue is one of the biggest downsides of using Lambda in a serverless environment, but you can mitigate it effectively with the **Warm-Up pattern**.
+
+However, it’s essential to compare **costs and performance** and choose the best solution for your service.
+
+Also, consider other options like **Provisioned Concurrency**, and find the right balance that suits your traffic and optimization needs.

@@ -1,0 +1,142 @@
+---
+title: "NextJS Snake #4: Handling Wall Collisions"
+date: "240913"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+In this post, we will add collision detection for the snake hitting the wall and implement game-over logic to shape the game.
+
+#### 1. Add Game Over State
+
+```typescript
+const [gameOver, setGameOver] = useState<boolean>(false);
+```
+
+#### 2. Create Collision Detection Function
+
+```typescript
+const checkCollision = (head: Position, body: Position[]): boolean => {
+  // Check collision with the wall
+  if (
+    head[0] < 0 ||
+    head[0] >= GRID_SIZE ||
+    head[1] < 0 ||
+    head[1] >= GRID_SIZE
+  ) {
+    return true;
+  }
+
+  return false;
+};
+```
+
+This function checks if the snake’s head hits the wall and returns `true` or `false`.
+
+#### 3. Update moveSnake Function
+
+Now, we will modify the `moveSnake` function to check for collisions every time the snake moves, and end the game if a collision happens.
+
+We’ll remove the part that was calculating the coordinates using `(head[0] + direction[0] + GRID_SIZE) % GRID_SIZE`, which allowed the snake to move around the map.
+
+```typescript
+const moveSnake = useCallback(() => {
+  if (gameOver) return;
+
+  const newSnake = [...snake];
+  const head = newSnake[0];
+  const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
+
+  newSnake.unshift(newHead);
+  newSnake.pop();
+
+  if (checkCollision(newHead, newSnake)) {
+    setGameOver(true);
+    return;
+  }
+
+  setSnake(newSnake);
+}, [snake, direction, gameOver]);
+```
+
+### 4. Add Restart Feature
+
+Let’s add a feature to restart the game after a game over.
+
+```typescript
+const restartGame = () => {
+  setSnake(INITIAL_SNAKE);
+  setDirection(INITIAL_DIRECTION);
+  setGameOver(false);
+};
+```
+
+### 5. Update Keyboard Event Handler
+
+Modify the keyboard event handler so that key inputs are ignored when the game is over.
+
+```typescript
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (gameOver) return;
+
+    switch (e.key) {
+      case "ArrowUp":
+        setDirection([0, -1]);
+        break;
+      case "ArrowDown":
+        setDirection([0, 1]);
+        break;
+      case "ArrowLeft":
+        setDirection([-1, 0]);
+        break;
+      case "ArrowRight":
+        setDirection([1, 0]);
+        break;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyPress);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyPress);
+  };
+}, [gameOver]);
+```
+
+### 6. Update UI
+
+Finally, we’ll display the game over message and add a restart button.
+
+```jsx
+return (
+  <main className="text-center">
+    <h1>Snake Game</h1>
+
+    {gameOver ? (
+      <div className="mt-4">
+        <h2 className="text-xl font-bold text-red-600">Game Over!</h2>
+        <button
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={restartGame}
+        >
+          Restart
+        </button>
+      </div>
+    ) : (
+      {/* Existing game board rendering code */}
+    )
+  </main>
+);
+```
+
+### Conclusion
+
+With this, we have completed the basic rules of the game.
+
+Now, the game ends when the snake hits the wall, and we added a restart button.
+
+In the next post, we’ll introduce the food system, where the snake will grow longer when it eats food.
+
+Now our snake needs to avoid the walls and grow!

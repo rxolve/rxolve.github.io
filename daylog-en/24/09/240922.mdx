@@ -1,0 +1,152 @@
+---
+title: "2-3-4 Tree"
+date: "240922"
+tags: ["Algorithm"]
+---
+
+We previously learned about the 2-3 tree.
+
+Now, let's look at the 2-3-4 tree, which is an extension of that concept.
+
+#### What is a 2-3-4 Tree?
+
+A 2-3-4 tree is a balanced search tree that extends the 2-3 tree. Each node can have up to 3 data items and 4 children.
+
+#### Features of a 2-3-4 Tree
+
+- All leaf nodes are at the same depth.
+- Internal nodes can have 2, 3, or 4 children.
+- A 2-node has 1 data item and 2 children.
+- A 3-node has 2 data items and 3 children.
+- A 4-node has 3 data items and 4 children.
+- All data items are kept in a sorted order.
+
+#### How to Insert in a 2-3-4 Tree
+
+The process of inserting a new value in a 2-3-4 tree is similar to a 2-3 tree, but with an extra step for handling 4-nodes.
+
+1. **Find where to insert**
+
+   - Start from the root and search the tree until you find the right leaf node.
+
+2. **Insert the key into the leaf node**
+
+   - Add the new value to the leaf node.
+
+3. **Split the node (if needed)**
+
+   - If the node becomes a 4-node after insertion, it must be split.
+   - Move the middle value up to the parent, and split the remaining two values into new nodes.
+
+4. **Handle the parent node**
+
+   - If the parent also becomes a 4-node, repeat the split process.
+
+5. **Handle the root node**
+
+   - If the root becomes a 4-node, create a new root, increasing the height of the tree.
+
+#### Insertion Example
+
+Let's look at how to insert numbers step-by-step into a 2-3-4 tree.
+
+We will insert the numbers 10, 20, 30, 40, 50, and 60 in order.
+
+1. Insert 10:
+
+   ```
+   [10]
+   ```
+
+2. Insert 20:
+
+   ```
+   [10 | 20]
+   ```
+
+3. Insert 30:
+
+   ```
+   [10 | 20 | 30]
+   ```
+
+4. Insert 40:
+
+   - The root node is full, so it needs to be split.
+   - Move the middle value 20 to the new root and create two child nodes with 10 and 30, 40.
+
+   ```
+        [20]
+       /    \
+    [10]   [30 | 40]
+   ```
+
+5. Insert 50:
+
+   ```
+        [20]
+       /    \
+    [10]   [30 | 40 | 50]
+   ```
+
+6. Insert 60:
+
+   - The [30 | 40 | 50] node is full, so it needs to be split.
+   - Move 40 up to the parent and split the node into [30] and [50 | 60].
+
+   ```
+        [20 | 40]
+       /    |    \
+    [10]  [30]  [50 | 60]
+   ```
+
+This example shows the main features of a 2-3-4 tree.
+
+- All leaf nodes are at the same level.
+- Internal nodes can have 2, 3, or 4 children.
+- The tree automatically stays balanced.
+
+#### Visualization
+
+This diagram shows the whole process of inserting a new key into a 2-3-4 tree.
+
+<Mermaid
+  chart={`
+graph TD
+    A[Start] --> B{Is the tree empty?}
+    B -->|Yes| C[Create new node]
+    B -->|No| D[Search for leaf node]
+    D --> E{Is the node full?}
+    E -->|No| F[Insert key]
+    E -->|Yes| G[Split the node]
+    G --> H{Does it have a parent?}
+    H -->|Yes| I[Move middle key to parent]
+    H -->|No| J[Create new root]
+    I --> K[Update pointers]
+    J --> K
+    K --> L[Finish]
+    F --> L
+   `}
+/>
+
+#### 2-3-4 Tree and Red-Black Tree
+
+The 2-3-4 tree is closely related to the red-black tree.
+
+In fact, a red-black tree is essentially a 2-3-4 tree represented in binary tree form.
+
+- A 2-node is shown as a black node.
+- A 3-node is shown as a black node with one red child.
+- A 4-node is shown as a black node with two red children.
+
+Because of this relationship, understanding a 2-3-4 tree can help you understand how a red-black tree works.
+
+#### Performance
+
+All operations in a 2-3-4 tree (search, insert, delete) have a time complexity of O(log n).
+
+#### Conclusion
+
+The 2-3-4 tree extends the concept of a 2-3 tree, allowing more data to be stored and processed efficiently.
+
+This data structure is commonly used in databases and file systems and is the basis for red-black trees.

@@ -1,0 +1,51 @@
+---
+title: "태그 모아보기"
+date: "240615"
+tags: ["Next.js"]
+---
+
+- 태그별로 포스팅을 모아볼 수 있는 페이지를 만들어봤습니다.
+- 책을 정리하며 흩어진 글들을 모으는 기능이 훗날을 위해 필요할 것 같았습니다.
+- 이번에도 지피티님이 큰 도움을 주셨습니다. 주말에 하는 개인 작업은 즐겁습니다.
+
+```typescript
+interface TagPageProps {
+  params: {
+    tag: string;
+  };
+}
+
+export const generateStaticParams = async () => {
+  const allPosts = getAllPosts();
+  const tagList = new Set(allPosts.flatMap((post) => post.tags));
+
+  return Array.from(tagList).map((tag) => ({
+    tag,
+  }));
+};
+
+const TagPage = ({ params }: TagPageProps) => {
+  const { tag } = params;
+
+  const allPosts = getAllPosts();
+  const postList = allPosts.filter((post) => post.tags?.includes(tag));
+
+  return (
+    <main>
+      <article>
+        <Link href="/">
+          <button className="outline" style={{ margin: "0.5rem 0" }}>
+            &larr;
+          </button>
+        </Link>
+        <h1>{tag}</h1>
+      </article>
+      <ArticleList list={postList} />
+    </main>
+  );
+};
+
+export default TagPage;
+```
+
+- 이제 블로그로서 최소한의 기능은 갖춘 것 같아요.

@@ -1,0 +1,82 @@
+---
+title: "NextJS Snake #2: Drawing the Snake"
+date: "240831"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+Last time, we created a game board by drawing a grid.
+
+Now, it's time to create the snake.
+
+#### The Idea
+
+We'll store the snake's position in an array and use this array to change the color of the cells.
+
+```typescript
+{Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, index) => {
+  const x = index % GRID_SIZE;
+  const y = Math.floor(index / GRID_SIZE);
+  const isSnake = snake.some((pos) => pos[0] === x && pos[1] === y);
+
+  return (
+    <div
+      key={index}
+      style={{
+        width: `${CELL_SIZE}px`,
+        height: `${CELL_SIZE}px`,
+        backgroundColor: isSnake ? "blue" : "white",
+      }}
+    />
+  );
+})}
+```
+
+We use the modulo operator (%) to find the x-coordinate because it's an efficient and simple way to represent a 2D grid as a 1D array.
+
+For the y-coordinate, we use division (/) for the same reason.
+
+Here's how a 5x5 2D grid maps to a 1D array:
+
+```
+0  1  2  3  4
+5  6  7  8  9
+10 11 12 13 14
+15 16 17 18 19
+20 21 22 23 24
+```
+
+- For index 7: x = 7 % 5 = 2, y = 7 / 5 = 1
+- For index 13: x = 13 % 5 = 3, y = 13 / 5 = 2
+- For index 20: x = 20 % 5 = 0, y = 20 / 5 = 4
+
+The quotient becomes the y-coordinate, and the remainder becomes the x-coordinate.
+
+#### Managing Snake State
+
+Let's define the `snake` state and its type:
+
+```typescript
+type Position = [number, number];
+
+const INITIAL_SNAKE: Position[] = [
+  [2, 2],
+  [2, 3],
+];
+
+const Snake: React.FC = () => {
+  const [snake, setSnake] = useState<Position[]>(INITIAL_SNAKE);
+  // ...
+};
+```
+
+The Position type is an array representing x and y coordinates.
+
+We use the useState hook to manage the `snake` state.
+
+This will show two stationary dots on the grid.
+
+Yes, that's our star of the show - the snake.
+
+In the next post, we'll bring this snake to life by making it move.

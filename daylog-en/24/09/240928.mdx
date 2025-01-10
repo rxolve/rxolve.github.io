@@ -1,0 +1,156 @@
+---
+title: "Maybe Is Kotlin Like Running TypeScript on the JVM?"
+date: "240928"
+tags: ["TypeScript"]
+---
+
+TypeScript and Kotlin were both created to overcome the limitations of JavaScript and Java, respectively.
+
+(Even though JavaScript only got its name from Java, there are still some conceptual similarities.)
+
+Looking at Kotlin again after a few years, I realized that these two languages are surprisingly similar.
+
+## Static Type System
+
+### TypeScript
+
+TypeScript introduced a static type system to address the instability caused by JavaScript’s flexible dynamic typing.
+
+It allows you to gradually add types to existing JavaScript code, improving the safety and maintainability of large-scale applications.
+
+```javascript
+// JavaScript: Problems with dynamic typing
+function add(a, b) {
+  return a + b; // The types of 'a' and 'b' are unclear
+}
+
+console.log(add(5, "5")); // '55'
+```
+
+```typescript
+// TypeScript: Safety with static typing
+function add(a: number, b: number): number {
+  return a + b; // 'a' and 'b' are fixed as number types
+}
+
+console.log(add(5, 5)); // 10
+```
+
+TypeScript prevents type errors at the time of writing code, ensuring predictable behavior.
+
+### Kotlin
+
+Kotlin also improves Java’s type system by catching errors at compile time and allowing you to write safer code.
+
+One of Kotlin’s biggest advantages is its Null Safety feature, which effectively prevents runtime errors caused by null references.
+
+```java
+// Java: Potential NullPointerException
+String name = null;
+System.out.println(name.length()); // NPE occurs
+
+// Kotlin: Safe code with Null Safety
+val name: String? = null
+println(name?.length) // Safe call
+```
+
+Both TypeScript and Kotlin maximize code safety in their respective platforms with advanced type systems.
+
+## Functional Programming
+
+### TypeScript
+
+Since TypeScript is based on JavaScript, it supports convenient syntax for functional programming.
+
+With higher-order functions, lambda expressions, and closures, you can write more readable code and reduce side effects.
+
+```typescript
+// TypeScript: Higher-order functions and lambda expressions
+const numbers = [1, 2, 3, 4];
+const doubled = numbers.map((n) => n * 2);
+console.log(doubled); // [2, 4, 6, 8]
+```
+
+### Kotlin
+
+Kotlin offers even more powerful functional programming features compared to Java.
+
+Its lambda expressions and higher-order functions make code more concise, and by emphasizing immutability, they enable safe parallel processing.
+
+In addition, scope functions like `with` and `apply` allow for more intuitive object initialization and configuration.
+
+```kotlin
+// Kotlin: Lambda expressions and scope functions
+val numbers = listOf(1, 2, 3, 4)
+val doubled = numbers.map { it * 2 }
+println(doubled) // [2, 4, 6, 8]
+
+data class User(var name: String, var age: Int)
+
+val user = User("John", 30).apply {
+    age += 1 // More concise code with scope functions
+}
+println(user) // User(name=John, age=31)
+```
+
+Both TypeScript and Kotlin enhance the developer experience by embracing the benefits of functional programming.
+
+## Flexibility and Compatibility
+
+### TypeScript
+
+One of TypeScript’s biggest strengths is its compatibility with existing JavaScript code.
+
+You can gradually introduce TypeScript into existing projects and choose not to apply types when unnecessary.
+
+This allows teams to adopt TypeScript step-by-step while still leveraging the existing JavaScript ecosystem.
+
+```typescript
+// JavaScript code can be used as is
+const message = "Hello, world!";
+console.log(message);
+```
+
+### Kotlin
+
+Kotlin guarantees 100% compatibility with Java.
+
+You can use existing Java code as is, or use Java libraries without any issues in Kotlin.
+
+This lowers the barrier for adopting Kotlin in existing Java projects, and makes it easier for Java developers to transition to Kotlin.
+
+Additionally, Kotlin’s extension functions allow for more convenient use of existing Java APIs.
+
+```kotlin
+// Perfect compatibility with Java code
+val list = ArrayList<String>()
+list.add("Hello")
+list.add("Kotlin")
+
+// More concise code with Kotlin’s extension functions
+list.forEach { println(it) }
+```
+
+Both TypeScript and Kotlin emphasize compatibility with existing ecosystems, reducing the burden of adopting a new language and improving the developer experience.
+
+## Multi-Platform Support
+
+### TypeScript
+
+Like JavaScript, TypeScript can be used in various environments such as browsers, Node.js, mobile, and desktop.
+
+With frameworks like React Native, you can even develop mobile applications using TypeScript.
+
+### Kotlin
+
+In addition to JVM-based applications, Kotlin can be compiled to JavaScript and native platforms using Kotlin/JS and Kotlin/Native.
+
+This allows you to share common code across platforms such as Android, iOS, and web applications.
+
+## Conclusion
+
+Of course, TypeScript and Kotlin have fundamentally different paradigms.
+
+However, they both offer modern features that make them surprisingly similar in many aspects.
+
+Just as NestJS and Spring Boot share similarities, TypeScript and Kotlin provide a similar development experience on different platforms.

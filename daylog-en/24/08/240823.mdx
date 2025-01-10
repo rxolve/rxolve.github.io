@@ -1,0 +1,106 @@
+---
+title: "Reflection: Controlling Objects as You Like"
+date: "240823"
+tags: ["JavaScript"]
+---
+
+Reflection refers to a program's ability to inspect and modify its own structure and behavior.
+
+This goes beyond simple functionality and opens up new horizons in metaprogramming.
+
+## Comparison of Reflection Across Languages
+
+Each programming language has a different way of implementing reflection.
+
+Here’s the code to call the `myMethod` method of the `obj` object, passing the argument `"argument"`.
+
+#### Java
+
+```java
+Method method = MyClass.class.getMethod("myMethod", String.class);
+method.invoke(obj, "argument");
+```
+
+#### Python
+
+```python
+method = getattr(obj, "my_method");
+method("argument");
+```
+
+#### JavaScript (ES6+)
+
+```javascript
+Reflect.get(obj, "myMethod").apply(obj, ["argument"]);
+```
+
+#### C#
+
+```csharp
+var method = typeof(MyClass).GetMethod("MyMethod");
+method.Invoke(obj, new object[] { "argument" });
+```
+
+## JS Reflection API
+
+> https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Reflect
+
+The Reflection API was introduced in ECMAScript 6 (ES6) and provides ways to manipulate and inspect objects.
+
+```javascript
+// 1. Reflect.get(): Gets the value of an object’s property.
+const obj = { x: 1, y: 2 };
+console.log(Reflect.get(obj, "x")); // 1
+
+// 2. Reflect.set(): Sets the value of an object’s property.
+Reflect.set(obj, "z", 3);
+console.log(obj); // { x: 1, y: 2, z: 3 }
+
+// 3. Reflect.has(): Checks if an object has a specific property.
+console.log(Reflect.has(obj, "x")); // true
+console.log(Reflect.has(obj, "w")); // false
+
+// 4. Reflect.deleteProperty(): Deletes a property from an object.
+Reflect.deleteProperty(obj, "y");
+console.log(obj); // { x: 1, z: 3 }
+
+// 5. Reflect.ownKeys(): Returns an array of the object’s own keys (excluding inherited ones).
+console.log(Reflect.ownKeys(obj)); // ['x', 'z']
+
+// 6. Reflect.defineProperty(): Defines a new property or modifies an existing one on an object.
+Reflect.defineProperty(obj, "w", {
+  value: 4,
+  writable: false,
+  enumerable: true,
+  configurable: true,
+});
+console.log(obj.w); // 4
+
+// 7. Reflect.getPrototypeOf(): Gets the prototype of an object.
+console.log(Reflect.getPrototypeOf(obj) === Object.prototype); // true
+
+// 8. Reflect.setPrototypeOf(): Sets the prototype of an object.
+const newProto = {};
+Reflect.setPrototypeOf(obj, newProto);
+console.log(Reflect.getPrototypeOf(obj) === newProto); // true
+
+// 9. Reflect.isExtensible(): Checks if an object is extensible (can have new properties added).
+console.log(Reflect.isExtensible(obj)); // true
+
+// 10. Reflect.preventExtensions(): Prevents any new properties from being added to an object.
+Reflect.preventExtensions(obj);
+console.log(Reflect.isExtensible(obj)); // false
+
+// 11. Reflect.apply(): Calls a function.
+function greet(name) {
+  return `Hello, ${name}!`;
+}
+console.log(Reflect.apply(greet, null, ["World"])); // "Hello, World!"
+
+// 12. Reflect.construct(): Creates a new object using a constructor function.
+function Person(name) {
+  this.name = name;
+}
+const rxolve = Reflect.construct(Person, ["rxolve"]);
+console.log(rxolve.name); // "rxolve"
+```

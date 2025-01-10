@@ -1,0 +1,29 @@
+---
+title: "Tidy First? 20. Getting Untangled"
+date: "240824"
+tags: ["TidyFirst"]
+---
+
+> I read the Korean translation and translated it back into English, so the sentences may differ from the original.
+>
+> If you want to see the correct sentences, please purchase it from the link below:
+>
+> [Tidy First?: A Personal Exercise in Empirical Software Design](https://www.amazon.com/Tidy-First-Personal-Exercise-Empirical/dp/1098151240)
+
+- You've identified all the actions that need to be changed.
+- You know exactly what code needs to be organized to make those changes easier.
+- But the problem is that the organized code and the changes you want to make have become tangled together.
+
+You have three options, but none of them are very appealing:
+
+1. You could release it as it is. It might seem rude to reviewers, and it could lead to errors, but it’s the quickest solution.
+2. You could split the code cleanup and changes into one or more separate PRs, or break one PR into multiple commits. This reduces the rudeness but increases the number of tasks.
+3. You could abandon the current work and start over, focusing on cleaning up the code first. This would involve more work, but it would make the following commits more consistent.
+
+Choosing between these options is complicated by the sunk cost fallacy.
+
+It’s not surprising that I recommend experimenting with the third option. Re-implementing might help you discover something new.
+
+To untangle the mess, you must first recognize that the thread is tangled. The sooner you realize the need to untangle it, the less work it will be.
+
+Now that we've discussed the sequence, let’s talk about timing.

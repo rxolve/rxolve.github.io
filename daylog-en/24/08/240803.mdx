@@ -1,0 +1,74 @@
+---
+title: "Turing-complete: The Ultimate Standard of Computational Power"
+date: "240803"
+tags: ["Article", "History"]
+---
+
+> [find + mkdir is Turing complete](https://ogiekako.vercel.app/blog/find_mkdir_tc)
+>
+> This is a post about the interesting fact that the combination of Unix commands, find and mkdir, is Turing complete.
+
+In the world of computer science, we often hear the term "Turing complete".
+
+But I was curious about what this concept means exactly, and why it's important.
+
+I want to take this chance to look at the concept of Turing completeness and share what I've learned.
+
+## What is Turing-completeness?
+
+Turing completeness means that a programming language or abstract machine has the same computational power as a Turing machine.
+
+In other words, a system that can compute everything that a Turing machine can compute is called Turing complete.
+
+## Historical Background
+
+As you might guess from the name, this concept was first introduced by Alan Turing in his 1936 paper "On Computable Numbers, with an Application to the Entscheidungsproblem".
+
+In this paper, Turing presented a formal definition of computability, which became the foundation of modern computer science.
+
+## The Meaning of Turing Completeness
+
+A Turing complete system has the following features:
+
+- Infinite memory: It should be able to use an infinite amount of memory in theory. Real computers have physical limits, but we assume they can use infinite memory logically.
+
+- Conditional branching: The program should be able to run different commands based on certain conditions. For example, if-else statements fall into this category.
+
+- Repetition: It should be able to repeat commands until a certain condition is met. For example, while or for loops fall into this category.
+
+## Turing Completeness in Modern Programming
+
+Most modern programming languages are Turing complete. But there are some interesting exceptions.
+
+- SQL: Pure SQL is not Turing complete, but extensions like PostgreSQL are Turing complete.
+  ```sql
+  WITH RECURSIVE fibonacci(n, a, b) AS (
+      SELECT 1, 0, 1
+      UNION ALL
+      SELECT n + 1, b, a + b
+      FROM fibonacci
+      WHERE n < 5
+  )
+  SELECT b
+  FROM fibonacci
+  WHERE n = 5;
+  ```
+- HTML+CSS: Surprisingly, CSS3 and HTML5 are Turing complete when used together.
+  - [https://codepen.io/vlearnweb/pen/jGyKBm](https://codepen.io/vlearnweb/pen/jGyKBm)
+- TypeScript's type system: You can write programs using only the TS type system.
+
+  ```ts
+  type Fibonacci<T extends number> = T extends 0 | 1
+    ? 1
+    : T extends 2
+    ? 1
+    : [...Fibonacci<Subtract<T, 1>>, ...Fibonacci<Subtract<T, 2>>]["length"];
+
+  type Result = Fibonacci<5>; // 5
+  ```
+
+## Wrapping Up
+
+Turing completeness is a fundamental concept in computer science and is important for understanding the capabilities of modern programming languages and systems.
+
+Knowing whether a system is Turing complete helps us understand its abilities and limits.

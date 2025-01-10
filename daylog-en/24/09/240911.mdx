@@ -1,0 +1,142 @@
+---
+title: "AdminJS Resource"
+date: "240911"
+tags: ["AdminJS"]
+---
+
+### Resource
+
+AdminJS is built around resources to structure the admin pages.
+
+A resource is a concept that maps to a database table, providing CRUD functionality for entities.
+
+The default supported properties are as follows:
+
+```typescript
+{
+  resource: entity, // The entity model
+  options: {
+    listProperties: [], // Properties displayed on the list page
+    showProperties: [], // Properties displayed on the details page
+    filterProperties: [], // Filterable properties
+    editProperties: [], // Editable properties on the edit page
+    sort: {}, // Sorting options
+    actions: {
+      // Custom actions
+    },
+    properties: {
+      // Per-property configurations
+    },
+    navigation: {}, // Navigation settings
+    parent: {}, // Parent resource settings
+    id: '', // Resource identifier
+    name: '', // Resource name
+    titleProperty: '', // Property used as the title
+    href: '', // Resource link
+    icon: '', // Icon settings
+    perPage: 10, // Number of items per page
+    softDelete: false, // Whether to use soft delete
+    timestamps: false, // Whether to use timestamps
+    password: {}, // Password field settings
+    roles: [], // Access control settings
+  },
+  features: [
+    // Additional feature configurations
+  ],
+  actions: {
+    // Global action settings
+  },
+};
+```
+
+Let’s break down some of the key components.
+
+### options.properties
+
+This is the core element that configures the UI.
+
+Through this, you can control how each field is displayed, apply validation rules, and use custom components.
+
+```typescript
+properties: {
+  title: {
+    type: 'string',
+    isTitle: true,
+  },
+  content: {
+    type: 'richtext',
+    custom: {
+      component: components.customText
+    },
+  },
+  status: {
+    availableValues: [
+      { value: 'draft', label: 'Draft' },
+      { value: 'published', label: 'Published' },
+    ],
+  },
+  author: {
+    type: 'reference',
+    reference: 'User',
+    isVisible: {
+      list: true, edit: true, filter: true, show: true,
+    },
+  },
+  createdAt: {
+    type: 'datetime',
+    isVisible: {
+      list: true, edit: false, filter: true, show: true,
+    },
+  },
+}
+```
+
+### actions
+
+You can define custom actions for your resource.
+
+These can be useful for single record operations or bulk actions across multiple records.
+
+```typescript
+actions: {
+  bulkPublish: {
+    actionType: 'bulk',
+    icon: 'PublishIcon',
+    handler: async (request, response, context) => {
+      const { records } = context;
+      await Promise.all(records.map(record => record.update({ status: 'published' })));
+      return {
+        records: records.map(record => record.toJSON(context.currentAdmin)),
+      };
+    },
+  },
+}
+```
+
+### features
+
+Additional features can be implemented for a resource.
+
+This is often used for more complex functionality like file uploads or image processing.
+
+```typescript
+import uploadFeature from "@adminjs/upload";
+
+features: [
+  uploadFeature({
+    provider: { local: { bucket: "public/uploads" } },
+    properties: {
+      key: "imageKey",
+      mimeType: "imageMimeType",
+      bucket: "imageBucket",
+      size: "imageSize",
+    },
+    validation: {
+      mimeTypes: ["image/png", "image/jpg", "image/jpeg"],
+      maxSize: 5 * 1024 * 1024,
+    },
+  }),
+];
+```
+
+In summary, this is a brief overview of AdminJS resources and their components.

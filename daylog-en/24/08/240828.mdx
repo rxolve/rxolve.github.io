@@ -1,0 +1,47 @@
+---
+title: "Object.keys() vs Object.getOwnPropertyNames()"
+date: "240828"
+tags: ["JavaScript"]
+---
+
+If you've been developing in JavaScript, you might have used `Object.keys()` and `Object.getOwnPropertyNames()` before.
+
+I wondered what the difference between these two methods was.
+
+First, let's look at the basic difference between these two methods with some code:
+
+```javascript
+const obj = {};
+obj.a = 1;
+obj.b = 2;
+
+Object.defineProperty(obj, "c", {
+  value: 3,
+  enumerable: false,
+});
+
+const sym = Symbol("d");
+obj[sym] = 4;
+
+console.log(Object.keys(obj)); // ['a', 'b']
+console.log(Object.getOwnPropertyNames(obj)); // ['a', 'b', 'c']
+```
+
+- `Object.keys()` only returns properties that are enumerable.
+- `Object.getOwnPropertyNames()` returns all string-keyed properties, whether they are enumerable or not.
+- Neither method returns symbol properties.
+
+So, if you want to get all properties, including symbol properties, you can use a custom function like this:
+
+```javascript
+const getAllProperties = (obj) => {
+  return [
+    ...Object.getOwnPropertyNames(obj),
+    ...Object.getOwnPropertySymbols(obj),
+  ];
+};
+
+console.log(getAllProperties(obj)); // ['a', 'b', 'c', Symbol(d)]
+```
+
+In general, `Object.keys()` is more efficient, but if you need to check non-enumerable properties, you might need `Object.getOwnPropertyNames()`.

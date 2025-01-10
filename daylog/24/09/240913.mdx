@@ -1,0 +1,144 @@
+---
+title: "NextJS Snake #4: 벽 충돌 처리"
+date: "240913"
+tags: ["Snake"]
+---
+
+> rxolve.github.io/games/snake
+
+이번 포스팅에서는 뱀이 벽과 충돌하는 처리와 게임 오버 로직을 구현하여 게임의 형식을 갖춰보겠습니다.
+
+#### 1. 게임 오버 상태 추가
+
+```typescript
+const [gameOver, setGameOver] = useState<boolean>(false);
+```
+
+#### 2. 충돌 처리 함수 구현
+
+```typescript
+const checkCollision = (head: Position, body: Position[]): boolean => {
+  // 벽과의 충돌 체크
+  if (
+    head[0] < 0 ||
+    head[0] >= GRID_SIZE ||
+    head[1] < 0 ||
+    head[1] >= GRID_SIZE
+  ) {
+    return true;
+  }
+
+  return false;
+};
+```
+
+이 함수는 뱀의 머리 위치와 벽과의 충돌이 발생했는지 여부를 불리언 값으로 반환합니다.
+
+#### 3. moveSnake 함수 수정
+
+이제 `moveSnake` 함수를 수정하여 매 이동마다 충돌을 체크하고, 충돌 시 게임을 종료하도록 합니다.
+
+뱀이 맵을 순환하기 위해 (head[0] + direction[0] + GRID_SIZE) % GRID_SIZE 으로 처리하던 좌표에서,
+
+GRID_SIZE를 더하고 나머지를 구하는 부분을 제거해줍니다.
+
+```typescript
+const moveSnake = useCallback(() => {
+  if (gameOver) return;
+
+  const newSnake = [...snake];
+  const head = newSnake[0];
+  const newHead: Position = [head[0] + direction[0], head[1] + direction[1]];
+
+  newSnake.unshift(newHead);
+  newSnake.pop();
+
+  if (checkCollision(newHead, newSnake)) {
+    setGameOver(true);
+    return;
+  }
+
+  setSnake(newSnake);
+}, [snake, direction, gameOver]);
+```
+
+### 4. 게임 재시작 기능 추가
+
+게임 오버 후 재시작할 수 있는 기능을 추가합니다.
+
+```typescript
+const restartGame = () => {
+  setSnake(INITIAL_SNAKE);
+  setDirection(INITIAL_DIRECTION);
+  setGameOver(false);
+};
+```
+
+### 5. 키보드 이벤트 핸들러 수정
+
+키보드 이벤트 핸들러를 수정하여 게임 오버 상태일 때는 키 입력을 무시하도록 합니다.
+
+```typescript
+useEffect(() => {
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (gameOver) return;
+
+    switch (e.key) {
+      case "ArrowUp":
+        setDirection([0, -1]);
+        break;
+      case "ArrowDown":
+        setDirection([0, 1]);
+        break;
+      case "ArrowLeft":
+        setDirection([-1, 0]);
+        break;
+      case "ArrowRight":
+        setDirection([1, 0]);
+        break;
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyPress);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyPress);
+  };
+}, [gameOver]);
+```
+
+### 6. UI 업데이트
+
+마지막으로, 게임 오버 상태를 화면에 표시하고 재시작 버튼을 추가합니다.
+
+```jsx
+return (
+  <main className="text-center">
+    <h1>Snake Game</h1>
+
+    {gameOver ? (
+      <div className="mt-4">
+        <h2 className="text-xl font-bold text-red-600">Game Over!</h2>
+        <button
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={restartGame}
+        >
+          Restart
+        </button>
+      </div>
+    ) : (
+      {/* 기존의 게임 보드 렌더링 코드 */}
+    )
+  </main>
+);
+```
+
+### 마치며
+
+이로써 게임의 기본적인 룰이 완성되었습니다.
+
+뱀이 벽과 충돌하면 게임이 종료되고, 재시작할 수 있는 버튼을 추가했습니다.
+
+다음 포스팅에서는 먹이 시스템을 도입하고, 뱀이 먹이를 먹으면 길이가 늘어나는 기능을 구현해보겠습니다.
+
+이제 우리의 뱀은 벽을 피하며 성장해야 합니다.

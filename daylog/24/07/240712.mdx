@@ -1,0 +1,181 @@
+---
+title: "순수한 Tim Sort"
+date: "240712"
+tags: ["Algorithm"]
+---
+
+#### 순수함수를 좋아합니다.
+
+- 순수한 함수는 입력이 같으면 언제나 결과도 같습니다.
+- 예측 가능하기에 사이드이펙트가 없습니다.
+- 단위 테스트를 작성하기 쉽습니다.
+- 읽기 쉽고 유지보수가 쉽습니다.
+- 재사용하기 좋습니다.
+- 그 자체로 완결되어 있습니다.
+
+#### Tim Sort 를 순수함수로 만들기
+
+지난번에 구현한 Tim Sort 를 순수함수로 다시 작성해 보았습니다.
+
+```ts
+const timSort = (
+  arr: number[],
+  INSERTION_SORT_THRESHOLD: number = 64
+): number[] => {
+  const sortedArr = [...arr];
+  const n = sortedArr.length;
+
+  // 작은 부분 배열들에 대해 삽입 정렬 수행
+  for (let i = 0; i < n; i += INSERTION_SORT_THRESHOLD) {
+    const end = Math.min(i + INSERTION_SORT_THRESHOLD - 1, n - 1);
+    insertionSort(sortedArr, i, end);
+  }
+
+  // 정렬된 부분 배열들을 병합
+  for (let size = INSERTION_SORT_THRESHOLD; size < n; size = 2 * size) {
+    for (let start = 0; start < n; start += 2 * size) {
+      const mid = start + size - 1;
+      const end = Math.min(start + 2 * size - 1, n - 1);
+      if (mid < end) {
+        merge(sortedArr, start, mid, end);
+      }
+    }
+  }
+
+  return sortedArr;
+};
+
+const insertionSort = (
+  arr: number[],
+  left: number,
+  right: number
+): number[] => {
+  const sortedArr = [...arr];
+  for (let i = left + 1; i <= right; i++) {
+    const key = sortedArr[i];
+    let j = i - 1;
+    while (j >= left && sortedArr[j] > key) {
+      sortedArr[j + 1] = sortedArr[j];
+      j--;
+    }
+    sortedArr[j + 1] = key;
+  }
+  return sortedArr;
+};
+
+const merge = (
+  arr: number[],
+  start: number,
+  mid: number,
+  end: number
+): number[] => {
+  const mergedArr = [...arr];
+  const leftArr = mergedArr.slice(start, mid + 1);
+  const rightArr = mergedArr.slice(mid + 1, end + 1);
+  let i = 0,
+    j = 0,
+    k = start;
+
+  while (i < leftArr.length && j < rightArr.length) {
+    if (leftArr[i] <= rightArr[j]) {
+      mergedArr[k++] = leftArr[i++];
+    } else {
+      mergedArr[k++] = rightArr[j++];
+    }
+  }
+
+  while (i < leftArr.length) {
+    mergedArr[k++] = leftArr[i++];
+  }
+
+  while (j < rightArr.length) {
+    mergedArr[k++] = rightArr[j++];
+  }
+
+  return mergedArr;
+};
+```
+
+- 전역상수를 매개변수로 전달하여 외부 의존성을 제거했습니다.
+- 입력 배열을 변경하지 않고 새로운 배열을 반환합니다.
+- 각 함수가 독립적으로 동작하므로, insertionSort 와 merge 를 조합하여 timSort 를 만들기 쉬웠습니다.
+- 단점은 새 배열을 생성하므로 메모리 사용량이 증가한다는 것입니다.
+  - 그러나 이는 함수의 순수성과 불변성을 보장하기 위한 트레이드오프입니다.
+  - 대규모 데이터셋에서는 비효율적이므로, 상황에 따라 절충이 필요합니다.
+
+#### 테스트 코드
+
+```ts
+describe("Sorting functions", () => {
+  describe("insertionSort", () => {
+    it("should sort a small array correctly", () => {
+      const arr = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5];
+      const sortedArr = insertionSort(arr, 0, arr.length - 1);
+      expect(sortedArr).toEqual([1, 1, 2, 3, 3, 4, 5, 5, 5, 6, 9]);
+    });
+
+    it("should not modify the original array", () => {
+      const arr = [3, 1, 4, 1, 5];
+      const originalArr = [...arr];
+      insertionSort(arr, 0, arr.length - 1);
+      expect(arr).toEqual(originalArr);
+    });
+  });
+
+  describe("merge", () => {
+    it("should merge two sorted subarrays correctly", () => {
+      const arr = [1, 3, 5, 2, 4, 6];
+      const mergedArr = merge(arr, 0, 2, 5);
+      expect(mergedArr).toEqual([1, 2, 3, 4, 5, 6]);
+    });
+
+    it("should not modify the original array", () => {
+      const arr = [1, 3, 5, 2, 4, 6];
+      const originalArr = [...arr];
+      merge(arr, 0, 2, 5);
+      expect(arr).toEqual(originalArr);
+    });
+  });
+
+  describe("timSort", () => {
+    it("should sort an array correctly", () => {
+      const arr = [5, 2, 8, 12, 1, 6];
+      const sortedArr = timSort(arr);
+      expect(sortedArr).toEqual([1, 2, 5, 6, 8, 12]);
+    });
+
+    it("should handle an empty array", () => {
+      const arr: number[] = [];
+      const sortedArr = timSort(arr);
+      expect(sortedArr).toEqual([]);
+    });
+
+    it("should handle an array with one element", () => {
+      const arr = [1];
+      const sortedArr = timSort(arr);
+      expect(sortedArr).toEqual([1]);
+    });
+
+    it("should not modify the original array", () => {
+      const arr = [5, 2, 8, 12, 1, 6];
+      const originalArr = [...arr];
+      timSort(arr);
+      expect(arr).toEqual(originalArr);
+    });
+
+    it("should sort a large array correctly", () => {
+      const arr = Array.from({ length: 1000 }, () =>
+        Math.floor(Math.random() * 1000)
+      );
+      const sortedArr = timSort(arr);
+      expect(sortedArr).toEqual([...arr].sort((a, b) => a - b));
+    });
+
+    it("should work with custom INSERTION_SORT_THRESHOLD", () => {
+      const arr = [5, 2, 8, 12, 1, 6];
+      const sortedArr = timSort(arr, 3); // 작은 threshold 값 사용
+      expect(sortedArr).toEqual([1, 2, 5, 6, 8, 12]);
+    });
+  });
+});
+```

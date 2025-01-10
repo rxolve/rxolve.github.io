@@ -1,0 +1,104 @@
+---
+title: "bigm_similarity: Searching for Similar Strings"
+date: "240713"
+tags: ["RDS"]
+---
+
+- In PostgreSQL, we can use the bigm_similarity function to search for similar strings.
+- This is useful for fixing typos, searching for similar words, and fuzzy matching.
+  - Fuzzy Matching: A way to figure out if differently spelled words are the same or just similar.
+- While pg_trgm is often used for similarity searches, pg_bigm is better for Korean text.
+
+#### Installing the pg_bigm extension
+
+First, we need to turn on pg_bigm in the RDS parameter group:
+
+1. Go to the AWS console and find RDS.
+2. In the parameter group, find shared_preload_libraries and add pg_bigm.
+
+```sql
+shared_preload_libraries = 'pg_stat_statements,pg_bigm'
+```
+
+3. Connect to the database and create the extension:
+
+```sql
+CREATE EXTENSION pg_bigm;
+```
+
+#### Creating test data
+
+- Let's make a simple product table for our example:
+
+```PostgreSQL
+CREATE TABLE products (
+    id SERIAL PRIMARY KEY,
+    name TEXT
+);
+
+INSERT INTO products (name) VALUES
+('iPhone 15'),
+('iPhone 15 Pro'),
+('Samsung Galaxy S24'),
+('Google Pixel 5'),
+('OnePlus 9');
+```
+
+#### Implementing similarity search
+
+- Now let's use bigm_similarity to search for similar items:
+
+```sql
+SELECT name, bigm_similarity(name, 'iphone') AS similarity
+FROM products
+WHERE bigm_similarity(name, 'iphone') > 0.3
+ORDER BY similarity DESC;
+```
+
+- This query finds product names similar to 'iphone' and sorts them by how similar they are.
+
+```
+name      | similarity
+---------------+-----------
+iPhone 12      |      0.5
+iPhone 12 Pro  |    0.4375
+```
+
+#### Making it faster
+
+- When searching through lots of data, it's good to use an index to make it faster:
+
+```sql
+CREATE INDEX idx_products_name_bigm ON products USING gin (name gin_bigm_ops);
+```
+
+- After making this index, we can search like this to use the index:
+
+```sql
+SELECT name, bigm_similarity(name, 'galxy') AS similarity
+FROM products
+WHERE name %> 'galxy' -- This uses the index
+ORDER BY similarity DESC;
+```
+
+- This query finds products similar to 'galxy' (a typo of Galaxy):
+
+```
+name              | similarity
+-------------------+-----------
+Samsung Galaxy S21 | 0.461538
+```
+
+#### Things to remember
+
+- bigm_similarity doesn't care about capital letters.
+- It might be slow with very long strings, so it's good to limit how long the text can be.
+- The similarity threshold (0.3 in our example) needs to be adjusted based on your data.
+  - You'll need to test a lot to find a good value.
+
+#### Wrapping up
+
+- Using bigm_similarity makes it easy to search for similar things in PostgreSQL.
+  - This can really help make things better for users, especially when making search features.
+- For more complex situations, you might want to combine this with full text search or try other similarity functions.
+  - It's important to test how well it works with your real data and make it better if needed.

@@ -1,0 +1,113 @@
+---
+title: "this is Execution Context"
+date: "240722"
+tags: ["JavaScript"]
+---
+
+# this is Execution Context
+
+When you first learn JavaScript, one of the most interesting and confusing topics is the relationship between `this` and execution context. Let's talk about it!
+
+As we learn about `this`, we'll see that it's not just a simple word, but a powerful idea that's closely connected to how JavaScript works.
+
+## What is Execution Context?
+
+Execution context is like a special space where JavaScript code runs. Each execution context has three main parts:
+
+1. **Variable Environment**: This is where JavaScript stores information about variables created with `var` and function declarations.
+
+2. **Lexical Environment**: This is similar to the Variable Environment, but it's for variables created with `let` and `const`. It also helps with creating closures, which are special functions that remember the environment they were created in.
+
+3. **This Binding**: This part decides what `this` means in the current code. It changes depending on how a function is called.
+
+We're going to focus on the 'This Binding' part.
+
+## This Binding and Execution Context
+
+The value of `this` is decided when a function is called. This happens at the same time as when the execution context is created.
+
+```javascript
+const obj = {
+  method() {
+    console.log(this);
+  },
+};
+
+obj.method(); // 'this' points to obj
+const func = obj.method;
+func(); // 'this' points to the global object (or undefined in strict mode)
+```
+
+In this example, `obj.method()` and `func()` refer to the same function, but `this` has different values because they're called in different execution contexts.
+
+## Execution Context Stack and this
+
+JavaScript uses something called an execution context stack (or call stack) to keep track of where it is in the code. Each context has its own `this` binding, which depends on how the function was called.
+
+```javascript
+function outer() {
+  console.log("outer this:", this); // Points to obj if called as a method
+  function inner() {
+    console.log("inner this:", this); // Points to the global object if called as a regular function
+  }
+  inner(); // Called as a regular function
+}
+
+const obj = { method: outer };
+obj.method(); // Called as a method
+```
+
+In this example, `outer` and `inner` have different execution contexts, so their `this` values are different.
+
+## Arrow Functions and Lexical This
+
+Arrow functions, introduced in ES6, don't create their own `this` binding. Instead, they use the `this` from the surrounding code.
+
+```javascript
+const obj = {
+  method: function () {
+    console.log("method this:", this); // Points to obj
+    const arrowFunc = () => {
+      console.log("arrowFunc this:", this); // Also points to obj
+    };
+    arrowFunc();
+  },
+};
+
+obj.method();
+```
+
+In this case, `arrowFunc`'s `this` is the same as `method`'s `this`. This means that arrow functions don't create a new `this` binding, but use the one from their surrounding environment.
+
+## Controlling Execution Context
+
+JavaScript lets developers control the `this` binding explicitly:
+
+```javascript
+function greet() {
+  console.log(`Hello, ${this.name}`);
+}
+
+const person1 = { name: "Alice" };
+const person2 = { name: "Bob" };
+
+greet.call(person1); // Hello, Alice
+greet.apply(person2); // Hello, Bob
+
+const boundGreet = greet.bind(person1);
+boundGreet(); // Hello, Alice
+```
+
+The `call`, `apply`, and `bind` methods let you set the execution context of a function explicitly. This is really useful in functional programming.
+
+## Conclusion
+
+In JavaScript, `this` isn't just a simple reference. It's a dynamic concept closely related to the execution context. Understanding and using it well can help you write more flexible and powerful code.
+
+At the same time, because `this` can change, it can sometimes be tricky to predict. So, always be careful when using it!
+
+## References
+
+- ECMAScript specification
+- "You Don't Know JS" series by Kyle Simpson
+- "JavaScript: The Definitive Guide" by David Flanagan
