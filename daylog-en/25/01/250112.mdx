@@ -1,0 +1,111 @@
+---
+title: 'Backend Stack Comparison for Next.js Migration'
+date: '250112'
+tags: ['Backend']
+---
+
+## 1. Supabase + Next.js Server Actions
+
+### ✅ Pros
+
+- **All-in-one backend**: Supabase provides a fully managed PostgreSQL database, authentication, real-time APIs, file storage, and admin dashboard out of the box.
+- **Fast development**: You can use **Next.js 14 Server Actions** to directly call Supabase without writing a separate backend.
+- **Great for startups**: Startups like **Pebblely** built prototypes in 2 days and scaled to **1M MAU** in 7 months using Supabase.
+- **Security**: SOC2 Type 2 and HIPAA compliance available.
+
+### ❌ Cons
+
+- **Write scaling limit**: It uses a single-master PostgreSQL, so **write-heavy traffic** (e.g. orders, comments) can bottleneck.
+- **Vendor lock-in**: Business logic using Supabase-specific features (e.g. RLS policies, triggers) becomes hard to migrate.
+- **Admin dashboard & auth** still have UX bugs, and pricing can spike with scale.
+
+### 🔍 Real-World Use Case
+
+- **Pebblely**: AI-generated images startup — built MVP in 2 days using Supabase Auth and DB. Scaled to 1M MAU.
+- **Xendit**: Fintech startup in Indonesia — launched MVP in a week using Supabase.
+
+### 🧠 Simple Analogy
+
+> Using Supabase is like **moving into a fully furnished apartment**. Everything's set up — just bring your content and launch. But if you later need to remodel or add rooms (complex backend logic), it gets tricky.
+
+### 🧩 Long-Term Fit
+
+Good for **early to mid-stage**. May hit architectural limits at very high scale or with complex backend logic. However, PostgreSQL base allows migration later with planning.
+
+---
+
+## 2. AWS MySQL + NestJS
+
+### ✅ Pros
+
+- **Structured framework**: NestJS is built with TypeScript and offers modular architecture, dependency injection, and decorators.
+- **Scalable**: Easily handles traffic in the millions via **horizontal scaling**. Node.js is non-blocking and efficient with I/O.
+- **Developer-friendly**: Fast to onboard developers with JavaScript/TypeScript experience.
+- Used by **Adidas, GitLab, IBM, Mercedes-Benz**.
+
+### ❌ Cons
+
+- **Not ideal for CPU-heavy tasks**: Complex processing should be offloaded to separate services.
+- **Still maturing**: Compared to Spring, NestJS is newer and some libraries/tools may be less mature.
+- **Security setup**: Developers must configure JWT, session, Passport manually.
+
+### 🔍 Real-World Use Case
+
+- Adopted by many **fast-growing tech companies** who want flexibility, speed, and maintainability.
+- Notably used in e-commerce, SaaS, and internal tooling.
+
+### 🧠 Simple Analogy
+
+> NestJS is like building a house with **pre-cut LEGO kits**. You can assemble quickly with great structure, but large customizations may require engineering effort.
+
+### 🧩 Long-Term Fit
+
+Excellent fit for **mid to large-scale services**. Great balance of flexibility, maintainability, and scalability. Team should be comfortable with JavaScript/TypeScript.
+
+---
+
+## 3. AWS MySQL + Spring Boot
+
+### ✅ Pros
+
+- **Battle-tested at scale**: Handles **millions of concurrent users**. Multi-threaded Java performance excels under load.
+- **Enterprise-grade security**: Spring Security includes CSRF, session protection, etc.
+- **Extensive ecosystem**: Spring Data, Spring Cloud, Spring Security, etc.
+- Used by **Netflix, Alibaba, LinkedIn, Uber**.
+
+### ❌ Cons
+
+- **Steep learning curve**: Spring is complex to set up initially. Java is more verbose than JS/TS.
+- **Higher infra costs**: JVM uses more memory/CPU, which impacts hosting costs.
+- **Overhead**: Smaller teams may find it overkill unless scale demands it.
+
+### 🔍 Real-World Use Case
+
+- **Netflix**: Uses Spring Boot to serve 230M users across 230 countries.
+- **Alibaba**: Handles millions of orders per second using Spring-based microservices.
+
+### 🧠 Simple Analogy
+
+> Spring is like building a **factory**. Once set up, it's rock-solid and handles massive production. But it requires expert setup, maintenance, and budget.
+
+### 🧩 Long-Term Fit
+
+Ideal for **enterprise-grade platforms** with high compliance, uptime, and complex domain logic. Teams need **Java expertise** and infra maturity.
+
+---
+
+## 📊 Summary Table
+
+| Stack                       | Recommended Team Size | Traffic Handling (MAU)     | Infra Cost (Est.)         | Best Fit Scenario                                          |
+| --------------------------- | --------------------- | -------------------------- | ------------------------- | ---------------------------------------------------------- |
+| **Supabase + Next.js**      | 1–3 developers        | Up to 1M MAU (read-heavy)  | 💰 Low (Free to mid-tier) | Fast MVPs, startup scale-up, lean teams                    |
+| **AWS MySQL + NestJS**      | 3–6 developers        | 1M–10M MAU                 | 💰💰 Medium               | Mid-scale platforms, TypeScript teams, hybrid growth       |
+| **AWS MySQL + Spring Boot** | 5–10+ developers      | 10M+ MAU, enterprise-level | 💰💰💰 High               | High-traffic commerce, complex logic, enterprise platforms |
+
+---
+
+## Final Recommendations
+
+- **If speed is priority** and your team is small: start with **Supabase** to launch fast.
+- **If maintainability and flexibility** matter for a growing JS/TS team: use **NestJS**.
+- **If your vision is long-term, global, and mission-critical**: invest in **Spring** with a solid team and infrastructure.
