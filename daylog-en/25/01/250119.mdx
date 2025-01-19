@@ -1,0 +1,28 @@
+---
+title: "Standards for URL Encoding in Browsers"
+date: "250119"
+tags: ["Browser"]
+---
+
+Browsers mainly use two standards for URL encoding. RFC 3986 and HTML Form Encoding.
+
+#### RFC 3986
+
+- Used with the `encodeURI` function.
+- General encoding rules for the entire URL.
+- Reserved characters: These have special meanings and are only encoded when necessary.  
+  `:`, `/`, `?`, `#`, `[`, `]`, `@`, `!`, `$`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`
+
+- Unreserved characters: These are left as they are.  
+  Alphabets (`a-z`, `A-Z`), numbers (`0-9`), `-`, `.`, `_`, `~`
+
+- Other characters: Characters that are not allowed in URLs must be percent-encoded.
+  - Example: A space (` `) becomes `%20`.
+  - Special characters (e.g., `@`) become `%40`.
+
+#### HTML Form Encoding
+
+- Used with the `encodeURIComponent` function.
+- This is the encoding method used when sending form data.
+- Similar to RFC 3986 but with one key difference.
+  - Spaces (` `) are encoded as `+` instead of `%20`.
