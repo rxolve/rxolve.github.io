@@ -1,0 +1,136 @@
+---
+title: "마라톤 풀코스 대비 주간 마일리지"
+date: "250120"
+tags: ["Algorithm"]
+---
+
+점진적 과부하 원칙으로 마라톤 풀코스를 준비하기 위한 마일리지(주간 러닝 거리)를 계산하는 방법입니다.
+
+## 개념
+
+#### 점진적 과부하 원칙
+
+현재 주간 마일리지를 기준으로 점진적으로 러닝 거리를 늘립니다. 한 주에 총 거리의 10% 이상 늘리지 않는 것이 안전합니다.
+
+#### 풀코스 마라톤 대비 목표 마일리지
+
+- 완주 목표 (기록 무관): 주 40~60km
+- 4시간 이하 목표: 주 50~80km
+- 3시간 30분 이하 목표: 주 70~100km
+- 3시간 이하 목표: 주 90~120km 이상
+
+#### 테이퍼링
+
+대회 전 3주 동안은 주간 마일리지를 점차 줄여 체력을 회복하고 대회 준비에 집중합니다.
+
+## 공식 설계
+
+#### 입력값
+
+- 남은 일수 (daysLeft): 풀마라톤까지 남은 일수.
+- 목표 기록 (goalTime): 풀코스 목표 시간 (예: 4시간 0분 → 4.0).
+- 현재 주간 마일리지 (currentMileage): 현재 주간 평균 마일리지 (옵션, 기본값은 20km).
+
+#### 단계
+
+1. 총 훈련 주간 수 (weeksLeft)
+
+- weeksLeft = floor(daysLeft / 7)
+- 남은 일수를 7로 나눈 값.
+
+2. 목표 주간 마일리지 (targetMileage)
+
+- 목표 기록에 따라 최종 주간 마일리지 설정.
+- 예시
+  - 목표 5시간 이상 → 50~60km
+  - 목표 4시간 이하 → 60~80km
+  - 목표 3시간 30분 이하 → 80~100km
+  - 목표 3시간 이하 → 100km 이상
+
+3. 주당 마일리지 증가
+
+- 매주 증가하는 마일리지는 점진적으로 설정(10% 법칙).
+- increasePerWeek = (targetMileage - currentMileage) / (weeksLeft - taperWeeks)
+
+4. 테이퍼링(Tapering)
+
+- 마지막 3주는 마일리지를 점차 감소.
+- taperWeeks = 3
+
+## 코드
+
+```ts
+const calculateWeeklyMileage = (
+  daysLeft: number,
+  goalTime: number,
+  currentMileage: number = 20
+): number[] => {
+  // 남은 주 계산
+  const weeksLeft = Math.floor(daysLeft / 7);
+
+  // 목표 주간 마일리지 설정
+  const targetMileage: number = (() => {
+    if (goalTime >= 5.0) {
+      return 50; // 목표 5시간 이상
+    } else if (goalTime >= 4.0) {
+      return 70; // 목표 4~5시간
+    } else if (goalTime >= 3.5) {
+      return 90; // 목표 3시간 30분~4시간
+    } else {
+      return 110; // 목표 3시간 이하
+    }
+  })();
+
+  // 테이퍼링 주 계산
+  const taperWeeks = 3;
+  const trainingWeeks = weeksLeft - taperWeeks;
+
+  if (trainingWeeks <= 0) {
+    throw new Error("남은 시간이 너무 적습니다. 최소 4주 이상 필요합니다.");
+  }
+
+  // 주당 마일리지 증가량
+  const increasePerWeek = (targetMileage - currentMileage) / trainingWeeks;
+
+  // 주간 마일리지 계산
+  const weeklyMileage: number[] = [];
+  for (let week = 1; week <= weeksLeft; week++) {
+    if (week <= trainingWeeks) {
+      // 증가 구간
+      weeklyMileage.push(
+        parseInt(currentMileage + increasePerWeek * (week - 1))
+      );
+    } else {
+      // 테이퍼링 구간
+      let taperFactor: number;
+      if (week === weeksLeft - 2) {
+        taperFactor = 0.7;
+      } else if (week === weeksLeft - 1) {
+        taperFactor = 0.5;
+      } else {
+        taperFactor = 0.3;
+      }
+      weeklyMileage.push(parseInt(targetMileage * taperFactor));
+    }
+  }
+
+  return weeklyMileage;
+};
+```
+
+## 결과
+
+2025 JTBC 마라톤까지는 286일이 남았고, 3시간 30분 완주를 목표로 한다면 주간 마일리지는 다음과 같이 계산됩니다.
+
+```ts
+calculateWeeklyMileage(286, 3.5);
+
+// [
+//   20, 21, 23, 25, 27, 29, 31, 33, 35, 37,
+//   38, 40, 42, 44, 46, 48, 50, 52, 54, 55,
+//   57, 59, 61, 63, 65, 67, 69, 71, 73, 74,
+//   76, 78, 80, 82, 84, 86, 88, 63, 45, 27
+// ]
+```
+
+꽤 바쁜 트레이닝이 예상됩니다.
