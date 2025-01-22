@@ -1,0 +1,49 @@
+---
+Title: "The Byzantine Generals Problem and the Birth of Blockchain"
+Date: "250122"
+Tags: ["Blockchain"]
+---
+
+The Byzantine Generals Problem is one of the most challenging problems in distributed system design.  
+This problem goes beyond simply dealing with server crashes and asks how the entire system can reach a correct consensus when some nodes may behave arbitrarily (or even maliciously).  
+The research to solve this problem has become a core issue in distributed consensus algorithms and eventually led to the birth of blockchain technology.
+
+## What is the Byzantine Generals Problem?
+
+The Byzantine Generals Problem assumes a situation where several generals must decide whether to attack or retreat.
+
+- Scenario: Multiple generals must exchange messages and decide whether to attack or retreat, but some of the generals act as traitors, sending conflicting (false) messages.
+- Core Goal: Honest generals must always make the same decision, and if the commander (leader) is also a traitor, the honest lieutenants must still come to the same decision.
+
+This problem directly relates to the issue of how nodes in a distributed system can maintain the same state even when they cannot trust each other.  
+In fact, Wikipedia defines Byzantine Fault as “a failure where each node exhibits different symptoms,” reflecting the complexity of achieving consensus in such an environment.
+
+## Distributed Consensus and Byzantine Fault Tolerance
+
+In a distributed system, multiple nodes must reach a single decision.
+
+- Safety: Honest nodes must make the same decision, and the system as a whole must not proceed in the wrong direction due to incorrect information.
+- Liveness: The system must eventually reach a consensus, and honest nodes must continue to function properly.
+
+When nodes with Byzantine faults exist, at least 3f+1 nodes are needed to satisfy both of these goals simultaneously (where f is the number of Byzantine faulty nodes).  
+This ensures that the honest nodes (2f+1) can overpower the influence of malicious nodes, thus providing a minimum condition for consensus.
+
+## The Background of Blockchain's Birth
+
+In 2008, Satoshi Nakamoto introduced Bitcoin, providing a method to achieve consensus in a decentralized network where no one can be trusted.
+
+- Proof-of-Work (PoW): Bitcoin forces each node (miner) to perform certain computational tasks via the Proof-of-Work mechanism. This makes it difficult for malicious nodes to send arbitrary messages or manipulate the system.
+- Economic Incentives: Miners are rewarded when they successfully create a block, so it is economically advantageous for them to contribute honestly to the network.
+
+Thus, blockchain provides a ‘natural’ solution to the Byzantine Generals Problem.  
+While distributed consensus algorithms (such as PBFT) theoretically require a configuration of 3f+1 nodes, Bitcoin guarantees stability through PoW and economic incentives, based on the condition that a 51% attack (i.e., malicious actors controlling more than half of the network) is needed to disrupt consensus.
+
+## The Relationship Between the Byzantine Problem and Blockchain
+
+Blockchain networks are inherently designed with Byzantine Fault Tolerance (BFT).
+
+- Consensus in a trustless environment: Blockchain is designed to maintain consistent states (e.g., blockchain ledger) in a decentralized environment without a central authority.
+- Cryptographic Techniques: Strong cryptographic techniques such as digital signatures and hash functions are used to make it extremely difficult for messages to be tampered with or forged.
+- Resource consumption-based security: The mining process through PoW requires significant computational resources to control the system, which naturally protects the consensus of honest nodes.
+
+Thanks to these mechanisms, blockchain has solved the requirement from the Byzantine Generals Problem that “all honest nodes must reach the same decision” both economically and technically.
