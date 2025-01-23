@@ -1,0 +1,40 @@
+---
+title: "pg_restore에서 USING"
+date: "250123"
+tags: ["RDS"]
+---
+
+#### USING
+
+USING 절은 PostgreSQL에서 컬럼의 데이터 타입을 변경할 때, 기존 데이터를 새로운 타입으로 변환하는 방법을 지정하기 위해 사용됩니다.
+
+1. 생성 시 테이블 스키마
+
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  age INTEGER
+);
+```
+
+2. 데이터 타입 변경
+
+```sql
+ALTER TABLE users
+  ALTER COLUMN age
+  SET DATA TYPE DOUBLE PRECISION
+  USING age::DOUBLE PRECISION;
+```
+
+#### pg_restore 와의 관계
+
+pg_restore를 사용하여 데이터베이스를 복원할 때, 백업 시점과 복원 시점의 테이블 스키마가 다를 경우, pg_restore는 필요한 데이터 타입 변환을 수행하기 위해 자동으로 USING 절을 포함하는 DDL 구문을 생성할 수 있습니다.
+
+이는 데이터 손실 없이 스키마 변경을 반영하기 위한 기능입니다.
+
+#### 참고
+
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/current/sql-altertable.html)
+
+- [pg_restore](https://www.postgresql.org/docs/current/app-pgrestore.html)

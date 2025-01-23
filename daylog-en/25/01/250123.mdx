@@ -1,0 +1,43 @@
+---
+title: "USING in pg_restore"
+date: "250123"
+tags: ["RDS"]
+---
+
+#### USING
+
+The `USING` clause in PostgreSQL is used when changing a column's data type.
+
+It specifies how to convert existing data into the new type.
+
+1. Table Schema at Creation
+
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255),
+  age INTEGER
+);
+```
+
+2. Changing the Data Type
+
+```sql
+ALTER TABLE users
+  ALTER COLUMN age
+  SET DATA TYPE DOUBLE PRECISION
+  USING age::DOUBLE PRECISION;
+```
+
+Here, `USING age::DOUBLE PRECISION` tells PostgreSQL to convert the `age` column's values from `INTEGER` to `DOUBLE PRECISION`.
+
+## How It Relates to pg_restore
+
+When using `pg_restore` to restore a database, differences between the schema at backup time and the schema at restore time might require data type conversions.
+
+In such cases, `pg_restore` automatically includes `USING` clauses in the generated DDL statements to ensure the data is converted properly and no data is lost during the process.
+
+### References
+
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/current/sql-altertable.html)
+- [pg_restore Documentation](https://www.postgresql.org/docs/current/app-pgrestore.html)
