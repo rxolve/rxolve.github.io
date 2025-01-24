@@ -1,0 +1,36 @@
+---
+title: "Nginx에서 502 Bad Gateway 오류 전파"
+date: "250124"
+tags: ["Nginx"]
+---
+
+### Upstream 서버의 장애
+
+- Nginx가 라우팅하는 Upstream 서버가 단일 장애(Single Point of Failure)를 겪는 경우.
+- 서버가 다운되거나 응답하지 않음.
+
+#### Nginx와 Upstream 간 Keep-Alive 연결 문제
+
+- Nginx가 Upstream 서버와의 Keep-Alive 연결을 재사용하려고 하지만, 기존 연결이 유효하지 않은 상태에서 요청을 보낼 경우.
+- "Connection reset by peer" 오류가 동반될 가능성이 높음.
+
+#### Circuit Breaker 패턴 도입
+
+Nginx 레벨에서 Circuit Breaker는 직접 구현하기 어렵기 때문에 애플리케이션 레벨에서 요청 실패를 관리합니다.
+
+```ts
+import { Injectable } from "@nestjs/common";
+import { CircuitBreaker } from "@nestjs/resilience4j";
+
+@Injectable()
+export class AppService {
+  @CircuitBreaker({
+    fallback: () => "Fallback: Upstream is currently unavailable",
+  })
+  async callUpstream() {
+    // Upstream 서버 호출 로직
+  }
+}
+```
+
+- nestjs-resilience4j 라이브러리를 사용하여 실패 요청을 감지하고 차단.

@@ -1,0 +1,41 @@
+---
+title: "Understanding 502 Bad Gateway Errors in Nginx"
+date: "250124"
+tags: ["Nginx"]
+---
+
+### Upstream Server Issues
+
+- If the upstream server that Nginx is routing requests to encounters a Single Point of Failure (SPOF), this can cause problems.
+- Examples include the server being down or not responding to requests.
+
+### Keep-Alive Connection Problems Between Nginx and Upstream
+
+- Nginx tries to reuse existing Keep-Alive connections with the upstream server.
+- If the connection is no longer valid, requests will fail.
+- This often leads to errors like `"Connection reset by peer"`.
+
+### Using Circuit Breaker Pattern
+
+- Nginx cannot directly handle Circuit Breaker logic.
+- Instead, use application-level solutions to manage request failures.
+
+Here’s an example using NestJS with the `nestjs-resilience4j` library:
+
+```ts
+import { Injectable } from "@nestjs/common";
+import { CircuitBreaker } from "@nestjs/resilience4j";
+
+@Injectable()
+export class AppService {
+  @CircuitBreaker({
+    fallback: () => "Fallback: Upstream is currently unavailable",
+  })
+  async callUpstream() {
+    // Logic for calling the upstream server
+  }
+}
+```
+
+- This setup detects failed requests and blocks them temporarily.
+- The fallback function provides a backup response when the upstream server is unavailable.
