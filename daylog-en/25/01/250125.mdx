@@ -1,0 +1,66 @@
+---
+title: "Easyrd"
+date: "250125"
+tags: ["Tool"]
+---
+
+## What is Easyrd?
+
+Easyrd is an ERD (Entity-Relationship Diagram) generation tool developed for backend developers.  
+Its core philosophy is based on a code-first approach.  
+In other words, when a developer writes a database schema in DBML (Database Markup Language)—a format they are already familiar with—Easyrd instantly converts it into a diagram in real time.  
+This allows you to grasp complex database structures at a glance and greatly facilitates documentation and team collaboration.
+
+## Key Features and Advantages
+
+#### Code-First Design
+
+- Intuitive Creation: Easyrd is designed so that developers can define schemas directly in DBML code. Just as you write application code, you can naturally define your database schema, minimizing discrepancies between documentation and actual code.
+- Instant Feedback: As soon as you write the schema, an ERD is automatically generated, allowing you to visually verify any design changes immediately.
+
+#### Diagram Transformation
+
+- Automatic Diagram Generation: Schemas written in DBML code are transformed into professional diagrams in just a few seconds, making it easy to obtain visual materials suitable for design reviews or presentations.
+- Multiple Output Formats: The generated diagrams can be saved and shared in various formats such as PNG and SVG.
+
+#### Team Collaboration Support
+
+- Real-Time Updates: Team members can modify the schema simultaneously and immediately see the latest design diagram.
+- Enhanced Communication: Visual communication through diagrams clearly expresses relationships and constraints that are difficult to capture with code alone, greatly aiding team discussions.
+
+#### Free & Easy to Use
+
+- 100% Free: Easyrd is provided free of charge, allowing it to be used by startups as well as large-scale projects without any cost burden.
+- Easy Accessibility: It can be used directly in a web browser without any complex setup, significantly reducing the time required for initial configuration.
+
+## How to Use Easyrd
+
+1. Write a DBML File:  
+   Developers write a DBML file directly in a text editor or IDE. For example, you can define the schemas for a user and a post as follows:
+
+   ```dbml
+   Table user {
+     id int [pk, increment]
+     name varchar
+     email varchar [unique]
+   }
+
+   Table post {
+     id int [pk, increment]
+     user_id int [ref: > user.id]
+     title varchar
+     content text
+   }
+   ```
+
+2. Convert to Diagram:  
+   Upload or paste the DBML file into Easyrd, and it will instantly convert it into a professional ERD.  
+   The converted diagram can be viewed through the web interface and, if needed, downloaded as an image file.
+
+3. Document and Share:  
+   The generated diagram can be used as documentation within your team or shared during project reviews and meetings to foster a common understanding of the database design.
+
+## In Conclusion
+
+Easyrd enables a smooth transition to a visual database design tool while retaining the familiar, code-based schema definition approach.  
+For more detailed information, please visit the [Easyrd official website](https://easyrd.dev/).
