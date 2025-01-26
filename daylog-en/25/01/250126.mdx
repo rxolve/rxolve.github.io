@@ -1,0 +1,104 @@
+---
+title: "Actor Model"
+date: "250126"
+tags: ["Concept"]
+---
+
+### What is an Actor in Programming?
+
+An actor is an independent unit that communicates with other actors by sending and receiving messages instead of sharing state directly. The Actor Model is commonly used in distributed systems and parallel programming to avoid concurrency issues.
+
+## Concept
+
+The Actor Model was introduced by Carl Hewitt in 1973 based on the idea that "everything is an actor." Each actor can perform three main tasks:
+
+1. Receive Messages
+   - Actors process messages asynchronously.
+2. Create New Actors (Spawn)
+   - Actors can create new actors as needed.
+3. Send Messages to Other Actors
+   - Instead of sharing state directly, actors exchange messages to communicate.
+
+## Key Features
+
+### No Shared State
+
+- Prevents race conditions and deadlocks common in traditional multi-threaded programming.
+- Uses message-based communication instead of shared memory.
+
+### Asynchronous Message Passing
+
+- Actors communicate asynchronously, allowing for high scalability.
+
+### Independent & Concurrent Execution
+
+- Each actor runs independently, making it ideal for parallel and distributed systems.
+
+## Use Cases
+
+### Distributed Systems & Microservices
+
+- Erlang/Elixir OTP (Actor-based system)
+- Akka (Scala, Java) for distributed applications
+- Orleans (.NET) virtual actor system
+
+### Game Development
+
+- Used for managing players, NPCs, and game states
+
+### Blockchain & Smart Contracts
+
+- Ethereum’s EVM operates similarly to an actor system
+
+## Comparison with Other Concurrency Models
+
+| Model                | Shared State | Sync/Async   | Key Features                                         |
+| -------------------- | ------------ | ------------ | ---------------------------------------------------- |
+| Thread/Lock Model    | Yes          | Synchronous  | Uses locks for state management (risk of deadlocks)  |
+| Event Loop (Node.js) | No           | Asynchronous | Single-threaded event-driven model (great for I/O)   |
+| Actor Model          | No           | Asynchronous | State changes only through messages, highly parallel |
+
+## Example (Akka - Scala)
+
+Akka is a well-known Actor Model implementation for the JVM. Here’s a simple example:
+
+```scala
+import akka.actor.{Actor, ActorSystem, Props}
+
+// 1. Define an Actor
+class HelloActor extends Actor {
+  def receive = {
+    case msg: String => println(s"Received message: $msg")
+  }
+}
+
+// 2. Create an Actor System
+val system = ActorSystem("MyActorSystem")
+val helloActor = system.actorOf(Props[HelloActor], name = "helloActor")
+
+// 3. Send a message (asynchronous)
+helloActor ! "Hello, Actor!"
+```
+
+In this example, `helloActor ! "Hello, Actor!"` sends a message asynchronously without shared state.
+
+---
+
+## Applying the Actor Model in NestJS
+
+NestJS does not have built-in actor model support, but you can achieve similar behavior using CQRS, Kafka, or NATS message brokers.
+
+```typescript
+import { Controller } from "@nestjs/common";
+import { MessagePattern } from "@nestjs/microservices";
+
+@Controller()
+export class ActorController {
+  @MessagePattern("actor-message")
+  handleMessage(data: string) {
+    console.log(`Received message: ${data}`);
+  }
+}
+```
+
+This structure asynchronously processes messages, similar to the actor model.

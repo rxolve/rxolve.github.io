@@ -1,0 +1,114 @@
+---
+title: "Actor Model"
+date: "250126"
+tags: ["Concept"]
+---
+
+프로그래밍에서 액터(Actor)란 액터 모델(Actor Model)을 기반으로 한 개념으로
+
+분산 시스템이나 병렬 프로그래밍에서 상태를 공유하지 않고 독립적인 개체(Actor)들이 메시지를 주고받으며 동작하는 방식입니다.
+
+## 개념
+
+1973년 Carl Hewitt가 제안한 액터 모델은 "모든 것은 액터"라는 개념을 기반으로 합니다.
+
+액터는 다음과 같은 세 가지 작업을 수행할 수 있습니다.
+
+1. 메시지(Message) 수신
+
+   - 액터는 비동기적으로 메시지를 받습니다.
+
+2. 새로운 액터 생성(Spawn)
+
+   - 필요에 따라 새로운 액터를 생성할 수 있습니다.
+
+3. 다른 액터에게 메시지 전송(Send Message)
+   - 직접 상태를 공유하는 것이 아니라 메시지를 주고받으며 통신합니다.
+
+## 특징
+
+#### 공유 상태 없음
+
+- 전통적인 멀티스레딩 방식에서 발생하는 경합 조건(Race Condition), 데드락(Deadlock) 문제를 방지합니다.
+- 상태를 직접 공유하는 것이 아니라 메시지 기반 통신을 합니다.
+
+#### 비동기 메시지 전달
+
+- 액터 간 통신은 비동기 방식(Asynchronous Message Passing)으로 이루어지므로 높은 확장성을 제공합니다.
+
+#### 액터는 독립적이며 동시 실행 가능
+
+- 액터는 독립적으로 동작하므로 병렬 및 분산 시스템에서 유용합니다.
+
+## 활용
+
+#### 분산 시스템 및 마이크로서비스
+
+- Erlang/Elixir의 OTP(Actor 기반 시스템)
+- Akka (Scala, Java)를 활용한 분산 시스템
+- Orleans (.NET) 기반의 가상 액터 시스템
+
+#### 게임 개발
+
+- 게임 서버에서 플레이어, NPC 등을 액터로 모델링하여 상태 관리
+
+#### 블록체인 및 스마트 컨트랙트
+
+- Ethereum의 EVM도 액터 모델과 유사한 방식으로 동작
+
+## 액터 모델과 기존 동시성 모델 비교
+
+| 모델                 | 공유 상태 | 동기/비동기 | 주요 특징                                |
+| -------------------- | --------- | ----------- | ---------------------------------------- |
+| 스레드/락 모델       | 있음      | 동기        | 락을 통한 공유 상태 관리 (Deadlock 위험) |
+| 이벤트 루프(Node.js) | 없음      | 비동기      | 단일 스레드 이벤트 기반 (I/O에 적합)     |
+| 액터 모델            | 없음      | 비동기      | 상태를 메시지로만 변경, 고도의 병렬성    |
+
+## 예제 (Akka - Scala)
+
+Akka는 JVM 기반에서 가장 유명한 액터 모델 구현체 중 하나입니다.
+
+```scala
+import akka.actor.{Actor, ActorSystem, Props}
+
+// 1. 액터 정의
+class HelloActor extends Actor {
+  def receive = {
+    case msg: String => println(s"Received message: $msg")
+  }
+}
+
+// 2. 액터 시스템 생성
+val system = ActorSystem("MyActorSystem")
+val helloActor = system.actorOf(Props[HelloActor], name = "helloActor")
+
+// 3. 메시지 전송 (비동기)
+helloActor ! "Hello, Actor!"
+```
+
+이처럼 `helloActor ! "Hello, Actor!"`을 통해 메시지를 비동기적으로 전달하며
+
+직접 상태를 공유하지 않습니다.
+
+---
+
+## NestJS에서 액터 모델 적용 예시
+
+NestJS에서는 기본적으로 액터 모델을 지원하지 않지만
+
+CQRS 패턴과 Kafka/NATS 등의 메시지 브로커를 활용해 유사한 방식으로 동작할 수 있습니다.
+
+```typescript
+import { Controller } from "@nestjs/common";
+import { MessagePattern } from "@nestjs/microservices";
+
+@Controller()
+export class ActorController {
+  @MessagePattern("actor-message")
+  handleMessage(data: string) {
+    console.log(`Received message: ${data}`);
+  }
+}
+```
+
+이처럼 메시지를 비동기적으로 처리하는 구조가 액터 모델과 유사합니다.
