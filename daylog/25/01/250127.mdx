@@ -1,0 +1,55 @@
+---
+title: "Paxos Algorithm"
+date: "250127"
+tags: ["Algorithm"]
+---
+
+## The Distributed Consensus Problem and the Necessity of Paxos
+
+In a distributed environment, multiple nodes must maintain the same state or command sequence.
+For example, consensus is essential in database log replication or leader election processes.
+However, ensuring agreement amidst various failure scenarios such as network delays, message loss, and node failures is a highly challenging problem.
+Paxos provides a method to achieve safe consensus while balancing safety—ensuring that two nodes do not make different decisions—and liveness.
+According to the FLP theorem, guaranteeing a decision in a fully asynchronous system is difficult, but Paxos prioritizes safety in most cases.
+
+## Key Roles in Paxos
+
+Paxos defines three fundamental roles:
+
+- Proposer: Receives client requests and initiates a proposal. While multiple proposers may exist simultaneously, consensus must ultimately converge on a single value.
+- Acceptor: Accepts proposed values, and a proposal is finalized only if a majority of acceptors agree on the same value.
+- Learner: Learns the chosen value and applies it to execute actual tasks (e.g., updating a state machine).
+
+In practical systems, a single node may take on multiple roles simultaneously.
+
+## The Two-Phase Protocol of Paxos
+
+Paxos consists of two main phases.
+
+### Phase 1 – Prepare and Promise
+
+- Prepare Request: The proposer selects a unique, increasing proposal number (N) and sends a _prepare(N)_ message to a majority of acceptors.
+- Promise Response: If the received proposal number is greater than any previously accepted number, the acceptor promises not to accept proposals with numbers smaller than N. If it has already accepted a proposal, it responds with the highest accepted proposal number and value.
+
+This phase allows acceptors to share information about previous proposals, laying the foundation for consistency in later phases.
+
+### Phase 2 – Accept and Decide
+
+- Accept Request: Upon receiving responses from a majority of acceptors in Phase 1, the proposer selects the highest-numbered previously accepted value (if any) or chooses its own value and sends an _accept(N, v)_ message.
+- Accepted Response: If the proposal number is not smaller than any previously promised number, the acceptor accepts the proposal and responds accordingly.
+
+Once a majority of acceptors accept a proposal, that value is considered chosen and propagated to learners.
+
+## Considerations for Practical Implementation
+
+- Multiple Proposer Conflict: If multiple proposers initiate proposals simultaneously, conflicts may arise, leading to a "proposal number war." This issue can be mitigated through leader election or exponential backoff mechanisms.
+- Importance of Quorum: Paxos relies on the intersection of two quorum sets to ensure consistency without losing previous state information.
+- Leader Optimization (Multi-Paxos): If a stable leader exists, the prepare phase (Phase 1) can be skipped for subsequent proposals, reducing message delays and improving performance.
+- Safety vs. Liveness: While Paxos always guarantees safety, extreme network delays or conflicts may lead to liveness issues, slowing down progress.
+
+## Conclusion
+
+Paxos is a fundamental yet powerful algorithm for achieving consensus in distributed environments.
+Its mechanism ensures that all functioning nodes reach the same decision despite network uncertainties and node failures.
+Paxos plays a crucial role in real-world applications such as database replication, distributed lock services, and leader election.
+Although the algorithm may seem complex, understanding its core principles greatly aids in designing and troubleshooting distributed systems.
