@@ -1,0 +1,47 @@
+---
+title: "Comparison of Paxos and Blockchain"
+date: "250128"
+tags: ["Blockchain"]
+---
+
+## Concept and Purpose
+
+- Paxos  
+  Paxos is an algorithm designed to achieve safe and consistent consensus on a single value (or state) among predefined nodes in a traditional distributed system.  
+  It is primarily used in trusted environments such as databases and distributed lock services (e.g., Chubby).
+
+- Blockchain  
+  Blockchain is a technology used to maintain an immutable record of transactions or state changes in a decentralized environment.  
+  It employs consensus algorithms (e.g., PoW, PoS, PBFT) to achieve agreement among a large number of participants in a public network, supporting applications such as cryptocurrencies and smart contracts.
+
+## Consensus Mechanism and Trust Model
+
+| Category            | Paxos                                                                                   | Blockchain                                                                                                       |
+| ------------------- | --------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Consensus Mechanism | Step-by-step agreement through predefined roles such as Proposer, Acceptor, and Learner | Various algorithms such as Proof of Work (PoW) and Proof of Stake (PoS) (probabilistic/economic incentive-based) |
+| Trust Model         | Participating nodes are trusted and primarily handle crash faults                       | Designed to consider Byzantine fault tolerance with untrusted nodes                                              |
+| Objective           | Ensures reliable state consistency within an internal system                            | Achieves decentralization, transaction immutability, and trustless consensus in a public network                 |
+
+> Paxos is designed to maximize stability in a distributed system where a certain level of trust between nodes exists, while blockchain introduces additional mechanisms (e.g., economic incentives, proof-of-work) to achieve consensus even in a trustless environment.
+
+## Performance and Scalability
+
+- Paxos  
+  It achieves consensus with minimal message exchange, ensuring fast response times in terms of network latency and throughput. However, strict synchronization between nodes can limit scalability.
+
+- Blockchain  
+  PoW-based blockchains, in particular, suffer from long block generation times and low transaction throughput. However, they provide strong decentralization and security, while alternative consensus mechanisms such as PoS and PBFT are being developed to improve these limitations.
+
+## Use Cases and Applications
+
+- Paxos
+  - Distributed databases (e.g., Google Spanner)
+  - Distributed file systems and lock services (e.g., Chubby)
+- Blockchain
+  - Cryptocurrencies (Bitcoin, Ethereum)
+  - Smart contracts and decentralized applications (DeFi, NFTs)
+
+## Conclusion
+
+Paxos is a consensus algorithm aimed at achieving high consistency and low latency in trusted environments, whereas blockchain employs various consensus mechanisms to ensure security and immutability in decentralized systems with untrusted participants.  
+Both technologies have their trade-offs, and the appropriate choice depends on system requirements such as the trust model, performance, and scalability.
