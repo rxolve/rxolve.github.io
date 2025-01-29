@@ -1,0 +1,63 @@
+---
+title: "Raft Consensus Algorithm"
+date: "250129"
+tags: ["Algorithm"]
+---
+
+## Basic Concept of Raft
+
+A distributed system consists of multiple servers (nodes) that cooperate over a network while being resilient to individual failures.
+Raft is an algorithm that ensures all nodes execute the same "state machine" in such an environment.
+Its main objectives are as follows:
+
+- Clarity: Easier to understand and implement than Paxos
+- Stability: Maintains system-wide consistency even in the presence of node failures
+- Efficiency: Optimizes distributed system performance through log replication and leader election
+
+## Key Components
+
+#### Leader
+
+A single leader exists within a cluster, handling all client requests and replicating logs to followers.
+The leader periodically sends heartbeat messages to signal its presence and reset the followers' timeout.
+
+#### Follower
+
+Followers receive log replication and heartbeat messages from the leader and operate passively without making independent requests.
+If a follower does not receive a message from the leader within a specified period, it transitions to a candidate.
+
+#### Candidate
+
+When the leader is absent or fails, a follower transitions into a candidate and requests votes to elect a new leader.
+
+## How Raft Works
+
+#### Leader Election
+
+1. Timeout: Each follower has a randomized election timeout. If this timeout expires, the follower transitions to a candidate.
+2. Vote Request: The candidate sends a request for votes to all nodes within the cluster.
+3. Majority Votes: If the candidate receives a majority (quorum) of votes, it is elected as the new leader.
+4. Heartbeat: The elected leader periodically sends heartbeat messages to reset the followers' timeout.
+
+#### Log Replication
+
+1. Client Request: When a client sends a command (e.g., a state change request), the leader creates a new log entry and records it in its log.
+2. Propagation: The leader propagates the new log entry to all followers.
+3. Acknowledgment: Each follower adds the received log entry to its log and responds to the leader with a success message.
+4. Commit: Once the leader confirms that a majority of nodes hold the same log entry, it marks the entry as "committed" and returns the result to the client.
+
+#### Ensuring Safety
+
+Raft ensures safety through mechanisms like terms and log consistency checks:
+
+- Term: Each leader election and log entry is assigned a term number to prevent previous term logs from being invalidated in a new term.
+- Consistency Check: Each node verifies whether its log is "up-to-date" and recovers inconsistencies using snapshots when necessary.
+
+## Why Raft?
+
+Raft was designed with the goal of being an "easily understandable consensus algorithm."
+While Paxos is mathematically complex and difficult to implement in real-world systems, Raft offers the following advantages:
+
+- Clear Role Distinction: The roles of leader, follower, and candidate are well-defined, making it easy to understand each node's operation.
+- Step-by-Step Approach: Raft separates leader election, log replication, and safety assurance into distinct steps, making debugging and maintenance easier.
+- Proven in Real-World Implementations: Raft has been adopted in various real-world systems, such as etcd in Kubernetes and replica sets in MongoDB, proving its reliability.
