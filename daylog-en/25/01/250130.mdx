@@ -1,0 +1,83 @@
+---
+title: "Backpressure"
+date: "250130"
+tags: ["Concept"]
+---
+
+## What is Backpressure?
+
+Backpressure is a mechanism that controls the flow of data when there is a mismatch between the speed of data production and consumption.
+
+If a producer generates data too fast, the consumer may not be able to process it in time, leading to bottlenecks.
+
+Backpressure helps maintain system stability by regulating data flow.
+
+## Common Cases of Backpressure
+
+#### Network and API Calls
+
+- In a microservices architecture, if Service A sends too many requests to Service B, B may struggle to handle them.
+- Solution: Rate Limiting, Queueing, Circuit Breaker
+
+#### Stream Processing
+
+- In Node.js streams, if data is read faster than it is written, backpressure can occur.
+- Solution: `Readable.pause()`, `Writable.cork()`, adjusting Kafka consumer groups
+
+#### Database Write Load
+
+- A sudden spike in traffic can overload the database, reducing performance.
+- Solution: Batch processing, using queues (RabbitMQ, Kafka), caching (Redis, Memcached)
+
+## How to Handle Backpressure
+
+#### Throttling / Rate Limiting
+
+- Limit request rates using Nginx or an API Gateway
+- Use RxJS functions like `throttleTime()`, `debounceTime()`
+- Control HTTP request flow with the `Retry-After` header
+
+#### Buffering & Batch Processing
+
+- Use Batch Insert to reduce database load
+- Distribute the load with message queues like Kafka or RabbitMQ
+
+#### Queue & Flow Control
+
+- In Node.js streams, adjust `highWaterMark` to manage backpressure
+- Balance workload by scaling Kafka consumer groups
+
+#### Pushback Mechanism
+
+- When the consumer is overloaded, it signals the producer to slow down
+- Examples: TCP `Window Size` adjustment, RabbitMQ `prefetch` settings
+
+## Practical Example: Node.js Stream Backpressure Handling
+
+```typescript
+import { createReadStream, createWriteStream } from "fs";
+
+const readStream = createReadStream("large-file.txt");
+const writeStream = createWriteStream("output.txt");
+
+readStream.pipe(writeStream);
+
+writeStream.on("drain", () => {
+  console.log("Writable stream drained, resuming reading...");
+  readStream.resume();
+});
+
+readStream.on("data", (chunk) => {
+  const canWrite = writeStream.write(chunk);
+  if (!canWrite) {
+    console.log("Backpressure detected! Pausing read stream...");
+    readStream.pause();
+  }
+});
+```
+
+#### Explanation
+
+- Using `pipe()`, backpressure is handled automatically
+- If `writeStream.write(chunk)` returns `false`, reading is paused (`pause()`)
+- When the `drain` event fires, reading resumes (`resume()`)
