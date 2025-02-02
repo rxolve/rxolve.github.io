@@ -1,0 +1,70 @@
+---
+title: "Blocking vs Non-blocking"
+date: "250202"
+tags: ["Concept"]
+---
+
+Blocking and non-blocking determine whether other tasks can run while a given task is being processed.
+To understand this better, let's think about I/O (input/output) operations.
+
+## Blocking
+
+In blocking mode, you have to wait until the task is completed before moving on to the next one.
+
+#### Example: Restaurant with only one chef
+
+- A customer orders food, and the chef starts cooking.
+- The chef does not take another order until the first dish is ready.
+- Only after finishing the current dish can they take the next order.
+
+#### Code Example (Synchronous Blocking)
+
+```typescript
+import * as fs from "fs";
+
+// Read file (Blocking)
+const data = fs.readFileSync("file.txt", "utf-8");
+console.log(data); // Prints after the file is fully read
+
+console.log("Next task"); // Runs only after file reading is complete
+```
+
+- `fs.readFileSync()` blocks execution until the file is fully read.
+- The next line of code runs only after reading is done.
+
+## Non-blocking
+
+In non-blocking mode, you don’t have to wait for the task to finish before moving on.
+
+#### Example: Restaurant with a waiter
+
+- A customer orders food, and the chef starts cooking.
+- Meanwhile, the waiter takes other orders instead of waiting.
+- When the food is ready, the waiter notifies the customer.
+
+#### Code Example (Asynchronous Non-blocking)
+
+```typescript
+import * as fs from "fs";
+
+// Read file (Non-blocking)
+fs.readFile("file.txt", "utf-8", (err, data) => {
+  if (err) throw err;
+  console.log(data); // Runs when the file is fully read
+});
+
+console.log("Next task"); // Runs before file reading is complete
+```
+
+- `fs.readFile()` does not block execution.
+- The next line (`console.log("Next task")`) runs before the file reading is done.
+- The callback function runs when the file is fully read.
+
+## Summary
+
+|          | Blocking                             | Non-blocking                              |
+| -------- | ------------------------------------ | ----------------------------------------- |
+| Behavior | Waits until the task is done         | Moves to the next task immediately        |
+| Pros     | Simple and easy to understand        | High performance, handles many tasks      |
+| Cons     | Slower, hard to handle many requests | Can be more complex (callbacks, Promises) |
+| Examples | `readFileSync`, database queries     | `readFile`, API requests (event loop)     |
