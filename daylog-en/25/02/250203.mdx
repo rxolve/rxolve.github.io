@@ -1,0 +1,15 @@
+---
+title: "Changing Notification Expiry Time When Copying DB"
+date: "250203"
+tags: ["Issue"]
+---
+
+For QA, I copied the production database to use it as staging.
+
+While discussing with the chapter one, I realized that notifications (KakaoTalk alimtalk, SMS, emails) might still be sent from the staging environment.
+
+Checking the logs, I confirmed that notifications were being sent from both production and staging environments.
+
+To prevent this, I adjusted all relevant expiration times for notifications based on today's date.
+
+There was no major issue, but since this was an oversight during the process, I'm documenting it for future reference.
