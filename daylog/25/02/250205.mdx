@@ -1,0 +1,39 @@
+---
+title: "TypeOrm에서 JoinColumn 중복 참조 에러"
+date: "250205"
+tags: ["Issue"]
+---
+
+#### 문제
+
+> https://github.com/typeorm/typeorm/issues/10240
+
+TypeORM에서 같은 name을 가진 여러 @JoinColumn이 있으면 서로 간섭하여 에러가 발생합니다.
+
+referencedColumnName 옵션이 다른 @JoinColumn의 옵션에 의해 덮어쓰여지는 문제가 있습니다.
+
+```typescript
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  creatorId: number;
+
+  @OneToOne(() => Brand)
+  @JoinColumn({ name: "creatorId", referencedColumnName: "creatorId" })
+  brand: Brand;
+
+  @OneToOne(() => Market)
+  @JoinColumn({ name: "creatorId", referencedColumnName: "targetId" })
+  market: Market;
+}
+```
+
+위 코드에서 `creatorId`를 참조하는 두 개의 @JoinColumn이 있습니다.
+
+이 경우, 두 번째 @JoinColumn의 `referencedColumnName`이 첫 번째 @JoinColumn의 `referencedColumnName`을 덮어쓰게 됩니다.
+
+#### 해결
+
+brand와 market이 모두 참조하는 creator 엔티티에서 brand와 market 엔티티와의 관계를 지정해줍니다.

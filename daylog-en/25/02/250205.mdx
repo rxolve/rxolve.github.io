@@ -1,0 +1,39 @@
+---
+title: "TypeOrm JoinColumn Duplicate Reference Error"
+date: "250205"
+tags: ["Issue"]
+---
+
+#### Problem
+
+> https://github.com/typeorm/typeorm/issues/10240
+
+In TypeORM, if multiple `@JoinColumn`s have the same `name`, they can interfere with each other and cause errors.
+
+The `referencedColumnName` option from one `@JoinColumn` can overwrite the setting of another `@JoinColumn`.
+
+```typescript
+@Entity()
+export class Product {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  creatorId: number;
+
+  @OneToOne(() => Brand)
+  @JoinColumn({ name: "creatorId", referencedColumnName: "creatorId" })
+  brand: Brand;
+
+  @OneToOne(() => Market)
+  @JoinColumn({ name: "creatorId", referencedColumnName: "targetId" })
+  market: Market;
+}
+```
+
+In this code, there are two `@JoinColumn`s referencing `creatorId`.
+
+In this case, the `referencedColumnName` of the second `@JoinColumn` will overwrite the `referencedColumnName` of the first one.
+
+#### Solution
+
+Define the relationship between the `creator` entity and both the `brand` and `market` entities inside the `creator` entity itself.
