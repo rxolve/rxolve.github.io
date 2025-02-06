@@ -1,0 +1,31 @@
+---
+title: "AWS Lambda Deployment: Code Storage Limit Exceeded"
+date: "250206"
+tags: ["Issue", "AWS"]
+---
+
+#### Problem
+
+The "Code storage limit exceeded" error in AWS Lambda happens when the total function code storage exceeds the limit.
+
+By default, AWS allows 100GB of storage per account for Lambda functions.
+
+Every time you deploy a Lambda function, AWS creates a new version without deleting the old ones.
+
+If you frequently update your Lambda functions, old versions accumulate, eventually exceeding the storage limit.
+
+#### Solution
+
+Check all your Lambda functions in the AWS Lambda console and delete any unused functions.
+
+If you're using Serverless Framework, you can use the serverless-prune-plugin to automatically remove old versions.
+
+```yaml
+plugins:
+  - serverless-prune-plugin
+
+custom:
+  prune:
+    automatic: true # Runs automatically after deployment
+    number: 5 # Keeps only the last 5 versions (deletes older ones)
+```
