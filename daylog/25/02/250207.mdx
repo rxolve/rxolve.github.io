@@ -1,0 +1,26 @@
+---
+title: "Average Active Sessions"
+date: "250207"
+tags: ["RDS"]
+---
+
+AAS(Average Active Sessions)는 데이터베이스 성능 지표 중 하나로, 특정 시간 동안 동시에 활성화된 세션의 평균 수를 나타냅니다.
+
+#### AAS
+
+- DB의 부하(Load) 상태를 측정하는 주요 지표
+- 주어진 시간 동안 CPU 또는 I/O에서 실행 중이거나 대기 중인 세션들의 평균 개수
+- 값이 높을수록 시스템이 과부하 상태일 가능성이 높음
+
+### 계산 공식
+
+AAS = DB Time / Elapsed Time
+
+- DB Time: 세션이 대기(wait) 또는 실행(active) 중인 총 시간
+- Elapsed Time: 측정된 총 시간
+
+### AAS 적정 수준
+
+- AAS < vCPU 개수 → 정상적인 수준
+- AAS ≈ vCPU 개수 → 성능 임계점 근접
+- AAS > vCPU 개수 → CPU 병목 가능성 높음

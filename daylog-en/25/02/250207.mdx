@@ -1,0 +1,26 @@
+---
+title: "Average Active Sessions"
+date: "250207"
+tags: ["RDS"]
+---
+
+AAS (Average Active Sessions) is a key database performance metric that shows the average number of active sessions at the same time over a given period.
+
+#### AAS
+
+- A key metric to measure database load
+- The average number of sessions that are running or waiting on CPU or I/O during a specific time
+- Higher values indicate possible system overload
+
+### Formula
+
+AAS = DB Time / Elapsed Time
+
+- DB Time: Total time sessions spend waiting or actively running
+- Elapsed Time: Total time measured
+
+### Interpreting AAS
+
+- AAS < vCPU count → Normal load
+- AAS ≈ vCPU count → Near performance limit
+- AAS > vCPU count → Possible CPU bottleneck
