@@ -1,0 +1,59 @@
+---
+title: "Structured Concurrency"
+date: "250208"
+tags: ["Concept"]
+---
+
+Structured concurrency is a pattern in asynchronous programming that groups and manages multiple tasks within a clear scope.
+
+Simply put, when a parent task creates child tasks, structured concurrency ensures that all the child tasks complete before the parent task finishes.
+
+#### Key Features
+
+- **Clear Lifecycle Management**
+
+  All asynchronous tasks created within a parent function or block must complete before that scope ends.
+
+  This prevents "orphaned tasks" and makes the execution flow predictable.
+
+- **Error Propagation and Cancellation**
+
+  If any child task throws an exception, the structured concurrency mechanism helps propagate the error to the parent or cancels the entire group of tasks.
+
+  This simplifies complex error handling.
+
+- **Improved Code Readability and Maintainability**
+
+  Grouping asynchronous tasks together clarifies the code flow and makes debugging and maintenance easier.
+
+#### Example (Python Trio's Nursery Concept)
+
+The Python Trio library is a great example of structured concurrency.
+
+In Trio, you use the `async with trio.open_nursery() as nursery:` statement, which waits for all tasks started in the nursery to finish before exiting the block.
+
+```python
+import trio
+
+async def child_task(name):
+    print(f"{name} started")
+    await trio.sleep(1)
+    print(f"{name} finished")
+
+async def main():
+    async with trio.open_nursery() as nursery:
+        nursery.start_soon(child_task, "Task 1")
+        nursery.start_soon(child_task, "Task 2")
+
+trio.run(main)
+```
+
+In this example, the `main` function opens a nursery and starts two tasks concurrently.
+
+The nursery ensures that `main` does not complete until both tasks are finished.
+
+#### Conclusion
+
+Structured concurrency lets you manage asynchronous tasks within a defined scope, ensuring effective error handling and cancellation.
+
+This pattern improves code stability, readability, and predictability when working with complex asynchronous logic.
