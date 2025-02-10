@@ -1,0 +1,45 @@
+---
+title: "TypeORM에서 CASE 사용하기"
+date: "250210"
+tags: ["NestJS"]
+---
+
+SQL에서 `CASE WHEN` 절을 사용하면 특정 조건에 따라 정렬하거나 값을 변경할 수 있습니다.
+
+하지만 TypeORM에서는 OrderBy 메서드를 사용할 때 `CASE WHEN`을 사용하는 방법이 조금 다릅니다.
+
+```sql
+SELECT * FROM orders
+ORDER BY
+  CASE
+    WHEN status = 'pending' THEN 1
+    WHEN status = 'processing' THEN 2
+    WHEN status = 'completed' THEN 3
+    ELSE 4
+  END;
+```
+
+이제 위의 SQL을 TypeORM의 Query Builder로 변환해 보겠습니다.
+
+```typescript
+const result = await dataSource
+  .getRepository(Order)
+  .createQueryBuilder("order")
+  .addSelect(
+    `
+    CASE
+      WHEN order.status = 'pending' THEN 1
+      WHEN order.status = 'processing' THEN 2
+      WHEN order.status = 'completed' THEN 3
+      ELSE 4
+    END
+  `,
+    "status_order"
+  )
+  .orderBy("status_order", "ASC")
+  .getMany();
+```
+
+- `addSelect()`를 사용해 `CASE` 문을 적용한 가상의 컬럼(`status_order`)을 생성합니다.
+- `orderBy("status_order", "ASC")`를 통해 `status` 기준으로 정렬합니다.
+- `getMany()`를 호출해 데이터를 가져옵니다.

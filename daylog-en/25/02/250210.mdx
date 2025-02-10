@@ -1,0 +1,45 @@
+---
+title: "Using `CASE` in TypeORM"
+date: "250210"
+tags: ["NestJS"]
+---
+
+In SQL, the `CASE WHEN` statement helps sort data or change values based on specific conditions.
+
+However, using `CASE WHEN` in TypeORM’s `OrderBy` method is slightly different.
+
+```sql
+SELECT * FROM orders
+ORDER BY
+  CASE
+    WHEN status = 'pending' THEN 1
+    WHEN status = 'processing' THEN 2
+    WHEN status = 'completed' THEN 3
+    ELSE 4
+  END;
+```
+
+Now, let’s convert this SQL query into TypeORM’s Query Builder.
+
+```typescript
+const result = await dataSource
+  .getRepository(Order)
+  .createQueryBuilder("order")
+  .addSelect(
+    `
+    CASE 
+      WHEN order.status = 'pending' THEN 1
+      WHEN order.status = 'processing' THEN 2
+      WHEN order.status = 'completed' THEN 3
+      ELSE 4
+    END
+  `,
+    "status_order"
+  )
+  .orderBy("status_order", "ASC")
+  .getMany();
+```
+
+- `addSelect()` creates a virtual column (`status_order`) that applies the `CASE` statement.
+- `orderBy("status_order", "ASC")` sorts the data based on `status`.
+- `getMany()` retrieves the sorted data.
