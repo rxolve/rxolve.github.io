@@ -1,0 +1,13 @@
+---
+title: "Indicating Nullable Fields in Swagger Responses"
+date: "250211"
+tags: ["NestJS"]
+---
+
+When using Swagger in NestJS, you can indicate whether a response field is nullable by setting the `nullable` property in the `@ApiProperty` decorator.
+
+However, you might notice that the red asterisk (★) in the schema doesn’t disappear.
+
+To fix this, you need to explicitly set `required: false`.
+
+Alternatively, you can use the `@ApiPropertyOptional` decorator for a simpler solution.
