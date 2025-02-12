@@ -1,0 +1,39 @@
+---
+title: "IMMUTABLE in PostgreSQL"
+date: "250212"
+tags: ["RDS"]
+---
+
+#### `IMMUTABLE`
+
+A function is IMMUTABLE if it always returns the same result for the same input.
+
+This means the function must not depend on external factors like table data, session variables, or time.
+
+#### Features
+
+- Cacheable → PostgreSQL can cache the result for the same input, improving performance.
+- Usable in indexes → Can be used when creating indexes.
+- Constant folding → The query planner can precompute results to optimize queries.
+
+#### Things to Avoid
+
+- Do not use current time (`NOW()`, `CURRENT_TIMESTAMP`).
+- Do not use random functions (`random()`).
+- Do not query table data (`SELECT ... FROM ...`).
+- Do not use sequences (`nextval()`).
+- Do not use session variables (`set_config()`, `current_setting()`).
+
+#### `IMMUTABLE` vs. `STABLE` vs. `VOLATILE`
+
+PostgreSQL functions can have one of these three properties:
+
+| Property    | Cacheable? | Can Query Tables? | Examples                               |
+| ----------- | ---------- | ----------------- | -------------------------------------- |
+| `IMMUTABLE` | ✅ Yes     | ❌ No             | `lower(text)`, `abs(int)`, `md5(text)` |
+| `STABLE`    | ❌ No      | ✅ Yes            | `current_timestamp`, `current_user`    |
+| `VOLATILE`  | ❌ No      | ✅ Yes            | `random()`, `nextval('seq')`           |
+
+- `IMMUTABLE` → Always returns the same result (cacheable).
+- `STABLE` → Same result within a transaction but affected by external factors (e.g., time).
+- `VOLATILE` → Can return different results every time it's called.
