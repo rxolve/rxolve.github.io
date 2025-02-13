@@ -1,0 +1,66 @@
+---
+title: "Injecting External Functions into AdminJS Custom Components"
+date: "250213"
+tags: ["AdminJS"]
+---
+
+AdminJS allows you to inject external modules into custom components using `componentLoader`.
+
+#### 1. Define an External Function
+
+Create a file `customFunctions.ts`:
+
+```typescript
+export const customFunction = () => {
+  console.log("External function executed!");
+};
+```
+
+#### 2. Register the Custom Component in AdminJS
+
+In `admin.ts`:
+
+```typescript
+import AdminJS from 'adminjs';
+import AdminJSExpress from '@adminjs/express';
+import { customFunction } from './customFunctions';
+
+const componentLoader = new AdminJS.ComponentLoader();
+
+const Components = {
+  CustomComponent: componentLoader.add('CustomComponent', './components/CustomComponent'),
+};
+
+const adminJs = new AdminJS({
+  resources: [...],
+  rootPath: '/admin',
+  componentLoader,
+});
+
+// Inject external function
+adminJs.env.CUSTOM_FUNCTION = customFunction;
+
+export { adminJs, Components };
+```
+
+#### 3. Use the Function in the Custom Component
+
+In `CustomComponent.tsx`:
+
+```tsx
+import { useEffect } from "react";
+
+const CustomComponent = () => {
+  useEffect(() => {
+    if (window.AdminJS.env.CUSTOM_FUNCTION) {
+      window.AdminJS.env.CUSTOM_FUNCTION();
+    }
+  }, []);
+
+  return <div>Custom Component</div>;
+};
+
+export default CustomComponent;
+```
+
+Now, `CustomComponent` can access and execute the external function injected into AdminJS.
