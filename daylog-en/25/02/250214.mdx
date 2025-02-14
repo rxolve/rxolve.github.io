@@ -1,0 +1,39 @@
+---
+title: "Turing's Diagonalization Argument"
+date: "250214"
+tags: ["ComputerScience"]
+---
+
+Turing's diagonalization argument is an adaptation of the diagonalization method that Georg Cantor used to compare the sizes of infinite sets.
+
+The core idea is to use self-reference and contradiction to show that certain problems cannot be solved.
+
+#### Diagonalization Argument
+
+Turing observed that every program can be written as a finite string. This means we can list all programs in order.
+
+1. Imagine that you can number every program as P1, P2, P3, and so on.
+2. Now, assume there is a hypothetical function `H(P, I)` that tells you whether a program `P` halts when given input `I`:
+
+   - If `H(P, I) = True`, then program `P` stops when running on input `I`.
+   - If `H(P, I) = False`, then program `P` goes into an infinite loop with input `I`.
+
+3. Next, design a special program called `D`:
+
+   - This program `D` looks at what `H(P, P)` returns and does the opposite.
+   - In other words, if `H(P, P) = True`, then `D` goes into an infinite loop.
+   - If `H(P, P) = False`, then `D` stops running.
+
+4. Now, consider what happens when you run `D` on itself, i.e., compute `D(D)`:
+   - If `H(D, D) = True`, then according to the definition, `D` should halt—but it is designed to loop forever. That’s a contradiction!
+   - If `H(D, D) = False`, then `D` should loop forever—but by design, it halts immediately. That’s also a contradiction!
+
+This contradiction shows that the function `H` cannot exist. Therefore, the halting problem is undecidable.
+
+#### Diagonalization and Other Proofs of Undecidability
+
+The diagonalization method is not only used to prove the halting problem is undecidable but also in other areas of mathematics and logic:
+
+- Cantor's Diagonal Argument: Demonstrates that the set of real numbers is larger than the set of natural numbers (i.e., the real numbers are uncountable).
+- Gödel's Incompleteness Theorem: Uses a similar idea to show that there are true statements in mathematics that cannot be proven.
+- Undecidability in Computer Science: Proves that it is generally impossible to decide if a program has a certain property.
