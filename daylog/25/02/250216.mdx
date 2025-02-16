@@ -1,0 +1,92 @@
+---
+title: "JS에서 뮤텍스"
+date: "250216"
+tags: ["JavaScript"]
+---
+
+자바스크립트는 브라우저나 Node.js 환경에서 기본적으로 단일 스레드를 사용하기 때문에,
+
+전통적인 멀티스레드 언어에서처럼 스레드 간 동시 접근을 막기 위한 뮤텍스가 필요하지 않은 경우가 많습니다.
+
+하지만, 비동기 코드가 많아지면서 공유 자원(예: 전역 변수나 데이터베이스 연결 등)에 여러 비동기 함수가 동시에 접근할 경우,
+
+의도치 않은 상태 변화나 레이스 컨디션이 발생할 수 있습니다.
+
+## JS에서 뮤텍스 구현 방법
+
+자바스크립트에서는 기본적으로 뮤텍스가 내장되어 있지 않기 때문에,
+
+Promise와 async/await를 활용해 직접 구현하거나, 외부 라이브러리를 사용할 수 있습니다.
+
+#### 1. 간단한 뮤텍스 구현 예시
+
+```javascript
+class Mutex {
+  constructor() {
+    this._queue = [];
+    this._locked = false;
+  }
+
+  lock() {
+    return new Promise((resolve) => {
+      if (this._locked) {
+        // 이미 락이 걸려있다면 큐에 대기
+        this._queue.push(resolve);
+      } else {
+        // 락을 즉시 획득
+        this._locked = true;
+        resolve();
+      }
+    });
+  }
+
+  unlock() {
+    if (this._queue.length > 0) {
+      // 대기 중인 함수에게 락 전달
+      const nextResolve = this._queue.shift();
+      nextResolve();
+    } else {
+      this._locked = false;
+    }
+  }
+}
+
+// 사용 예시
+const mutex = new Mutex();
+
+async function criticalSection() {
+  await mutex.lock();
+  try {
+    // 공유 자원에 접근하는 코드
+    console.log("Critical section start");
+    // ... 작업 수행 ...
+  } finally {
+    mutex.unlock();
+  }
+}
+```
+
+이 예시는 단순한 뮤텍스 구현 방식으로, 락을 획득할 때까지 대기시키고,
+
+락을 해제하면 대기 중인 함수에게 순서대로 권한을 넘겨주는 구조입니다.
+
+#### 2. 외부 라이브러리 활용
+
+더 복잡한 상황이나 검증된 솔루션이 필요할 때는 [async-mutex](https://github.com/DirtyHairy/async-mutex)와 같은 라이브러리를 사용하는 것도 좋은 방법입니다.
+
+해당 라이브러리는 비동기 환경에서 안전하게 뮤텍스 패턴을 구현할 수 있도록 도와줍니다.
+
+```javascript
+const { Mutex } = require("async-mutex");
+const mutex = new Mutex();
+
+async function criticalSection() {
+  const release = await mutex.acquire();
+  try {
+    console.log("Critical section with async-mutex");
+    // 공유 자원에 대한 작업 수행
+  } finally {
+    release();
+  }
+}
+```

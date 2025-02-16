@@ -1,0 +1,94 @@
+---
+title: "Mutex in JS"
+date: "250216"
+tags: ["JavaScript"]
+---
+
+JavaScript runs on a single thread by default (in browsers or Node.js),
+
+so you usually don’t need mutexes like in traditional multi-threaded languages to prevent simultaneous access by multiple threads.
+
+However, as you write more asynchronous code, multiple async functions might try to access shared resources (such as global variables or database connections) at the same time.
+
+This can cause unexpected state changes or race conditions.
+
+## How to Implement a Mutex in JS
+
+Since JavaScript doesn’t have built-in mutexes,
+
+you can either create one using Promises and async/await or use an external library.
+
+### 1. Simple Mutex Implementation Example
+
+```javascript
+class Mutex {
+  constructor() {
+    this._queue = [];
+    this._locked = false;
+  }
+
+  lock() {
+    return new Promise((resolve) => {
+      if (this._locked) {
+        // If the lock is already taken, wait in the queue
+        this._queue.push(resolve);
+      } else {
+        // Acquire the lock immediately
+        this._locked = true;
+        resolve();
+      }
+    });
+  }
+
+  unlock() {
+    if (this._queue.length > 0) {
+      // Pass the lock to the next waiting function
+      const nextResolve = this._queue.shift();
+      nextResolve();
+    } else {
+      this._locked = false;
+    }
+  }
+}
+
+// Example usage:
+const mutex = new Mutex();
+
+async function criticalSection() {
+  await mutex.lock();
+  try {
+    // Code that accesses shared resources
+    console.log("Critical section start");
+    // ... do some work ...
+  } finally {
+    mutex.unlock();
+  }
+}
+```
+
+This example shows a simple mutex.
+
+It waits to acquire the lock and then, once done, it releases the lock so that the next waiting function can run.
+
+### 2. Using an External Library
+
+If you need a more robust solution for complex situations, you can use a library like [async-mutex](https://github.com/DirtyHairy/async-mutex).
+
+This library helps you implement the mutex pattern safely in an asynchronous environment.
+
+```javascript
+const { Mutex } = require("async-mutex");
+const mutex = new Mutex();
+
+async function criticalSection() {
+  const release = await mutex.acquire();
+  try {
+    console.log("Critical section with async-mutex");
+    // Work on shared resources
+  } finally {
+    release();
+  }
+}
+```
+
+Using a library like async-mutex can simplify your code and provide a tested solution for managing shared resources in asynchronous code.
