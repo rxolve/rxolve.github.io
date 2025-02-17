@@ -1,0 +1,29 @@
+---
+title: "AdminJS에서 id가 아닌 프라이머리 키 사용하기"
+date: "250217"
+tags: ["AdminJS", "Issue"]
+---
+
+#### 문제
+
+현재 AdminJS에서 id가 아닌 다른 컬럼을 프라이머리 키로 사용하면 edit 화면에서 노출이 되지 않습니다.
+
+#### 해결
+
+resource의 options - properties에서 프라이머리 키 컬럼의 isVisible 속성을 true로 설정해줍니다.
+
+```typescript
+return {
+  resource: SubjectEntity,
+  options: {
+    properties: {
+      subject: {
+        isVisible: { list: true, show: true, edit: true, filter: true },
+      },
+      // ...
+    },
+  },
+};
+```
+
+왠만하면 id 컬럼을 프라이머리 키로 사용하는 것이 좋습니다.

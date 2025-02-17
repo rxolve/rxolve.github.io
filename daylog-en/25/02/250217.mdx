@@ -1,0 +1,29 @@
+---
+title: "Using a Primary Key Other Than id in AdminJS"
+date: "250217"
+tags: ["AdminJS", "Issue"]
+---
+
+#### Issue
+
+In AdminJS, if you use a primary key column other than id, it does not appear on the edit page.
+
+#### Resolution
+
+Set the isVisible property of the primary key column in the resource's options - properties to true.
+
+```typescript
+return {
+  resource: SubjectEntity,
+  options: {
+    properties: {
+      subject: {
+        isVisible: { list: true, show: true, edit: true, filter: true },
+      },
+      // ...
+    },
+  },
+};
+```
+
+It is recommended to use the id column as the primary key if possible.
