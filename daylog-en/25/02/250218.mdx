@@ -1,0 +1,31 @@
+---
+title: "Truncated back digits when fetching bigint data from DB"
+date: "250218"
+tags: ["RDS", "JavaScript", "Issue"]
+---
+
+#### Problem
+
+When retrieving `bigint` data from a database, you might encounter an issue where the least significant digits are lost in JavaScript.
+
+#### Cause
+
+This problem arises because databases store `bigint` as 64-bit integers, whereas JavaScript's `Number` type follows the IEEE 754 standard for 64-bit floating-point numbers, which can accurately represent integers only up to 53 bits.
+
+For instance, if a `bigint` value in the database exceeds 2⁵³ (9,007,199,254,740,992), converting it to a JavaScript `Number` may result in truncation or rounding of the least significant digits.
+
+This issue is common when database drivers (e.g., for MySQL or PostgreSQL) automatically convert `bigint` values to JavaScript `Number` types.
+
+#### Solutions
+
+- Retrieve as String
+
+  Configure your database driver or ORM to return `bigint` columns as strings.
+
+  For example, in MySQL, you can set the connection option `bigNumberStrings: true` to handle `bigint` data as strings.
+
+- Use BigInt
+
+  JavaScript introduced the `BigInt` type in ES2020, which allows for precise representation of integers beyond the `Number` type's limit.
+
+  After retrieving the value as a string, you can convert it to a `BigInt` using `BigInt(value)` or by appending an 'n' to the end of the number literal, like `12345678901234567890n`.
