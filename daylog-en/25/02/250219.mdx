@@ -1,0 +1,27 @@
+---
+title: "Does This Function Have Only One Responsibility?"
+date: "250219"
+tags: ["OOP"]
+---
+
+The Single Responsibility Principle (SRP) means that a function should do only one thing. This important design rule helps make your code easier to maintain and read.
+
+Here are some ways to check if a function follows the SRP well:
+
+#### Check the Function Name and Comments
+
+A function’s name should clearly show what it does. For example, by just reading the name, you should understand its task. The comments should also briefly explain the purpose and behavior of the function.
+
+If the name or comments hint at many different actions, it may be a sign that the function is doing too much.
+
+#### Review the Code Change History
+
+Look at the commit logs in your version control system (like Git). If the function is often changed for different reasons, it might be handling multiple responsibilities.
+
+If the change history is very complex, consider refactoring by breaking the function into several smaller ones.
+
+#### Assess How Easy It Is to Test
+
+A function that does only one thing is usually easier to test. You can write simple unit tests for it if it only performs one task.
+
+On the other hand, if a function does many things, writing tests becomes harder and it’s more difficult to spot errors.
