@@ -1,0 +1,40 @@
+---
+title: "URL Redirect in NestJS"
+date: "250220"
+tags: ["NestJS"]
+---
+
+I needed to redirect URLs to a different endpoint in NestJS, so I tried setting up middleware.
+
+```typescript
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+
+@Injectable()
+export class RewriteUrlMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    if (req.url.startsWith("/old-api")) {
+      req.url = req.url.replace("/old-api", "/new-api");
+    }
+    next();
+  }
+}
+```
+
+However, it didn’t work as expected.
+
+So, I created a new module and implemented it by calling the service from a controller for the desired endpoint.
+
+```typescript
+@Controller("old-api")
+export class OldApiController {
+  constructor(private readonly newApiService: NewApiService) {}
+
+  @Get()
+  get() {
+    return this.newApiService.get();
+  }
+}
+```
+
+I will revisit the middleware configuration later.

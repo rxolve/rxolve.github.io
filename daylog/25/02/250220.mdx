@@ -1,0 +1,39 @@
+---
+title: "NestJS에서 URL Redirect"
+date: "250220"
+tags: ["NestJS"]
+---
+
+NestJS에서 url을 다른 엔드포인트로 전달할 필요가 있어 미들웨어를 구성하려고 했습니다.
+
+```typescript
+import { Injectable, NestMiddleware } from "@nestjs/common";
+import { Request, Response, NextFunction } from "express";
+
+@Injectable()
+export class RewriteUrlMiddleware implements NestMiddleware {
+  use(req: Request, res: Response, next: NextFunction) {
+    if (req.url.startsWith("/old-api")) {
+      req.url = req.url.replace("/old-api", "/new-api");
+    }
+    next();
+  }
+}
+```
+
+하지만 제대로 작동하지 않았습니다.
+
+모듈을 새로 만들어 컨트롤러에서 보내고 싶은 엔드포인트의 서비스를 호출하는 방식으로 구현했습니다.
+
+```typescript
+@Controller("old-api")
+export class OldApiController {
+  constructor(private readonly newApiService: NewApiService) {}
+  @Get()
+  get() {
+    return this.newApiService.get();
+  }
+}
+```
+
+미들웨어 구성은 시간을 가지고 다시 해봐야겠습니다.
