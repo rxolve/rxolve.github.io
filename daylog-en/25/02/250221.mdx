@@ -1,0 +1,31 @@
+---
+title: "Rollback Netcode"
+date: "250221"
+tags: ["Concept"]
+---
+
+Rollback netcode is a technology that innovatively solves the input latency issues common in online fighting games.
+
+In an offline environment, every input is almost instant. However, online, network latency can cause the timing of inputs between players to vary.
+
+#### Delay Netcode vs. Rollback Netcode
+
+Delay Netcode adds a fixed, artificial delay to every player's input to keep them in sync.  
+While this method is simple to implement, it results in input delays for all players, reducing the game's responsiveness.
+
+Rollback Netcode, on the other hand, shows a player's input on screen as soon as it is made.  
+When the opponent's input finally arrives, if there’s any difference from the predicted input, the game state is "rolled back" and recalculated with the correct input.  
+If the prediction is accurate, the rollback is barely noticeable, which minimizes the impact of network latency.
+
+#### How Rollback Netcode Works
+
+1. Input Prediction  
+   Each client predicts the opponent’s input using past patterns or default behaviors and immediately reflects that prediction on screen—even before the actual input arrives.
+
+2. Real-time Synchronization  
+   When the actual input data comes in, the client checks if it matches the prediction.  
+   If it doesn’t, the game state is rolled back to that moment and then updated with the correct input.
+
+3. Minimized Perceived Latency  
+   If network conditions are good, predictions are mostly accurate, so rollbacks occur rarely.  
+   This means players experience responsiveness that is nearly as good as playing offline.
