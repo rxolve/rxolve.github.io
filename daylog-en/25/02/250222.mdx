@@ -1,0 +1,64 @@
+---
+title: "PostgreSQL's LATERAL"
+date: "250222"
+tags: ["RDS"]
+---
+
+PostgreSQL’s LATERAL is a powerful tool that goes beyond a simple subquery.  
+It works like a for-each loop by running a subquery for each row and allowing you to reference values from an outer table.
+
+## 1. Basic Concept of LATERAL
+
+Normally, a subquery can’t access columns from the outer query. However, with LATERAL, the subquery can reference columns from tables declared earlier in the FROM clause.  
+In other words, a LATERAL subquery treats outer-scope columns as parameters and performs a separate calculation for each row.  
+This greatly improves code readability and helps avoid redundant computations.
+
+## 2. Basic Example
+
+The following query retrieves, for each row in `base_table`, the event that has the closest `event_at` value greater than the current row's `event_at`:
+
+```sql
+SELECT *
+FROM base_table t1
+LEFT JOIN LATERAL (
+  SELECT *
+  FROM base_table t2
+  WHERE t2.event_at > t1.event_at
+  ORDER BY t2.event_at ASC
+  LIMIT 1
+) t2 ON true;
+```
+
+When you run this query, the subquery in each iteration uses t1’s `event_at` to fetch the nearest matching event from t2.  
+Thanks to LATERAL, each row of t1 is used as a condition in the subquery—something that isn’t possible with a regular JOIN.
+
+## 3. Practical Example
+
+For instance, suppose you have a wishlist table and a product table. If you want to fetch the top 3 most recent products (under a specified price) for each wishlist, you can write:
+
+```sql
+SELECT *
+FROM wishlist AS w,
+LATERAL (
+  SELECT *
+  FROM product AS p
+  WHERE p.price < w.desired_price
+  ORDER BY p.price DESC
+  LIMIT 3
+) AS x
+ORDER BY w.wishlist_id, p.price DESC;
+```
+
+In this query, the LATERAL subquery retrieves product data for each row in the wishlist based on its `desired_price`.  
+Using LATERAL lets you easily pass values from the outer table into the subquery condition, which makes complex logic much cleaner.
+
+## 4. Considerations When Using LATERAL
+
+- Reference to Outer Scope:  
+  A LATERAL subquery can only reference tables declared earlier in the FROM clause. Writing them in the wrong order may cause reference errors.
+
+- Performance Considerations:  
+  Since the subquery is executed for each row, large datasets can impact performance. Optimize by using proper indexing and analyzing the execution plan (using EXPLAIN).
+
+- Differences in Other DBMS:  
+  PostgreSQL provides robust LATERAL support, but other database systems (like MySQL) may have different syntax or behavior, so use caution when switching between systems.

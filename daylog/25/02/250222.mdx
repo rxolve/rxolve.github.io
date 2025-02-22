@@ -1,0 +1,66 @@
+---
+title: "PostgreSQL의 LATERAL"
+date: "250222"
+tags: ["RDS"]
+---
+
+PostgreSQL의 LATERAL은 단순한 서브쿼리 이상의 강력한 도구입니다.  
+특히 “각 행마다” 서브쿼리를 실행하여, 외부 테이블의 값을 참조할 수 있다는 점에서 for-each 루프와 비슷하게 동작합니다.
+
+## 1. LATERAL의 기본 개념
+
+일반적인 서브쿼리는 외부 쿼리의 컬럼에 접근할 수 없지만, LATERAL을 사용하면 서브쿼리 내부에서 앞에 선언된 테이블의 컬럼을 참조할 수 있습니다.  
+즉, LATERAL 서브쿼리는 외부 스코프에 있는 컬럼을 마치 매개변수처럼 받아서 각 행마다 별도의 계산을 수행할 수 있습니다.  
+이 방식은 코드의 가독성을 높이고, 중복 계산을 피할 수 있는 큰 장점이 있습니다.
+
+## 2. 기본 사용 예제
+
+다음 쿼리는 `base_table`에서 각 행에 대해, 해당 행의 `event_at`보다 큰 값 중 가장 가까운 이벤트를 가져옵니다.
+
+```sql
+SELECT *
+FROM base_table t1
+LEFT JOIN LATERAL (
+  SELECT *
+  FROM base_table t2
+  WHERE t2.event_at > t1.event_at
+  ORDER BY t2.event_at ASC
+  LIMIT 1
+) t2 ON true;
+```
+
+이 쿼리를 실행하면, t1의 각 행마다 서브쿼리에서 t1의 `event_at`을 참조하여 조건에 맞는 가장 가까운 t2의 이벤트를 가져오게 됩니다.  
+LATERAL 덕분에 t1의 각 행이 서브쿼리의 조건으로 사용되며, 일반적인 JOIN에서는 불가능한 동작을 수행할 수 있습니다.
+
+## 3. 실무 활용 예제
+
+예를 들어, 위시리스트 테이블과 상품 테이블이 있을 때, 각 위시리스트마다 원하는 가격 이하의 상품을 최신순으로 3개씩 가져오려면 다음과 같이 작성할 수 있습니다.
+
+```sql
+SELECT *
+FROM wishlist AS w,
+LATERAL (
+  SELECT *
+  FROM product AS p
+  WHERE p.price < w.desired_price
+  ORDER BY p.price DESC
+  LIMIT 3
+) AS x
+ORDER BY w.wishlist_id, p.price DESC;
+```
+
+위 쿼리에서 LATERAL 서브쿼리는 wishlist의 각 행을 기준으로 해당 위시리스트의 `desired_price` 값에 맞춰 상품 데이터를 가져옵니다.  
+이처럼 LATERAL을 사용하면, 외부 테이블의 값을 서브쿼리 조건에 손쉽게 전달할 수 있으므로 복잡한 로직을 깔끔하게 표현할 수 있습니다.
+
+## 4. LATERAL 사용 시 주의사항
+
+- 외부 스코프 참조:  
+  LATERAL 서브쿼리는 반드시 FROM 절에서 앞쪽에 선언된 테이블만 참조할 수 있습니다.  
+  만약 잘못된 순서로 작성하면 참조 오류가 발생할 수 있습니다.
+
+- 퍼포먼스 고려:  
+  각 행마다 서브쿼리를 실행하는 만큼, 데이터셋의 크기가 클 경우 성능에 영향을 줄 수 있습니다.  
+  이 때는 적절한 인덱싱과 실행 계획 분석(EXPLAIN)을 통해 최적화하는 것이 좋습니다.
+
+- 다른 DBMS와의 차이:  
+  PostgreSQL은 LATERAL 지원이 강력하지만, MySQL이나 다른 DBMS에서는 문법이나 동작 방식이 다를 수 있으므로 주의해야 합니다.
