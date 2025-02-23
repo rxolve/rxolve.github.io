@@ -1,0 +1,73 @@
+---
+title: "PostgreSQL의 JSONB 타입에서 키 존재 여부 검색"
+date: "250222"
+tags: ["RDS"]
+---
+
+PostgreSQL에서 jsonb 컬럼 내에 특정 문자열(예: "option")이 포함된 키가 존재하는지를 어떻게 검색할 수 있는지
+
+그리고 이를 위한 jsonb_object_keys 함수의 활용법에 대해 기록합니다.
+
+## jsonb_object_keys 함수란?
+
+`jsonb_object_keys()` 함수는 jsonb 타입의 최상위 객체에 포함된 모든 키(key)를 텍스트 배열 형태로 반환합니다.
+
+이 함수는 객체 내부의 각 키를 행 단위로 확장하여 처리할 수 있도록 도와줍니다.
+
+예를 들어, 다음과 같은 jsonb 데이터가 있다고 가정해봅니다.
+
+```sql
+SELECT jsonb_object_keys('{"name": "Alice", "option_enabled": true, "age": 30}'::jsonb) AS key;
+```
+
+위 쿼리는 아래와 같이 결과를 반환합니다.
+
+| key            |
+| -------------- |
+| name           |
+| option_enabled |
+| age            |
+
+즉, jsonb 객체의 최상위 키들을 하나씩 추출할 수 있습니다.
+
+## 특정 문자열이 포함된 키 검색하기
+
+실무에서는 저장된 jsonb 데이터에서 키 이름 중에 특정 단어가 포함된 경우에 해당하는 로우만을 검색해야 하는 경우가 종종 있습니다.
+
+예를 들어, 여러 행의 jsonb 데이터 중에서 키 이름에 "option"이라는 글자가 들어간 로우만 선택하고 싶다면 다음과 같은 방법을 사용할 수 있습니다.
+
+#### 서브쿼리와 EXISTS를 이용한 방법
+
+아래 예제에서는 테이블 이름이 `my_table`이고, jsonb 컬럼명이 `data`라고 가정합니다.
+
+이 경우, 각 행의 최상위 키를 추출한 후, 키 이름에 "option"이라는 문자열이 포함되어 있는지를 `ILIKE` 연산자를 이용해 확인합니다.
+
+```sql
+SELECT *
+FROM my_table
+WHERE EXISTS (
+  SELECT 1
+  FROM jsonb_object_keys(data) AS key
+  WHERE key ILIKE '%option%'
+);
+```
+
+이 쿼리는 다음과 같이 동작합니다.
+
+- jsonb_object_keys(data): 각 행의 jsonb 컬럼 `data`에서 최상위 키들을 추출합니다.
+- ILIKE '%option%': 추출된 키들 중 대소문자 구분 없이 "option"이라는 문자열이 포함된 키를 찾습니다.
+- EXISTS: 해당 조건에 맞는 키가 하나라도 존재하면 그 행을 반환합니다.
+
+#### JOIN과 LATERAL을 이용한 방법
+
+다른 방법으로, LATERAL JOIN을 활용하여 보다 직관적으로 각 행의 키들을 확장한 후 조건에 맞는 행을 선택할 수도 있습니다.
+
+```sql
+SELECT DISTINCT t.*
+FROM my_table t,
+LATERAL jsonb_object_keys(t.data) AS key
+WHERE key ILIKE '%option%';
+```
+
+- LATERAL jsonb_object_keys(t.data) AS key: 각 행의 jsonb 컬럼에서 키를 확장하여 행과 결합합니다.
+- DISTINCT: 한 행에 여러 개의 일치하는 키가 있을 경우 중복을 제거합니다.

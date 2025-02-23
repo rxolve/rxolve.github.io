@@ -1,0 +1,67 @@
+---
+title: "Searching for Key Existence in PostgreSQL's JSONB Type"
+date: "250222"
+tags: ["RDS"]
+---
+
+This post explains how to search for rows in a PostgreSQL table where a JSONB column contains a key that includes a specific substring (e.g., "option"). It also covers how to use the `jsonb_object_keys()` function to achieve this.
+
+## What is the jsonb_object_keys() Function?
+
+The `jsonb_object_keys()` function returns all the keys from the top-level JSONB object as a set of text values. This allows you to expand each key into individual rows for easier processing.
+
+For example, consider the following JSONB data:
+
+```sql
+SELECT jsonb_object_keys('{"name": "Alice", "option_enabled": true, "age": 30}'::jsonb) AS key;
+```
+
+This query returns:
+
+| key            |
+| -------------- |
+| name           |
+| option_enabled |
+| age            |
+
+In other words, you can extract each top-level key from a JSONB object.
+
+## Searching for Keys Containing a Specific Substring
+
+In real-world scenarios, you may need to filter rows where the JSONB data contains a key that includes a certain word. For instance, if you want to select rows where a key contains "option", you can use one of the following methods.
+
+### Using a Subquery with EXISTS
+
+Assume you have a table named `my_table` with a JSONB column called `data`. You can extract the top-level keys for each row and check if any key contains the substring "option" using the `ILIKE` operator:
+
+```sql
+SELECT *
+FROM my_table
+WHERE EXISTS (
+  SELECT 1
+  FROM jsonb_object_keys(data) AS key
+  WHERE key ILIKE '%option%'
+);
+```
+
+How it works:
+
+- jsonb_object_keys(data): Extracts all top-level keys from the JSONB column `data`.
+- ILIKE '%option%': Checks the keys for any that contain the string "option" (case-insensitive).
+- EXISTS: Returns the row if at least one key meets the condition.
+
+### Using JOIN with LATERAL
+
+Another approach is to use a LATERAL JOIN, which explicitly expands the keys for each row and then filters based on the condition:
+
+```sql
+SELECT DISTINCT t.*
+FROM my_table t,
+LATERAL jsonb_object_keys(t.data) AS key
+WHERE key ILIKE '%option%';
+```
+
+How it works:
+
+- LATERAL jsonb_object_keys(t.data) AS key: Expands the keys from the JSONB column `data` for each row and joins them with the row.
+- DISTINCT: Removes duplicate rows if multiple keys in the same row match the condition.
