@@ -1,0 +1,33 @@
+---
+title: "Maximum URL Lengths by Browser"
+date: "250224"
+tags: ["Browser"]
+---
+
+#### Internet Explorer (IE)
+
+- Maximum length: About 2,083 characters.
+- Details: The path part is limited to 2,048 characters. Exceeding this limit causes a clear error.
+
+#### Microsoft Edge
+
+- Old IE-based Edge: In the past, it had a similar limit (about 2,083 characters) as IE.
+- Chromium-based Edge: Newer versions greatly increase the limit, possibly supporting over 80,000 characters.
+
+#### Google Chrome
+
+- Some sources: The address bar shows about 64KB (roughly 65,536 characters) before it gets cut off or shortened, but it can actually handle URLs longer than 100,000 characters.
+- Other measurements: Some sources say that GET query strings work reliably up to about 8,192 characters.
+
+#### Mozilla Firefox
+
+- Typical range: URLs beyond about 65,536 characters may not display fully in the address bar, yet the browser can process requests with URLs over 100,000 characters.
+- Another measurement: Some sources mention a reliable limit of around 8,190 characters.
+
+#### Safari
+
+- Supported length: It has been confirmed to work reliably with URLs up to about 80,000 characters.
+
+#### Opera
+
+- Test results: Opera has been reported to work with URLs of at least 190,000 characters.
