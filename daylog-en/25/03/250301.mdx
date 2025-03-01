@@ -1,0 +1,51 @@
+---
+title: "Kubernetes Architecture"
+date: "250301"
+tags: ["KCNA"]
+---
+
+Kubernetes is an orchestration platform designed to deploy, operate, and manage containerized applications at scale.
+
+The overall architecture is broadly divided into two major components: the Control Plane (Master Nodes) and the Worker Nodes. 
+
+Each layer works in close coordination to manage the cluster's state and ensure it remains in the desired condition.
+
+## Control Plane (Master Nodes)
+
+The Control Plane is the central component responsible for managing the entire cluster's state and orchestrating tasks. Its key components include:
+
+- kube-apiserver  
+  This is the entry point for all requests from both the cluster components and users. It is used to query or modify the cluster’s state via a RESTful API.
+
+- etcd  
+  A distributed key-value store that holds all the configuration and state data for the cluster. It reliably manages configuration changes and state transitions.
+
+- kube-scheduler  
+  Responsible for placing new Pods on appropriate Worker Nodes. It makes scheduling decisions by taking into account each node's resource availability, policies, taints/tolerations, and node affinity.
+
+- kube-controller-manager  
+  Runs a set of controllers (such as node controllers and replication controllers) that work to ensure the actual state of the cluster matches the desired state.
+
+## Worker Nodes
+
+Worker Nodes are the hosts where the actual application containers run. They execute tasks as instructed by the Control Plane. The key components on a Worker Node include:
+
+- kubelet  
+  An agent that runs on each Worker Node, continuously communicating with the kube-apiserver to report the node's Pod status and manage the lifecycle of the containers.
+
+- kube-proxy  
+  Manages networking within the cluster, acting as a network proxy and load balancer to ensure that Pods, whether on the same node or across nodes, can communicate effectively.
+
+- Container Runtime  
+  The engine (such as Docker, containerd, etc.) that actually runs the containers. Kubernetes supports various container runtimes, ensuring that applications run consistently across environments.
+
+## Features and Advantages of Kubernetes Architecture
+
+- Scalability & Self-Healing  
+  The scheduler and controller manager continuously monitor the cluster's state, automatically recovering from failures or scaling by deploying new instances when necessary.
+
+- Declarative Configuration  
+  By defining the desired state of cluster resources in declarative configuration files (such as YAML), the Control Plane automatically enforces this state.
+
+- Flexible Expansion and Management  
+  The separation between Worker Nodes and the Control Plane allows parts of the cluster to be scaled or upgraded independently.
