@@ -1,0 +1,58 @@
+---
+title: "kube-apiserver"
+date: "250302"
+tags: ["Kubernetes"]
+---
+
+## What is the kube-apiserver?
+
+The kube-apiserver is a key component in the Kubernetes architecture and acts as the "front end" of the cluster.
+
+All user requests (like kubectl commands or internal communications between components) go through this API server, which is responsible for managing and updating the state of the cluster.
+
+## Main Roles and Functions
+
+1. Request Authentication and Validation
+
+   - Every API request is first authenticated and validated by the kube-apiserver.
+   - This ensures that only correct and secure requests change the cluster’s state.
+
+2. Data Handling and Integration with etcd
+
+   - The kube-apiserver communicates directly with etcd, which is the cluster’s persistent data store.
+   - Changes such as creating, updating, or deleting pods are recorded in etcd, reflecting the true state of the cluster.
+   - It is the only component that interacts with etcd, making it the "gateway" for all state changes.
+     > _Note: "All changes are recorded in etcd through the kube-apiserver."_ citeturn0search0
+
+3. Communication Between Components
+
+   - Other control plane components like the scheduler (kube-scheduler), controller manager (kube-controller-manager), and kubelet exchange information through the kube-apiserver.
+   - For example, when a new pod is created, the scheduler selects the right node, and this information is updated in etcd via the kube-apiserver.
+
+4. Security and Scalability
+
+   - Security features such as authentication, authorization, and audit logs can be extended using plugins to fit different operational needs.
+   - The kube-apiserver can scale horizontally, meaning you can run multiple instances for high availability.
+
+## Deployment and Configuration
+
+1. Deployment with kubeadm
+
+   - When using kubeadm, the kube-apiserver is usually deployed as a static pod in the `kube-system` namespace.
+   - You can check its running options and parameters in the pod definition file (for example, `/etc/kubernetes/manifests/kube-apiserver.yaml`).
+     > _Example: The `--etcd-servers` option specifies the location of the etcd servers._ citeturn0search0
+
+2. Manual Installation
+
+   - You can also download the binary directly and run it as a systemd service on the master node.
+   - This method allows you to fine-tune settings like certificates, authorization, and encryption through various command-line options.
+
+## In Summary
+
+The kube-apiserver is the core "gateway" of a Kubernetes cluster that handles all changes and management tasks:
+
+- Authentication and Validation: It ensures only valid requests are processed.
+- Direct Communication with etcd: It stores and manages the actual state of the cluster.
+- Component Coordination: It helps various control plane components work together to maintain a stable and scalable cluster.
+
+This basic understanding of the kube-apiserver will be valuable as you work with and manage Kubernetes clusters.
