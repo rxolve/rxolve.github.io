@@ -1,0 +1,48 @@
+---
+title: "etcd"
+date: "250303"
+tags: ["Kubernetes"]
+---
+
+## What is etcd?
+
+- Distributed Key-Value Store  
+  etcd is an open-source distributed key-value store developed by CoreOS. It stores the configuration data, state, and metadata of your Kubernetes cluster.
+  - Key Features:
+    - Strong Consistency: Uses the Raft consensus algorithm to ensure all nodes have the same data.
+    - High Availability: Runs on an odd number of nodes (like 3, 5, or 7) to avoid single points of failure and reliably protect cluster data.
+    - Lightweight & Fast: Optimized to handle thousands of requests per second.
+
+## etcd Architecture
+
+- Raft Consensus Algorithm  
+  etcd works in a leader-follower model using Raft. The leader processes write requests and replicates changes to the followers, ensuring the entire cluster remains consistent.
+- Components:
+  - gRPC Server: Provides a gRPC interface for communication with Kubernetes components.
+  - WAL (Write-Ahead Log): Records every change to guarantee data integrity and help with crash recovery.
+  - Storage Engine: Uses an internal B+tree-based structure to manage key-value data efficiently.
+  - MVCC (Multi-Version Concurrency Control): Manages multiple versions of data to support snapshots and history queries.
+
+## Interaction with Kubernetes
+
+- Integration with the API Server  
+  The Kubernetes API server saves and updates the cluster’s state (like pods, services, and ConfigMaps) in etcd.
+  - For example, when you run `kubectl apply` to create a pod, the API server writes the desired state to etcd. Controllers then detect this change and create the actual pod.
+- Watch Mechanism  
+  Kubernetes controllers use etcd’s Watch feature to get real-time updates on changes in the cluster state, allowing them to react immediately.
+
+## Operation and Security Considerations
+
+- Backup/Restore  
+  Since etcd is the single source of truth for your Kubernetes cluster, regular snapshot backups and restore procedures are essential.
+- Security Enhancements:
+  - TLS/SSL: Encrypts communication between etcd and its clients to prevent data leaks.
+  - RBAC: Applies the principle of least privilege to strictly limit access beyond the API server.
+- Resource Management  
+  Ensure that etcd has enough CPU, memory, and SSD-based storage to maintain high performance and stability.
+
+### In Summary
+
+etcd is a critical data store that manages your Kubernetes cluster’s state in one central place. Its strong consistency and distributed processing guarantee the stability and scalability of the entire cluster. This allows Kubernetes to perform automatic recovery and scaling in dynamic environments.
+
+In production, you must also consider backup strategies, security measures, and resource optimization. Understanding and applying these practices will greatly enhance the reliability and trustworthiness of your Kubernetes clusters.
