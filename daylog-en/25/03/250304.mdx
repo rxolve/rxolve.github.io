@@ -1,0 +1,44 @@
+---
+title: "kube-scheduler"
+date: "250304"
+tags: ["Kubernetes"]
+---
+
+## kube-scheduler
+
+The kube-scheduler is Kubernetes’ default scheduler that selects the optimal node to run an unscheduled pod within the cluster.  
+This component is a core element of the control plane, placing pods appropriately by considering the overall state of the cluster as well as node resources, policies, and constraints.
+
+## The Role and Importance of kube-scheduler
+
+- Pod Monitoring: The kube-scheduler continuously monitors for newly created pods or pods that have not yet been assigned a node by the API server.
+- Node Selection: It filters the set of feasible nodes by taking into account various factors such as the pod’s resource requirements (e.g., CPU, memory), hardware/software constraints, affinity/anti-affinity rules, and data locality.
+- Scoring and Ranking: For the nodes that pass the filtering phase, the scheduler applies a priority function to assign scores and selects the node with the highest score.
+- Binding: The scheduler reports (binds) the chosen node to the API server, ensuring that the pod is scheduled to run on that node.
+
+## Scheduling Process: Filtering and Scoring Phases
+
+The operation of the kube-scheduler is broadly divided into two phases:
+
+1. Filtering Phase:
+   - Purpose: To preclude nodes that do not meet the pod’s scheduling requirements (e.g., resource requests, node selectors, taints/tolerations).
+   - Example: Nodes that cannot provide the necessary amount of CPU or memory for the pod are eliminated from consideration.
+2. Scoring Phase:
+   - Purpose: To apply a priority function to the remaining nodes, assigning a score to each so that the most suitable node can be selected.
+   - Note: Multiple priority rules may be applied, and if nodes receive equal scores, the selection might be made arbitrarily or based on additional criteria.
+
+These two phases form the core mechanism of Kubernetes scheduling and can be customized through user-defined policies or scheduling plugins.
+
+## Extensibility and Customization
+
+Recently, the kube-scheduler has adopted a Scheduling Framework that enhances its extensibility by allowing various plugins to be integrated:
+
+- Plugin Stages: Custom plugins can be inserted at different stages—such as `QueueSort`, `Filter`, `Score`, `Reserve`, `Permit`, `Bind`, and `PostBind`.
+- Multi-Scheduler Configuration: In addition to the default scheduler, users can configure their own schedulers to apply specialized scheduling policies for specific workloads.
+
+This flexibility allows the kube-scheduler to support complex requirements beyond simple filtering and scoring, thereby adding greater versatility to cluster management.
+
+## Summary
+
+The Kubernetes scheduler acts as the decision engine that determines which node a pod should be placed on, playing a crucial role in maximizing resource efficiency and ensuring the stable execution of applications within the cluster.  
+It’s important to note that while the kube-scheduler makes the placement decision, it does not execute the pod—the actual pod execution is handled by the node’s kubelet.
