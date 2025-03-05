@@ -1,0 +1,58 @@
+---
+title: "kube-controller-manager"
+date: "250305"
+tags: ["Kubernetes"]
+---
+
+## kube-controller-manager?
+
+- Central Control Role:  
+  The kube-controller-manager runs various controllers (such as the Node, Replica, Endpoint, and ServiceAccount controllers) within a single process.  
+  Each controller watches over a specific set of resources in the cluster, and if any changes are detected, it sends update requests to the API server to align the actual state with the desired state defined by the user.
+
+- Monolithic Structure:  
+  Although each controller operates logically like an individual process, they are compiled into a single binary and run concurrently in one process to reduce management complexity.
+
+## Major Types of Controllers
+
+1. Node Controller:
+
+   - Monitoring: It checks the status of each node every 5 seconds.
+   - Fault Handling: If a node fails to send a heartbeat for 40 seconds, it marks the node as “unreachable.” If the node does not recover within 5 minutes, the pods assigned to that node are migrated to other nodes.
+
+2. Replica Controller:
+
+   - Pod Replication: It monitors the number of pods specified by the user and creates new pods if the number drops below the desired count.
+
+3. Endpoint Controller:
+
+   - Service-Pod Connection: It manages the list of pods (endpoints) associated with a service, ensuring that client requests are routed to the correct pods.
+
+4. ServiceAccount Controller:
+
+   - Security and Authentication: When a new namespace is created, it automatically generates a default service account.
+
+In addition, various other controllers—such as the Job Controller and Namespace Controller—are also included.
+
+## Operation and Configuration
+
+- Observation and Remediation (Watch & Remediate):  
+  The kube-controller-manager continuously monitors the state of cluster resources via the API server. If the current state deviates from the specifications defined by the user, it requests the necessary actions (e.g., creating or deleting pods) through the API server.
+
+- Deployment Method:  
+  In most Kubernetes clusters, the kube-controller-manager runs as a static pod on the master node and is automatically configured during cluster initialization.
+
+- Configuration Options:  
+  The operating intervals and timeouts for each controller can be adjusted using command-line options or configuration files for the kube-controller-manager.  
+  For example, settings such as the node monitoring interval, grace period, and pod eviction timeout can be tuned to fit specific operational needs.
+
+## Why is it Important?
+
+The kube-controller-manager plays a pivotal role in ensuring the stability and self-healing capability of the cluster.  
+By providing automated loops that maintain the desired state of resources within the cluster, it allows users to focus on application development and operations without worrying about system failures or errors.
+
+## Summary
+
+In short, the kube-controller-manager is the core automation engine that integrates various controllers to continuously monitor the cluster’s state and enforce the desired configuration specified by the user.
+
+This mechanism is fundamental to Kubernetes’ “self-healing” capability, making it indispensable for maintaining stable and efficiently managed clusters.
