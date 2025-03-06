@@ -1,0 +1,43 @@
+---
+title: "Kubelet"
+date: "2503"
+tags: ["Kubernetes"]
+---
+
+## Kubelet
+
+The Kubelet is an agent that runs on each node (Worker Node) and continuously ensures that Pods and the containers within them are running properly in a Kubernetes cluster.  
+In other words, it serves as a “watchdog” that reconciles the actual state of the cluster with the desired state.
+
+## Main Roles and Functions
+
+- Pod Scheduling and Execution Management
+  - It starts containers based on the Pod definitions received from the control plane (API Server) and periodically checks their running status.
+- Health Checks and Status Reporting
+  - It monitors the status of each Pod (e.g., whether it is running, has crashed, or needs a restart) and periodically reports this information to the API Server.
+- Resource Management and Monitoring
+  - It monitors resource usage (CPU, memory, network, etc.) on the node to maintain the overall health of the cluster.
+  - It collects performance metrics of containers through integration with cAdvisor.
+- Volume Mounting and Network Configuration
+  - It creates and mounts volumes as defined in Pods, and handles network configuration to ensure smooth communication either within the same node or across different nodes.
+
+## Interaction with Container Runtimes
+
+The Kubelet does not directly manage containers; instead, it interacts with container runtimes—such as Docker, containerd, and CRI-O—via the Container Runtime Interface (CRI).
+
+- CRI Interface
+  - Through this interface, the Kubelet passes commands like starting, stopping, and checking the status of containers to the container runtime.
+  - Unlike the past reliance on Docker, modern Kubernetes versions recommend direct integration with runtimes that adhere to the CRI.
+
+## Kubelet Configuration and Communication
+
+- Configuration Files and Flags
+  - The Kubelet primarily uses the `kubeconfig` file to manage communication settings with the API Server, including authentication details and TLS certificates.
+- Periodic Communication with the API Server
+  - It periodically sends the status of the node and its Pods to the API Server so that the central control plane can monitor states in a timely manner and reassign Pods if necessary.
+- Built-in API Server Functionality
+  - Some Kubelet instances offer a simple built-in API server function that can be used locally for querying status information or for debugging purposes.
+
+## Summary
+
+As a core component that ensures the stability and scalability of a Kubernetes cluster, the Kubelet goes beyond being just an agent. It plays a crucial role in managing the lifecycle of containers on each node and in maintaining the overall health and resource status of the system.
