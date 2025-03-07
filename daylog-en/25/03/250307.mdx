@@ -1,0 +1,34 @@
+---
+title: "kube-proxy"
+date: "250307"
+tags: ["Kubernetes"]
+---
+
+## kube-proxy
+
+kube-proxy runs on each node (Worker Node) and serves as a core component of Kubernetes networking.  
+It implements service abstraction by routing network requests—both from within and outside the cluster—to the appropriate Pod, effectively acting as a "network router."
+
+## Main Roles and Functions
+
+- Routing Network Traffic and Load Balancing
+  - kube-proxy monitors network requests within the cluster and routes them to the appropriate Pod (endpoint) to perform load balancing.
+- Managing Services and Endpoints
+  - It continuously monitors changes to Service and Endpoint objects from the Kubernetes API Server, dynamically updating the network routing rules accordingly.
+- Traffic Forwarding Based on iptables/IPVS
+  - By default, it uses the operating system's iptables to filter and forward network packets.
+  - In large-scale clusters, a more efficient IPVS mode can be selected to achieve faster load balancing and enhanced performance.
+
+## Operating Principles
+
+- Dynamic Rule Updates  
+  kube-proxy generates, modifies, and deletes iptables or IPVS rules in real time based on the Service and Endpoint information received from the API Server.  
+  This ensures that network traffic is always directed to the appropriate backend Pod in accordance with the current cluster state.
+- Support for Multiple Operating Modes
+  - _iptables mode:_ Routes requests for a Service IP to the appropriate Pod through basic packet filtering and NAT (Network Address Translation).
+  - _IPVS mode:_ Utilizes the Linux kernel's IPVS functionality to perform more sophisticated and efficient load balancing.
+
+## Summary
+
+kube-proxy is a core component that guarantees stable network communication within a Kubernetes cluster.  
+By dynamically adjusting network rules based on real-time information from the API Server, it enables smooth connectivity between Services and Pods and effectively distributes network traffic.
