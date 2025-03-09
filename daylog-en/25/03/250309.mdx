@@ -1,0 +1,85 @@
+---
+title: "Kubernetes Resources"
+date: "250309"
+tags: ["Kubernetes"]
+---
+
+## What Are Kubernetes Resources?
+
+Kubernetes resources are the blueprints (or objects) used to configure and manage applications and infrastructure within a cluster.  
+They are similar to the relationship between classes and instances in object-oriented programming.  
+In other words, a resource is the design (class) used to create objects, and the actual instantiated items are the objects.
+
+## Key Resources and Their Roles
+
+#### Pod
+
+- Description: The smallest execution unit in Kubernetes, which can include one or more containers.
+- Characteristics: Pods share the same network namespace and storage, and they typically operate as a single instance of an application.
+
+#### ReplicaSet
+
+- Description: Ensures that a specified number of Pod replicas are running at any given time.
+- Characteristics: Automatically creates new Pods if the number falls below the desired count, and deletes excess Pods if there are too many.
+
+#### Deployment
+
+- Description: A higher-level resource that manages ReplicaSets, facilitating easy application deployment and updates (e.g., rolling updates, rollbacks).
+- Characteristics: By defining the desired state declaratively, the cluster automatically adjusts the actual state to match.
+
+#### StatefulSet
+
+- Description: Used for applications that require persistent state.
+- Characteristics: Provides each Pod with a unique network identifier and storage volume, making it ideal for stateful applications like databases or message queues.
+
+#### DaemonSet
+
+- Description: Ensures that exactly one Pod runs on every (or a specific subset of) node(s) in the cluster.
+- Characteristics: Particularly useful for deploying system-level services such as log collection and monitoring agents.
+
+#### Job & CronJob
+
+- Job
+  - Description: Executes a one-time batch task and terminates once the task is complete.
+- CronJob
+  - Description: Manages tasks that need to be executed repeatedly on a defined schedule.
+
+#### Service & Ingress
+
+- Service
+  - Description: Provides a stable network endpoint for a set of Pods.
+  - Characteristics: Performs load balancing and service discovery.
+- Ingress
+  - Description: Routes external traffic to the appropriate service.
+  - Characteristics: Enables sophisticated traffic control such as domain-based and path-based routing.
+
+#### ConfigMap & Secret
+
+- ConfigMap
+  - Description: Manages general configuration information for applications.
+- Secret
+  - Description: Securely stores sensitive data such as passwords and API keys.
+- Characteristics: Both resources can be injected into applications via environment variables or mounted volumes.
+
+#### PersistentVolume (PV) & PersistentVolumeClaim (PVC)
+
+- PV
+  - Description: An abstraction of the actual storage resource provided by the cluster administrator.
+- PVC
+  - Description: The object through which users (or applications) request storage.
+- Characteristics: These resources ensure that a container's data persists even after the cluster is restarted.
+
+## Management and Deployment
+
+Kubernetes resources are primarily managed by declaring them in YAML files.  
+For example, when defining a Deployment, you can create a YAML file and apply it to the cluster with:
+
+```bash
+kubectl apply -f deployment.yaml
+```
+
+Additionally, you can manage resource status, updates, and deletions using various kubectl commands:
+
+- `kubectl get pods` : Lists the running Pods.
+- `kubectl describe deployment <deployment-name>` : Provides detailed information about a specific Deployment.
+- `kubectl delete svc <service-name>` : Deletes a Service.
