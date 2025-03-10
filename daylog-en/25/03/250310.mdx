@@ -1,0 +1,57 @@
+---
+title: "Kubernetes Pod"
+date: "250310"
+tags: ["Kubernetes"]
+---
+
+## Pod?
+
+A Pod is the smallest deployment unit in Kubernetes—a runtime environment that contains one or more containers.  
+Containers within a Pod share the same network namespace, storage volumes, and configuration settings, enabling them to communicate closely with each other.
+
+## Components of a Pod
+
+- Container: Typically, a Pod includes one or more application containers. Although each container runs independently, they share the same IP address and ports within the Pod.
+- Shared Network: All containers in a Pod use a single IP address, allowing them to communicate with one another via localhost.
+- Storage Volume: Containers in a Pod can mount shared volumes, which are used to share data or perform initialization tasks.
+- Environment Variables & Configurations: The Pod specification defines the environment variables, commands, and entrypoints that are passed to the containers.
+
+## Characteristics of a Pod
+
+- Ephemeral: Pods are designed as temporary units. If a container in a Pod fails, it is replaced by a new Pod—this is a core design principle of Kubernetes to enhance application fault tolerance.
+- Shared Resources: Since containers within the same Pod share network and storage resources, they are well-suited for performing closely related tasks.
+- Scheduling: The Kubernetes scheduler places Pods on appropriate nodes within the cluster by considering resource usage and node conditions.
+
+## Pod Lifecycle
+
+The lifecycle of a Pod consists of several phases. The main phases are as follows:
+
+- Pending: After a Pod is created, it enters the Pending phase during which container images are downloaded and initialization tasks are performed.
+- Running: In the Running phase, containers are actively executing, and all networking and storage resources are available.
+- Succeeded/Failed: When a task is completed or an error occurs, the Pod’s status changes accordingly. Depending on the restart policy, the Pod may be recreated or terminated.
+
+## Considerations When Using Pods
+
+- Design Patterns: When multiple containers need to be placed in a single Pod, the “sidecar pattern” is commonly applied. This pattern bundles the main application with auxiliary functionalities (such as logging or monitoring) within one Pod to promote efficient collaboration.
+- Immutability: Instead of modifying a Pod's state directly after creation, updates are performed by deploying a new version of the Pod.
+- Resource Management: It is important to specify resource limits like CPU and memory in the Pod specification to ensure efficient utilization of the cluster’s resources.
+
+## Practical Example
+
+Below is a simple example of a Pod YAML file:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sample-pod
+spec:
+  containers:
+    - name: app-container
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+```
+
+This example defines a Pod running a single container (Nginx).  
+In a real-world environment, you would typically add extra configurations—such as environment variables, volume mounts, and resource limits—to build a more robust service.
