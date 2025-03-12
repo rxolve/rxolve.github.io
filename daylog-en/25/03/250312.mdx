@@ -1,0 +1,114 @@
+---
+title: "쿠버네티스 Deployment"
+date: "250312"
+tags: ["Kubernetes"]
+---
+
+## Deployment
+
+The Deployment automates the creation, updates, scaling, and rollbacks of Pods and ReplicaSets, enabling declarative management of your application's state.
+
+- Declarative Management: Define the desired state in a YAML file, and Kubernetes automatically takes the necessary steps to ensure the actual state matches it.
+- Self-healing: Detects Pods that encounter issues and automatically recreates them, ensuring the application's availability.
+
+## Key Features and Strategies
+
+#### Declarative Updates
+
+- YAML-based Management: Define your application's specifications in a YAML file and use the `kubectl apply` command to create or update resources.
+- Automated Deployment: Kubernetes automatically creates, deletes, or updates the necessary ReplicaSets and Pods based on the declared state.
+
+#### Rolling Update
+
+- Zero Downtime Deployment: Operate both the current and new version of Pods simultaneously, gradually replacing them in fixed proportions.
+- Configurable Options: Adjust the number of Pods that are terminated or created simultaneously during updates using the `maxUnavailable` and `maxSurge` options, ensuring a smooth deployment without service interruption.
+
+#### Rollback
+
+- Automatic Recovery: Easily revert to a previously stable version if issues arise after a deployment.
+- Version Management: Deployment maintains a history of each rollout, allowing you to roll back to a specific revision when needed.
+
+#### Scaling and Expansion
+
+- Horizontal Scaling: Increase or decrease the number of application replicas by adjusting the `replicas` field.
+- Load Balancing: Multiple Pods handle incoming requests concurrently, effectively managing increased traffic.
+
+## Deployment Resource Components
+
+A Deployment YAML file is primarily composed of the following sections:
+
+- apiVersion: Typically set to `apps/v1`.
+- kind: Specifies the resource type, in this case, `Deployment`.
+- metadata: Defines metadata such as the name, namespace, and labels.
+- spec: Describes the actual specification, including:
+  - replicas: Sets the desired number of Pod replicas.
+  - selector: Specifies the label selector to identify the Pods managed by the Deployment.
+  - template: Defines the template for the Pods to be created, including details such as container images, environment variables, and volumes.
+  - strategy: Sets the deployment strategy (e.g., RollingUpdate or Recreate).
+
+#### Example YAML File
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+  labels:
+    app: my-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app-container
+          image: my-app-image:v1.0.0
+          ports:
+            - containerPort: 80
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+```
+
+In this example, the `my-app` application is run with three replicas, and during a rolling update, a maximum of one Pod is updated at a time when deploying a new version.
+
+## Key Commands and Practical Usage
+
+- Creating and Updating a Deployment
+
+  ```bash
+  kubectl apply -f deployment.yaml
+  ```
+
+  Use a declarative approach to create or update the resource.
+
+- Checking Deployment Status
+
+  ```bash
+  kubectl rollout status deployment/my-app-deployment
+  ```
+
+  Monitor the progress of the deployment in real-time.
+
+- Rollback
+
+  ```bash
+  kubectl rollout undo deployment/my-app-deployment
+  ```
+
+  Easily roll back to the previous stable version if issues arise.
+
+- Inspecting Deployment Details
+
+  ```bash
+  kubectl describe deployment my-app-deployment
+  ```
+
+  View detailed information about the Deployment's status and event logs.
