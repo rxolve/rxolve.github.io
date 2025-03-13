@@ -1,0 +1,112 @@
+---
+title: "Kubernetes StatefulSet"
+date: "250313"
+tags: ["Kubernetes"]
+---
+
+## What is a StatefulSet?
+
+A StatefulSet is a workload resource in Kubernetes designed for managing stateful applications.  
+It is primarily used when deploying applications that must retain state—such as databases, caches, and distributed storage systems.  
+Unlike Deployments or ReplicaSets, a StatefulSet assigns a unique identity to each pod.  
+This identity, which includes the pod's name, network identifier, and associated storage, remains persistent even if the pod is restarted or rescheduled.
+
+## Key Features of a StatefulSet
+
+The core functions and features of a StatefulSet are as follows:
+
+- Stable Network Identity  
+  Each pod is assigned a sequential name (e.g., `pod-0`, `pod-1`) upon creation and receives a fixed hostname via DNS records.  
+  This ensures reliable communication among cluster members within the application.
+
+- Ordered Deployment and Termination  
+  It guarantees that pod creation, updates, and deletion occur sequentially.  
+  For example, during pod updates, the order is maintained to ensure stability within the cluster.
+
+- Persistent Storage Integration  
+  By using `volumeClaimTemplates`, a unique PersistentVolume can be automatically created and attached to each pod.  
+  This ensures that even if a pod is restarted, it retains its previous state data.
+
+## Considerations When Using a StatefulSet
+
+While a StatefulSet offers powerful features, there are several factors to consider when using it:
+
+- Application Design  
+  Not all applications require a StatefulSet.  
+  For applications that do not need to persist state or for stateless applications, using a Deployment or ReplicaSet is more appropriate.
+
+- Scalability and Update Strategy  
+  Since StatefulSets update or scale pods sequentially, there may be limitations in terms of speed or availability during large-scale deployments.  
+  It is important to carefully evaluate rolling update strategies when performing updates.
+
+- Storage Management  
+  Automatically created PVCs for each pod can accumulate in the cluster, so planning for storage management and cleanup policies in advance is essential.
+
+- Network and Cluster Topology  
+  Although stable network identities enable reliable communication, it is important to consider the effects of network topology and DNS configuration.
+
+## StatefulSet Example
+
+Below is a simple YAML example of a StatefulSet. This example creates 3 replicas, with each pod being allocated its own PVC.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: example-statefulset
+spec:
+  serviceName: "example"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+        - name: app-container
+          image: your-stateful-app:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+```
+
+- `serviceName`: The name of the headless service used to construct each pod's DNS name within the cluster.
+- `replicas`: Specifies the number of pods to create.
+- `volumeClaimTemplates`: Dynamically creates a PersistentVolume of 1Gi for each pod.
+
+This configuration is ideal for database clusters or any applications that need to preserve state.
+
+## StatefulSet vs. Deployment
+
+StatefulSets and Deployments differ based on the intended use case:
+
+- Deployment
+
+  - Suitable for stateless applications
+  - Ideal when there is no need for a specific order or fixed network identities among pods
+  - Supports rapid scaling and rolling updates
+
+- StatefulSet
+  - Designed for stateful applications
+  - Requires unique identity and persistent storage for each pod
+  - Ensures data integrity through ordered deployment and updates
+
+Therefore, selecting the appropriate workload resource based on your application's characteristics is crucial.
+
+## Conclusion
+
+StatefulSet is a powerful resource in a Kubernetes environment for applications that need to maintain persistent state.  
+It ensures data consistency through stable network identities, persistent storage integration, and ordered deployment and termination, but it also demands careful attention to configuration and management.

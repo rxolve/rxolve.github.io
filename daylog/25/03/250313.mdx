@@ -1,0 +1,112 @@
+---
+title: "쿠버네티스 StatefulSet"
+date: "250313"
+tags: ["Kubernetes"]
+---
+
+## StatefulSet이란?
+
+StatefulSet은 쿠버네티스에서 상태 저장(stateful) 애플리케이션을 관리하기 위한 워크로드 리소스입니다.  
+데이터베이스, 캐시, 분산 스토리지 시스템 등 상태 정보를 유지해야 하는 애플리케이션을 배포할 때 주로 사용됩니다.  
+Deployment나 ReplicaSet과 달리, StatefulSet은 각 파드에 고유한 정체성(Identity)를 부여합니다.  
+이 정체성은 파드의 이름, 네트워크 식별자, 그리고 저장소와 연관되어 재시작이나 재배치가 이루어지더라도 유지됩니다.
+
+## StatefulSet의 주요 특성
+
+StatefulSet의 핵심 기능과 특성은 다음과 같습니다.
+
+- 안정적인 네트워크 식별자  
+  각 파드는 생성 시 `pod-0`, `pod-1`과 같이 순차적인 이름을 가지며, DNS 레코드를 통해 고정된 호스트 이름을 할당받습니다.  
+  이로 인해 애플리케이션 내부에서 클러스터 멤버 간에 안정적인 통신이 가능해집니다.
+
+- 순차적 배포 및 삭제  
+  파드의 생성, 업데이트, 삭제가 순차적으로 일어나도록 보장합니다.  
+  예를 들어, 파드 업데이트 시 순서를 보장하여 클러스터 내에서 안정성을 유지할 수 있습니다.
+
+- 고정된 스토리지(영속 스토리지) 연동  
+  `volumeClaimTemplates`를 사용하여 각 파드에 고유한 영속 볼륨(PersistentVolume)을 자동으로 생성하고 연결할 수 있습니다.  
+  이로 인해 파드가 재시작되더라도 이전 상태의 데이터를 유지할 수 있습니다.
+
+## StatefulSet 사용 시 고려사항
+
+StatefulSet은 강력한 기능을 제공하지만, 사용 시 몇 가지 고려해야 할 사항이 있습니다.
+
+- 애플리케이션 설계  
+  모든 애플리케이션이 StatefulSet을 필요로 하는 것은 아닙니다.  
+  상태 저장이 필요 없거나, 무상태(stateless) 애플리케이션의 경우에는 Deployment나 ReplicaSet을 사용하는 것이 적합합니다.
+
+- 확장성과 업데이트 전략  
+  StatefulSet은 순차적으로 파드를 업데이트하거나 확장하므로, 대규모 배포 시 속도나 가용성 측면에서 약간의 제약이 있을 수 있습니다.  
+  업데이트 시 롤링 업데이트 전략을 면밀히 검토해야 합니다.
+
+- 저장소 관리  
+  각 파드에 자동으로 생성된 PVC가 클러스터 내에 쌓이게 되므로, 스토리지 관리와 정리 정책을 사전에 고민해야 합니다.
+
+- 네트워크와 클러스터 토폴로지  
+  안정적인 네트워크 식별자를 기반으로 한 통신이 가능하다는 장점은 있지만, 네트워크 토폴로지나 DNS 구성에 따른 영향을 고려해야 합니다.
+
+## StatefulSet 예제
+
+아래는 간단한 StatefulSet YAML 예제입니다. 이 예제는 3개의 복제본을 생성하며, 각 파드에 고유의 PVC를 할당합니다.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: example-statefulset
+spec:
+  serviceName: "example"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: example
+  template:
+    metadata:
+      labels:
+        app: example
+    spec:
+      containers:
+        - name: app-container
+          image: your-stateful-app:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: data
+              mountPath: /data
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+```
+
+- `serviceName`: Headless Service의 이름으로, 클러스터 내에서 각 파드의 DNS 이름을 구성하는 데 사용됩니다.
+- `replicas`: 생성할 파드 수를 지정합니다.
+- `volumeClaimTemplates`: 각 파드마다 1Gi 크기의 영속 볼륨이 동적으로 생성됩니다.
+
+이 구성은 데이터베이스 클러스터나 상태 정보를 보존해야 하는 애플리케이션에 적합합니다.
+
+## StatefulSet vs. Deployment
+
+StatefulSet과 Deployment는 사용 목적에 따라 차이가 있습니다.
+
+- Deployment
+
+  - 무상태 애플리케이션에 적합
+  - 파드 간에 특별한 순서나 고정된 네트워크 식별자가 필요 없는 경우
+  - 빠른 확장성과 롤링 업데이트 지원
+
+- StatefulSet
+  - 상태 저장 애플리케이션에 적합
+  - 각 파드에 고유한 정체성과 영속 스토리지 필요
+  - 순차적 배포와 업데이트를 통해 데이터 무결성을 보장
+
+따라서, 애플리케이션의 특성에 따라 적절한 워크로드 리소스를 선택하는 것이 중요합니다.
+
+## 마치며
+
+StatefulSet은 쿠버네티스 환경에서 상태 정보를 유지해야 하는 애플리케이션을 위한 강력한 리소스입니다.  
+안정적인 네트워크 식별자와 영속 스토리지 연동, 순차적 배포 및 삭제 기능을 통해 데이터 일관성을 유지할 수 있으나, 그만큼 설정과 관리 측면에서 주의가 필요합니다.
