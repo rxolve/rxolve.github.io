@@ -1,0 +1,100 @@
+---
+title: "Kubernetes DaemonSet"
+date: "250314"
+tags: ["Kubernetes"]
+---
+
+## What is a Kubernetes DaemonSet?
+
+A DaemonSet is a Kubernetes resource that ensures a copy of a specific Pod is deployed across all nodes in a cluster—or a designated group of nodes.
+
+- Automatic Scaling and Shrinking: When a new node is added to the cluster, a Pod is automatically scheduled on that node. Conversely, when a node is removed, the corresponding Pod is also deleted.
+- Key Difference: Unlike ReplicaSets or Deployments that maintain a specified number of replicas, a DaemonSet runs exactly one Pod per node.
+
+## Main Use Cases of a DaemonSet
+
+DaemonSets are primarily used to deploy node-level system components or agents. For example:
+
+- Log Collection: Running log collection agents such as Fluentd or Filebeat on each node.
+- Monitoring: Deploying agents like Node Exporter or kube-proxy for node monitoring and network management.
+- Security and Policy Management: Consistently deploying security agents or policy enforcement tools across all nodes.
+
+## DaemonSet Configuration and Specification
+
+Like other Kubernetes resources, a DaemonSet is defined using a YAML file. A basic configuration looks like this:
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: example-daemonset
+  namespace: kube-system
+  labels:
+    k8s-app: example-logging
+spec:
+  selector:
+    matchLabels:
+      app: example-logging
+  template:
+    metadata:
+      labels:
+        app: example-logging
+    spec:
+      tolerations:
+        # Example toleration for deploying on control-plane nodes
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: example-container
+          image: example/log-collector:latest
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+            limits:
+              memory: "200Mi"
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: varlog
+          hostPath:
+            path: /var/log
+```
+
+In the example above:
+
+- metadata: Specifies the resource name, namespace, and labels.
+- spec.selector: Matches the labels defined in the Pod template to determine which Pods are managed by the DaemonSet.
+- spec.template: Defines the Pod specification to be deployed. You can use tolerations, nodeSelector, or affinity to target specific nodes.
+
+## How a DaemonSet Works
+
+- Automatic Deployment: The DaemonSet controller automatically deploys a Pod on every new node added to the cluster.
+- Node Selection: By using `.spec.template.spec.nodeSelector` or `.spec.template.spec.affinity`, you can restrict deployment to specific nodes (e.g., only nodes labeled `"ssd: true"`).
+- Tolerations: To deploy on control-plane nodes or nodes with taints, you must set the appropriate tolerations.
+
+Additionally, because the DaemonSet controller binds Pods directly to nodes rather than through the default scheduler, Pods are not seen in the Pending state—they execute immediately.
+
+## Updating and Managing a DaemonSet
+
+- Rolling Updates: DaemonSets support rolling updates through an update strategy (`updateStrategy`). When an update occurs, existing Pods are sequentially deleted and replaced with new ones.
+- Automatic Recreation: Even if a user manually deletes a Pod, the DaemonSet controller immediately recreates it to ensure that a Pod remains on each node.
+- Management: Use commands such as `kubectl get daemonset` and `kubectl describe daemonset` to check the status, and `kubectl set image` to update the Pods.
+
+## Comparing DaemonSet with Other Resources
+
+- ReplicaSet/Deployment vs. DaemonSet:
+  - ReplicaSet/Deployment: Specify the number of Pods for distributed deployment but do not guarantee one Pod per node.
+  - DaemonSet: Designed to ensure that exactly one Pod is deployed on every node (or selected nodes).
+- Static Pod vs. DaemonSet:
+  - Static Pod: Managed by the kubelet and not integrated with the API server.
+  - DaemonSet: Can be centrally managed through the Kubernetes API, offering more control.
+
+## In Conclusion
+
+1. Guarantee: Runs exactly one Pod on every node (or on selected nodes).
+2. Automation: Automatically deploys and cleans up Pods as nodes are added or removed.
+3. Practical Use Cases: Ideal for log collection, monitoring, network management, and various operational tasks.
