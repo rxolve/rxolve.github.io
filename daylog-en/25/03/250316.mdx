@@ -1,0 +1,116 @@
+---
+title: "Kubernetes Service and Ingress"
+date: "250316"
+tags: ["Kubernetes"]
+---
+
+## Kubernetes Service
+
+#### What is a Service?
+
+- Definition:  
+  A Service is an abstraction that provides a stable network endpoint (virtual IP) to solve the issue of changing IP addresses of dynamically created and deleted Pods within a cluster.
+- Necessity:  
+  Since Pods receive different IP addresses upon creation, direct access is not feasible. A Service assigns a fixed DNS name and IP to a set of Pods (typically defined using label selectors) so that internal (or external) clients can access them reliably.
+
+#### Key Features of a Service
+
+- Load Balancing:  
+  A Service automatically distributes traffic across multiple connected Pods, performing load balancing.
+- Service Discovery:  
+  Integrated with cluster DNS, allowing Pods to be accessed by their Service name.
+- Flexible Exposure Methods:  
+  Depending on the Service type, it can be configured as internal-only (ClusterIP), exposed via node ports (NodePort), provisioned with an external cloud load balancer (LoadBalancer), or mapped to an external DNS (ExternalName).
+
+#### Types of Services
+
+- ClusterIP (Default Type):  
+  Assigns a virtual IP that is only accessible within the cluster.
+- NodePort:  
+  Opens a specific port on all worker nodes to receive external traffic and forward it to the ClusterIP.
+- LoadBalancer:  
+  Automatically provisions an external load balancer in cloud environments to expose the service externally.
+- ExternalName:  
+  Returns a DNS CNAME record to map to a specific external domain name.
+
+#### How a Service Works
+
+- Label Selector and Endpoints:  
+  A Service uses a label selector to define the set of Pods it connects to and manages the IP addresses of these Pods as endpoints.
+- Role of kube-proxy:  
+  kube-proxy runs on each node and uses iptables (or IPVS) to route requests from the Service's virtual IP and port to the appropriate Pod.
+
+## Kubernetes Ingress
+
+#### What is Ingress?
+
+- Definition:  
+  Ingress is an API object that defines how HTTP/HTTPS traffic entering the cluster should be routed to internal Services.
+- Key Features:
+  - URL, host, and path-based routing
+  - SSL/TLS termination (decryption)
+  - Domain-based virtual hosting
+  - URL rewriting and redirection
+
+#### Ingress Resource and Ingress Controller
+
+- Ingress Resource:  
+  It is merely an object that declares "rules" but does not handle traffic itself. For example, the following YAML defines which Service should handle requests for a specific host and path:
+
+  ```yaml
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example-ingress
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: example.com
+        http:
+          paths:
+            - path: /app
+              pathType: Prefix
+              backend:
+                service:
+                  name: app-service
+                  port:
+                    number: 80
+  ```
+
+- Ingress Controller:  
+  A component that actually implements the rules defined in the Ingress resource.
+  Popular implementations include NGINX Ingress Controller and Traefik, which must be installed separately in the cluster.
+  The controller monitors Ingress resources and dynamically generates configuration files for a reverse proxy server (e.g., NGINX) to route traffic accordingly.
+
+#### Use Cases of Ingress
+
+- Single Endpoint for External Traffic:  
+  Instead of exposing each Service separately via NodePort or LoadBalancer, Ingress can manage them centrally, allowing for cleaner domain and path-based routing of external access.
+- SSL/TLS Implementation:  
+  Ingress can facilitate SSL certificate management (e.g., Let's Encrypt) to easily enable HTTPS connections.
+
+## Practical Usage and Summary
+
+#### Service + Ingress Pattern
+
+- Internal Communication:  
+  Each application maintains stable internal connectivity through a ClusterIP-type Service.
+- External Exposure:  
+  Ingress acts as a single entry point for incoming HTTP/HTTPS requests and distributes them to internal Services based on routing rules.
+- Ease of Management:  
+  Service discovery, load balancing, and SSL implementation can be delegated to the Ingress controller, allowing centralized management of complex external access configurations.
+
+#### Example and YAML
+
+A simple example of Services and Ingress follows the YAML configuration above, where each Service defines a set of Pods using label selectors, and the Ingress resource routes external traffic to specific Services based on host and path rules.
+
+---
+
+## Conclusion
+
+Kubernetes Services and Ingress are essential networking resources that handle internal service discovery and external traffic routing, respectively.
+
+- Service: Provides a stable network endpoint for a set of Pods, allowing for consistent access and different exposure types (ClusterIP, NodePort, LoadBalancer, etc.).
+- Ingress: Defines HTTP/HTTPS routing rules to distribute traffic among multiple Services from a single entry point, with added features like SSL/TLS termination and domain-based routing.

@@ -1,0 +1,117 @@
+---
+title: "쿠버네티스 Service와 Ingress"
+date: "250316"
+tags: ["Kubernetes"]
+---
+
+## Kubernetes Service
+
+#### Service란?
+
+- 정의:  
+  Service는 클러스터 내에서 동적으로 생성되고 삭제되는 Pod들의 IP가 변동되는 문제를 해결하기 위해, 하나의 안정적인 네트워크 엔드포인트(가상 IP)를 제공하는 추상화 객체입니다.
+- 필요성:  
+  Pod는 생성될 때마다 IP가 달라지므로, 직접 접근하기엔 부적합합니다. Service를 통해 Pod 집합(보통 라벨 셀렉터로 정의됨)에 대해 고정된 DNS 이름과 IP를 할당하여 내부(혹은 외부) 클라이언트가 안정적으로 접근할 수 있게 합니다.
+
+#### Service의 주요 기능
+
+- 로드 밸런싱:  
+  Service는 연결된 여러 Pod에 대해 자동으로 트래픽을 분산시켜 로드 밸런싱을 수행합니다.
+- 서비스 디스커버리:  
+  클러스터 DNS와 연동되어 Service 이름으로 Pod에 접근할 수 있습니다.
+- 유연한 노출 방식:  
+  서비스 타입에 따라 클러스터 내부 전용(ClusterIP), 노드 포트(NodePort), 클라우드 로드밸런서(LoadBalancer), 또는 외부 DNS(CNAME)로 매핑하는 ExternalName 서비스를 구성할 수 있습니다.
+
+#### Service의 유형
+
+- ClusterIP (기본 타입):  
+  클러스터 내부에서만 사용 가능한 가상 IP를 할당합니다.
+- NodePort:  
+  모든 워커 노드의 특정 포트를 열어 외부 트래픽을 받아 ClusterIP로 전달합니다.
+- LoadBalancer:  
+  클라우드 환경에서 외부 로드밸런서를 자동으로 프로비저닝하여 서비스를 외부에 노출합니다.
+- ExternalName:  
+  DNS CNAME 레코드를 반환하여, 외부의 특정 도메인 이름과 매핑합니다.
+
+#### Service 동작 원리
+
+- 라벨 셀렉터와 엔드포인트:  
+  Service는 라벨 셀렉터를 사용해 연결할 Pod 집합을 정의하고, 이 Pod들의 IP 주소를 엔드포인트로 관리합니다.
+- kube-proxy의 역할:  
+  각 노드에 설치된 kube-proxy가 iptables(혹은 IPVS)를 이용해 Service의 가상 IP와 포트로 들어온 요청을 적절한 Pod로 라우팅합니다.
+
+## Kubernetes Ingress
+
+#### Ingress란?
+
+- 정의:  
+  Ingress는 클러스터 외부에서 들어오는 HTTP/HTTPS 트래픽을 내부 서비스로 어떻게 라우팅할지를 정의하는 API 객체입니다.
+- 주요 기능:
+  - URL, 호스트, 경로 기반 라우팅
+  - SSL/TLS 종료 (암호화 해제)
+  - 도메인 기반 가상 호스팅
+  - URL 재작성 및 리다이렉션
+
+#### Ingress 리소스와 Ingress Controller
+
+- Ingress 리소스:  
+  단순히 “규칙(rule)”을 선언하는 오브젝트일 뿐, 자체적으로 트래픽을 처리하지는 않습니다.  
+  예를 들어, 아래와 같이 특정 호스트와 경로에 대해 어떤 Service로 요청을 전달할지 정의합니다.
+
+  ```yaml
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example-ingress
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: example.com
+        http:
+          paths:
+            - path: /app
+              pathType: Prefix
+              backend:
+                service:
+                  name: app-service
+                  port:
+                    number: 80
+  ```
+
+- Ingress Controller:  
+  Ingress 리소스에 정의된 규칙을 실제로 적용하는 컴포넌트입니다.  
+  대표적인 구현체로는 NGINX Ingress Controller, Traefik 등이 있으며, 클러스터에 별도로 설치해야 합니다.  
+  컨트롤러는 Ingress 리소스를 감시하며, 그에 따라 역방향 프록시(reverse proxy) 서버(예: NGINX)의 설정 파일을 동적으로 생성해 트래픽을 적절한 서비스로 라우팅합니다.
+
+#### Ingress 활용 사례
+
+- 외부 트래픽 단일 엔드포인트:  
+  여러 Service를 외부에 노출할 때, 각각 NodePort나 LoadBalancer로 노출하기보다는 단일 Ingress를 통해 통합 관리하면 도메인 및 경로 기반 라우팅으로 보다 깔끔하게 외부 접근을 제어할 수 있습니다.
+- SSL/TLS 적용:  
+  Ingress를 통해 SSL 인증서(예, Let's Encrypt)를 적용하여 HTTPS 연결을 쉽게 구성할 수 있습니다.
+
+## 실무에서의 활용 및 정리
+
+#### Service + Ingress 패턴
+
+- 내부 통신:  
+  각 애플리케이션은 ClusterIP 타입의 Service를 통해 내부에서 안정적인 연결을 유지합니다.
+- 외부 노출:  
+  Ingress를 통해 외부에서 들어오는 HTTP/HTTPS 요청을 단일 엔드포인트로 받고, 각 요청을 Ingress 규칙에 따라 내부 Service로 분배합니다.
+- 관리의 편의성:  
+  서비스 디스커버리, 로드 밸런싱, SSL 적용 등의 기능을 Ingress 컨트롤러에 위임함으로써, 복잡한 외부 접근 설정을 단일 리소스에서 관리할 수 있습니다.
+
+#### 예제 및 YAML
+
+서비스와 인그레스의 간단한 예제는 위에 제공한 YAML 예제와 같이, 각 Service는 라벨 셀렉터로 연결할 Pod 집합을 정의하고, Ingress 리소스는 호스트와 경로를 통해 외부 트래픽을 특정 Service로 라우팅합니다.
+
+---
+
+## 마치며
+
+Kubernetes의 Service와 Ingress는 각각 내부 서비스 디스커버리와 외부 트래픽 라우팅을 담당하는 핵심 네트워킹 리소스입니다.
+
+- Service: 안정적인 네트워크 접근을 위해 Pod 집합에 고정된 엔드포인트를 제공하며, 다양한 타입(NodePort, LoadBalancer 등)으로 외부 노출 방식을 선택할 수 있습니다.
+- Ingress: HTTP/HTTPS 기반의 라우팅 규칙을 선언해, 단일 진입점에서 여러 서비스로 트래픽을 분산시키고 SSL/TLS 적용 및 도메인 기반 라우팅 등을 효과적으로 처리합니다.
