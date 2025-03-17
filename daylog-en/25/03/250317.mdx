@@ -1,0 +1,81 @@
+---
+title: "Reducing Database Load with Global Coupon Design"
+date: "250317"
+tags: ["Design"]
+---
+
+In a recent project, we encountered an issue where the coupon and product tables had an N:N relationship, stored in the coupon_product mapping table. Each time a global coupon, applicable to all products, was issued, thousands or even millions of records were inserted into the coupon_product table, significantly increasing the database load.
+
+## Issue: Uncontrolled Growth of Mapping Data
+
+In the existing design, to explicitly store the relationship between coupons and products, a record was created in the coupon_product table for every product each time a coupon was issued.
+
+- Massive Data Increase: For global coupons, creating separate mapping records for every product led to an unnecessary surge in data volume.
+- Performance Degradation: Complex JOIN operations and increased I/O load during queries.
+- Maintenance Challenges: As data volume grows, managing indexes and optimizing queries becomes increasingly difficult.
+
+## Solution: Introducing a Global Coupon Flag
+
+The core of the solution is to add a flag to the coupon table that distinguishes global coupons. By adding an `is_global` column to the coupon table, we can omit the coupon_product mapping for global coupons and simply check this flag during queries.
+
+#### Key Improvements
+
+1. Modifying the Coupon Table
+
+   - Add an `is_global` column.
+   - Set this value to `true` for global coupons, automatically applying them to all products.
+
+2. Minimizing Use of the coupon_product Table
+
+   - Apply global coupons without creating separate records in the mapping table.
+   - Manage data in the coupon_product table only for coupons that apply to specific products.
+
+3. Optimizing Query Logic
+
+   - Check the `is_global` flag first when determining coupon applicability to avoid unnecessary JOINs.
+   - Utilize the mapping table only when there are coupons that apply to specific products.
+
+## Example of Data Model Design
+
+Below is an example of the improved data model design.
+
+```sql
+-- Coupon Table: Adding a column to distinguish global coupons
+CREATE TABLE coupon (
+  id SERIAL PRIMARY KEY,
+  coupon_code VARCHAR(50) NOT NULL,
+  discount_rate NUMERIC(5,2) NOT NULL,
+  is_global BOOLEAN NOT NULL DEFAULT false,  -- Global coupon flag
+  -- Other necessary columns
+);
+
+-- Product Table
+CREATE TABLE product (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price NUMERIC(10,2) NOT NULL,
+  -- Other necessary columns
+);
+
+-- Coupon-Product Mapping Table: Used only for non-global coupons
+CREATE TABLE coupon_product (
+  coupon_id INTEGER REFERENCES coupon(id),
+  product_id INTEGER REFERENCES product(id),
+  PRIMARY KEY (coupon_id, product_id)
+);
+```
+
+## Example of Application Logic (Pseudocode)
+
+```typescript
+// Example of logic to check coupon applicability
+if (coupon.is_global) {
+  // Apply to all products if it's a global coupon
+  applicableProducts = allProducts;
+} else {
+  // For coupons that apply to specific products, query the mapping table
+  applicableProducts = queryProductsByCoupon(coupon.id);
+}
+```
+
+By designing in this manner, we can prevent a large number of unnecessary inserts when issuing global coupons, and efficiently handle coupon application logic by simply checking the flag.

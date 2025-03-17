@@ -1,0 +1,84 @@
+---
+title: "전역 쿠폰 설계로 DB 부하 줄이기"
+date: "250317"
+tags: ["Design"]
+---
+
+최근 프로젝트에서 쿠폰(coupon)과 제품(product) 테이블이 N:N 관계를 맺고 있습니다.
+이 관계가 coupon_product 매핑 테이블에 저장되는 구조에서 문제가 발생한 적이 있었습니다.  
+모든 제품에 적용되는 전역 쿠폰이 발급될 때마다 coupon_product 테이블에 수천, 수만 건의 데이터가 삽입되어 데이터베이스 부하가 심해지는 문제가 있었습니다.
+
+## 문제점: 무분별한 매핑 데이터의 증가
+
+기존 설계에서는 쿠폰과 제품 간의 관계를 명시적으로 저장하기 위해 매번 coupon_product에 모든 제품에 대해 레코드를 생성했습니다.
+
+- 대규모 데이터 증가: 전역 쿠폰의 경우 모든 제품에 대해 별도의 매핑 레코드를 생성함으로써 불필요한 데이터가 급증.
+- 성능 저하: JOIN 연산이 복잡해지고, 조회 시 불필요한 I/O 부하 발생.
+- 유지보수 문제: 데이터 양이 많아질수록 인덱스 관리 및 쿼리 최적화에 어려움.
+
+## 해결 방안: 전역 쿠폰 플래그 도입
+
+문제의 핵심은 전역 쿠폰임을 구분할 수 있는 플래그를 쿠폰 테이블에 추가하는 것입니다.  
+즉, 쿠폰 테이블에 `is_global` 컬럼을 추가하여, 전역 쿠폰인 경우에는 coupon_product 매핑을 생략하고, 조회 시 쿠폰의 플래그만 확인하는 방식입니다.
+
+#### 주요 개선 사항
+
+1. 쿠폰 테이블 수정
+
+   - `is_global` 컬럼 추가
+   - 전역 쿠폰은 이 값이 `true`로 설정되어, 모든 제품에 자동 적용
+
+2. coupon_product 테이블 활용 최소화
+
+   - 전역 쿠폰은 매핑 테이블에 별도의 레코드 생성 없이 적용
+   - 특정 제품에만 적용되는 쿠폰에 대해서만 coupon_product에 데이터 관리
+
+3. 쿼리 로직 최적화
+   - 쿠폰 적용 여부를 확인할 때, 우선 `is_global` 플래그를 확인하여 불필요한 JOIN을 피함
+   - 특정 제품에 적용되는 쿠폰이 있을 때만 추가 매핑 테이블 활용
+
+## 데이터 모델 설계 예시
+
+아래는 개선된 데이터 모델 설계 예시입니다.
+
+```sql
+-- 쿠폰 테이블: 전역 쿠폰 여부를 구분하는 컬럼 추가
+CREATE TABLE coupon (
+  id SERIAL PRIMARY KEY,
+  coupon_code VARCHAR(50) NOT NULL,
+  discount_rate NUMERIC(5,2) NOT NULL,
+  is_global BOOLEAN NOT NULL DEFAULT false,  -- 전역 쿠폰 플래그
+  -- 기타 필요한 컬럼들
+);
+
+-- 제품 테이블
+CREATE TABLE product (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price NUMERIC(10,2) NOT NULL,
+  -- 기타 필요한 컬럼들
+);
+
+-- 쿠폰과 제품의 매핑 테이블: 전역 쿠폰이 아닌 경우에만 사용
+CREATE TABLE coupon_product (
+  coupon_id INTEGER REFERENCES coupon(id),
+  product_id INTEGER REFERENCES product(id),
+  PRIMARY KEY (coupon_id, product_id)
+);
+```
+
+## 적용 로직 예시 (의사 코드)
+
+```typescript
+// 쿠폰 적용 여부 확인 로직 예시
+if (coupon.is_global) {
+  // 전역 쿠폰인 경우 모든 제품에 적용
+  applicableProducts = allProducts;
+} else {
+  // 특정 제품에만 적용되는 쿠폰의 경우, 매핑 테이블에서 조회
+  applicableProducts = queryProductsByCoupon(coupon.id);
+}
+```
+
+이처럼 설계하면 전역 쿠폰 발급 시 대량의 불필요한 인서트를 방지할 수 있으며  
+실제 쿠폰 적용 로직에서 단순히 플래그를 확인하는 방식으로 효율적인 처리가 가능해집니다.
