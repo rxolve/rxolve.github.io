@@ -1,0 +1,76 @@
+---
+title: "Kubernetes ConfigMap and Secret"
+date: "250318"
+tags: ["Kubernetes"]
+---
+
+Kubernetes is designed to inject application configuration externally rather than hardcoding it inside pods.
+
+- ConfigMap: Manages application configuration data (e.g., environment variables, configuration files).
+- Secret: Securely manages sensitive information (e.g., passwords, API keys, tokens).
+
+Both resources enhance the portability and security of applications by separating configuration data from the application code.
+
+## ConfigMap
+
+#### Characteristics
+
+- Configuration Data Management: Stores non-sensitive data such as environment settings, configuration files, and command-line arguments.
+- Usage: Can be injected into pods as environment variables, command-line arguments, or mounted as volumes.
+- Flexibility: Can be defined as a single key-value pair or as an entire file, making it easy to manage application settings.
+
+#### Example Usage (YAML)
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-config
+data:
+  APP_MODE: "production"
+  LOG_LEVEL: "debug"
+```
+
+The above ConfigMap can be injected into a pod as environment variables or mounted as a configuration file.
+
+## Secret
+
+#### Key Features
+
+- Sensitive Data Storage: Stores encrypted or sensitive data such as passwords, tokens, and certificates.
+- Security Handling: Although stored encoded in base64 by default, this is merely an encoding—not true encryption. Therefore, you should consider access controls within the cluster and additional encryption measures (e.g., encrypting data in etcd).
+- Usage: Can be injected into pods via environment variables or mounted as file volumes.
+
+#### Example Usage (YAML)
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-secret
+type: Opaque
+data:
+  password: cGFzc3dvcmQ= # Base64 encoded value for "password"
+```
+
+This Secret can be injected into a pod as environment variables or mounted as a file.
+
+## ConfigMap vs. Secret
+
+| Aspect      | ConfigMap                                                           | Secret                                                              |
+| ----------- | ------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Purpose     | Store non-sensitive data                                            | Store sensitive data                                                |
+| Data Format | Stored in plain text                                                | Stored encoded in base64 by default                                 |
+| Security    | Not ideal for sensitive data due to lack of access control          | RBAC and additional encryption measures are recommended             |
+| Usage       | Can be used as environment variables, files, command-line arguments | Can be used as environment variables, files, command-line arguments |
+
+It’s important to choose the appropriate resource based on the nature of your data. Non-sensitive configuration information should be stored in a ConfigMap, while sensitive data should be stored in a Secret to help prevent security breaches.
+
+## Best Practices in Production
+
+- Separation Principle: Separate application code and configuration data so that settings can be adjusted according to the environment at deployment time.
+- Version Control: Integrate ConfigMaps and Secrets with your version control system to manage change histories.
+- Enhanced Security: For Secrets, apply not only base64 encoding but also additional security measures like etcd encryption and strict RBAC policies.
+- Change Detection: Consider mechanisms (e.g., the sidecar pattern) that allow the application to automatically reload when configuration changes are detected.
+
+This approach to managing Kubernetes resources can significantly enhance the efficiency, portability, and security of your cloud-native applications.
