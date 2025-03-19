@@ -1,0 +1,128 @@
+---
+title: "Kubernetes PV and PVC"
+date: "250319"
+tags: ["Kubernetes"]
+---
+
+## What is a PersistentVolume (PV)?
+
+- Definition:  
+  A PersistentVolume (PV) is a storage resource that is pre-provisioned by a cluster administrator (or dynamically provisioned via a StorageClass).
+
+  - Characteristics:
+    - It is an independent storage object that can be used throughout the entire cluster.
+    - It abstracts away the details of the underlying storage system (such as NFS, iSCSI, cloud storage, etc.).
+    - It has a lifecycle independent of the Pod that uses it.
+
+- Provisioning Methods:
+  - Static Provisioning: The administrator pre-creates a PV and registers it in the cluster.
+  - Dynamic Provisioning: When a PVC is requested, a PV is automatically created according to the specified StorageClass.
+
+## What is a PersistentVolumeClaim (PVC)?
+
+- Definition:  
+  A PersistentVolumeClaim (PVC) is a storage claim that a developer or user creates to request a specific amount of storage with a particular access mode (e.g., RWO, RWX, etc.).
+
+- Role and Characteristics:
+  - It specifies the required storage capacity, access mode, and storage class.
+  - It binds to an appropriate PV in the cluster, thereby allocating the storage resource.
+  - It has a one-to-one mapping with a PV, and once bound, that PV cannot be used by another PVC.
+
+## Lifecycle of PV and PVC
+
+1. Provisioning
+
+   - Static: If a PV pre-created by an administrator is available, it will be matched when the PVC is created.
+   - Dynamic: When a PVC is created, Kubernetes refers to the StorageClass and automatically creates a PV.
+
+2. Binding
+
+   - The control loop finds a PV that meets the PVC’s requirements (capacity, access mode, storage class, etc.) and binds them bidirectionally (using the ClaimRef field).
+   - Once bound, the PV’s status changes to Bound.
+
+3. Using
+
+   - The bound PVC is referenced as a volume in a Pod and is mounted inside the Pod.
+   - The Pod can read from and write to the storage provided by the allocated PV through the PVC.
+
+4. Reclaiming
+   - When a PVC is deleted, the PV’s state changes depending on the policy:
+     - Retain: The PV is released while preserving its data, and the administrator must manually reallocate it.
+     - Delete: Deleting the PVC also deletes the PV and its backend storage.
+     - Recycle: (Not recommended anymore) The data is scrubbed and the PV is prepared for reuse.
+
+## YAML Examples
+
+### Static Provisioning Example
+
+#### PV Definition (pv.yaml)
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-pv
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: manual
+  hostPath:
+    path: "/mnt/data"
+```
+
+#### PVC Definition (pvc.yaml)
+
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: my-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: manual
+```
+
+Creating the PV and PVC as shown above results in the PV being bound 1:1 with the PVC, making it ready for use.
+
+### Pod Example Using a PVC (pod.yaml)
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp
+spec:
+  containers:
+    - name: nginx
+      image: nginx
+      volumeMounts:
+        - name: storage
+          mountPath: "/usr/share/nginx/html"
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: my-pvc
+```
+
+When the Pod is created, the PV bound through `my-pvc` is mounted inside the Pod at `/usr/share/nginx/html`, allowing the application to read and write data.
+
+## Practical Tips
+
+- Using StorageClass:  
+  When using dynamic provisioning, you can automate PV creation through a StorageClass. This reduces administrative overhead and improves cluster efficiency.
+
+- Clarify Resource Requirements:  
+  When creating a PVC, clearly define the required storage capacity and access mode so that the correct PV is bound.
+
+- Data Protection:  
+  Choose the appropriate Reclaim Policy carefully when deleting PVCs or PVs to prevent data loss. In production, configure either the Retain or Delete policy based on your needs.
+
+- Namespace Consistency:  
+  The PVC and the Pod that uses it must reside in the same namespace.
