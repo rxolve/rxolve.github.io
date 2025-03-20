@@ -1,0 +1,86 @@
+---
+title: "Kubernetes Management and Deployment"
+date: "250320"
+tags: ["Kubernetes"]
+---
+
+## Declarative vs. Imperative Management
+
+- Imperative Management:
+
+  - Resources are created or deleted immediately using CLI commands like `kubectl run` and `kubectl create`.
+  - Useful for quick tests or one-off tasks, but it is challenging to maintain a history of the state.
+
+- Declarative Management:
+
+  - Desired state is described by writing YAML files and applied using the `kubectl apply -f` command.
+  - Facilitates version control and history tracking of resources, making it easy to reproduce the same configuration across different environments.
+
+## Application Deployment via Deployment
+
+- Role of Deployment:
+
+  - Declaratively defines the desired state of the application (e.g., number of running Pods, image version).
+  - Internally creates and manages ReplicaSets, which in turn create Pods to run the actual application.
+  - This structure makes it easy to scale, update, and recover applications through Deployment.
+
+- Key Features and Strategies:
+
+  - Rolling Update:
+
+    - The default update method, creating new version Pods one by one while gradually removing old version Pods.
+    - Allows for zero-downtime deployment, enabling updates without service interruption.
+
+  - Recreate:
+
+    - Deletes all existing Pods before creating new version Pods; simple but may cause temporary service interruption.
+
+  - Rollback:
+
+    - If issues arise, you can easily revert to a previous stable version using the `kubectl rollout undo` command.
+
+## Deployment Management Commands
+
+- Check Deployment Status:
+
+  - `kubectl rollout status deployment/<deployment_name>`  
+    → Check the current deployment progress and whether the update is complete.
+
+- Update Image:
+
+  - `kubectl set image deployment/<deployment_name> <container_name>=<new_image>:<tag>`  
+    → Update the deployment by applying a new version of the image.
+
+- History and Rollback:
+
+  - `kubectl rollout history deployment/<deployment_name>`  
+    → View previous deployment histories.
+
+  - `kubectl rollout undo deployment/<deployment_name>`  
+    → Roll back to a previous version if issues occur.
+
+## Automation and Self-Healing
+
+- Role of Controllers:
+
+  - Deployment and ReplicaSet controllers continuously compare the actual state of the cluster with the desired state.
+  - If a Pod fails or terminates unexpectedly, they automatically create new Pods to restore the desired state.
+
+- Scaling:
+
+  - `kubectl scale deployment/<deployment_name> --replicas=<desired_count>`  
+    → Dynamically adjust the number of Pods according to the application's load.
+
+## Practical Application Tips
+
+- Managing YAML Files:
+
+  - Using version control systems like Git to manage changes in YAML files allows for stable deployments across multiple environments (development/staging/production).
+
+- Monitoring and Log Checking:
+
+  - Regularly checking the status and logs of Pods and Deployments using commands like `kubectl describe` and `kubectl logs` helps in early detection and response to issues.
+
+- Setting Up Test Environments:
+
+  - Testing deployment strategies (e.g., Rolling Update, Canary) in advance helps in selecting the appropriate update strategy for the actual production environment.
