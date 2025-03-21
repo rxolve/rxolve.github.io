@@ -1,0 +1,58 @@
+---
+title: "Dapr"
+date: "250321"
+tags: ["Tool"]
+---
+
+## Basic Concept of Dapr
+
+Dapr, short for "Distributed Application Runtime," provides a set of building blocks that abstract the common functionalities required in microservices applications. In other words, developers can easily leverage features such as service invocation, state management, message-based communication, and secrets management through Dapr's APIs—without writing the underlying infrastructure code themselves.
+
+## Core Features of Dapr
+
+#### Service Invocation
+
+Dapr simplifies communication between services by using HTTP and gRPC protocols. This allows each service to invoke others by simply using the service name and method, without worrying about the underlying network details.
+
+#### State Management
+
+Dapr offers functionality for storing and retrieving state within applications, integrating with various backend stores like Redis, PostgreSQL, Cosmos DB, and more. This abstraction enhances application portability by decoupling the application logic from the specifics of state storage.
+
+#### Pub/Sub Messaging
+
+To easily implement event-driven architectures, Dapr supports a Pub/Sub model. It integrates with various message brokers such as Kafka and RabbitMQ, enabling seamless event delivery and asynchronous processing between applications.
+
+#### Secrets Management
+
+Dapr helps manage sensitive information securely by integrating with systems like Azure Key Vault and HashiCorp Vault. This enables applications to safely access necessary secrets without embedding them directly in code.
+
+#### Bindings
+
+Dapr provides binding features that simplify input and output integration with external systems, including cloud services, file storage, and databases. This allows for effortless connection between your application and external resources.
+
+#### Actors
+
+For scenarios that require state management and concurrency control, Dapr supports the actor model. This allows for managing the state and lifecycle of individual actor objects effectively.
+
+In addition to the features above, Dapr also includes capabilities for distributed tracing, observability, and security (such as secure communication via mTLS), effectively offloading much of the infrastructure concerns associated with running microservices.
+
+## Dapr Architecture and Usage
+
+#### Sidecar Pattern
+
+Dapr runs as a sidecar alongside your application. Each application instance is paired with a Dapr runtime sidecar, which provides all of the aforementioned functionalities. This design means your application only needs to interact with Dapr’s API—without requiring any specialized libraries or SDKs—making it accessible from various languages and frameworks.
+
+#### Platform Independence
+
+Designed to be platform-agnostic, Dapr can be used consistently across local development environments, Kubernetes clusters, virtual machines, or even cloud and edge environments. Its high portability ensures that a single implementation can be deployed in multiple settings without modification.
+
+## Why Choose Dapr?
+
+- Increased Development Productivity: It reduces the need to write redundant infrastructure code, allowing developers to focus on core business logic.
+- Portability and Flexibility: Dapr supports a wide range of languages and platforms, enabling development teams to stick with their preferred tech stack.
+- Reduced Operational Complexity: By handling common distributed system challenges like service discovery, retries, and distributed tracing, Dapr simplifies operations.
+- Enhanced Security: With built-in features such as mTLS encryption, Dapr helps secure communication between services out-of-the-box.
+
+## Conclusion
+
+Dapr modularizes essential infrastructure functionalities needed for modern microservices architectures, offering significant advantages for both developers and operators. By simplifying complex distributed systems and providing a consistent operational experience across diverse environments, Dapr is poised to play an increasingly important role in cloud-native application development.
