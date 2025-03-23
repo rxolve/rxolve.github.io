@@ -1,0 +1,128 @@
+---
+title: "Playwright"
+date: "250323"
+tags: ["Tool", "Testing"]
+---
+
+## End-to-End Testing and Playwright
+
+End-to-end (E2E) testing verifies the complete flow of an application from the user’s perspective, ensuring that it behaves as similarly as possible to the real usage environment. Unlike unit or integration tests, E2E tests automate real user actions—clicks, inputs, navigation, etc.—in a browser environment.
+
+Playwright is an open-source web automation library developed by Microsoft. With a single API, it supports various browsers such as Chromium, Firefox, and WebKit. This allows you to implement cross-browser testing effortlessly while providing powerful features like auto-waiting, network mocking, and screenshot/video capture.
+
+## Installing Playwright and Project Setup
+
+First, install Playwright along with the test runner (@playwright/test) in your project. In a Node.js-based project, you can install them using the following command:
+
+```bash
+npm install -D playwright @playwright/test
+# or if using pnpm:
+pnpm install -D playwright @playwright/test
+```
+
+After installation, run the command below to download the required browser binaries:
+
+```bash
+npx playwright install
+```
+
+Create a `playwright.config.js` (or `playwright.config.ts` if you are using TypeScript) file in your project root to configure the testing environment—such as browser types, timeouts, and screenshot options.
+
+Example:
+
+```js
+// playwright.config.js
+module.exports = {
+  timeout: 60000, // Overall test timeout (60 seconds)
+  use: {
+    headless: true, // Run tests in headless mode
+    screenshot: "only-on-failure", // Capture screenshots on test failures
+    video: "retain-on-failure", // Capture video on test failures
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { browserName: "chromium" },
+    },
+    {
+      name: "firefox",
+      use: { browserName: "firefox" },
+    },
+    {
+      name: "webkit",
+      use: { browserName: "webkit" },
+    },
+  ],
+};
+```
+
+## Writing Basic Test Code
+
+#### Test File Structure
+
+It is common practice to name test files with a `*.spec.js` or `*.test.js` suffix. For instance, you can create a file named `login.spec.js` to write a login scenario.
+
+#### Simple Login Page Test Example
+
+Below is an example that tests a scenario where a user successfully logs in by entering the correct email and password, using Playwright.
+
+```js
+// login.spec.js
+const { test, expect } = require("@playwright/test");
+
+test.describe("Login Tests", () => {
+  test("Navigates to the home screen upon successful login", async ({
+    page,
+  }) => {
+    // Navigate to the application's login page
+    await page.goto("https://example.com/login");
+
+    // Fill in the email and password fields
+    await page.getByLabel("이메일").fill("user@example.com");
+    await page.getByLabel("비밀번호").fill("password123");
+
+    // Click the login button (auto-waiting is built-in)
+    await page.getByRole("button", { name: "로그인" }).click();
+
+    // Verify that a specific element on the home screen is visible (e.g., an h1 containing "홈 화면")
+    await expect(page.getByRole("heading", { name: "홈 화면" })).toBeVisible();
+  });
+});
+```
+
+In this example, Playwright's Locator API is used to mimic user interactions. By using semantic selectors such as `getByLabel` and `getByRole`, your tests remain robust even if the DOM structure changes.
+
+## Key Features and Best Practices of Playwright
+
+#### Auto-Waiting and Reliability
+
+Playwright automatically waits for elements to be active or visible, reducing the need for explicit wait calls (e.g., `waitForTimeout`). For instance, `page.click()` will wait until the element is ready to be clicked.
+
+#### Utilizing Locators
+
+- Semantic Selectors: Use selectors like `getByRole`, `getByLabel`, and `getByPlaceholder` to target elements based on properties that are visible to the user.
+- Chaining and Filtering: When selecting elements within a specific container, chaining locators can lead to more precise selections.
+
+```js
+await page
+  .getByRole("listitem")
+  .filter({ hasText: "Product 2" })
+  .getByRole("button", { name: "Add to cart" })
+  .click();
+```
+
+#### Debugging and Code Generation
+
+- Playwright Inspector: Run tests with `npx playwright test --debug` to launch the Inspector, which allows you to debug your tests line by line.
+- Codegen Feature: Use `npx playwright codegen https://example.com` to automatically generate test code based on your interactions with the page. This helps you quickly obtain locator suggestions.
+
+#### Parallel Execution and Project Configuration
+
+Utilize the `projects` option in your `playwright.config.js` file to run tests across multiple browser environments (Chromium, Firefox, WebKit) simultaneously. This can significantly reduce overall test execution time.
+
+## Practical Application and Maintenance Tips
+
+- Isolate and Separate Tests: Each test should run independently without sharing state. Use hooks like `beforeEach` or `afterEach` to manage browser contexts.
+- Prioritize Critical Scenarios: Ensure that crucial functionalities such as login, registration, and payment are covered by E2E tests, while UI details can be verified using unit/integration tests.
+- Environment Configuration: Integrate Playwright tests into your CI/CD pipeline to automatically validate quality before deployment.
+- Manage Updates: Since Playwright is continuously updated, using the latest version helps you take advantage of improved browser compatibility and new features.
