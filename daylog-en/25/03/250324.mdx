@@ -1,0 +1,54 @@
+---
+title: "Kubernetes API"
+date: "250324"
+tags: ["Kubernetes"]
+---
+
+## Role and Concept of the Kubernetes API
+
+The API server (`kube-apiserver`) in a Kubernetes cluster acts as the "central station" of the cluster.
+
+- Central Management Point: All cluster modification requests (creation, modification, deletion, etc.) are processed through the API server.
+- RESTful Interface: Provides an HTTP/JSON-based REST API, allowing declarative management of the cluster state.
+- Data Validation: Performs authentication, authorization, and validation on incoming requests to maintain cluster consistency.
+
+## Key API Components and Architecture
+
+To fully understand the Kubernetes API, it's essential to examine the roles of related components.
+
+#### kube-apiserver
+
+- Central Engine: Accepts all API calls for the cluster and communicates with `etcd` to store and manage the state.
+- Extensibility: Can extend the API using Custom Resource Definitions (CRDs).
+
+#### Other Related Components
+
+- kube-scheduler: Detects newly created pods without assigned nodes and selects nodes for them to run on, based on factors like resource requirements and constraints.
+- kube-controller-manager: Manages various controllers (e.g., ReplicaSet, Endpoints) to ensure that the current state of API objects matches the desired state.
+- kubelet & kube-proxy: Run on worker nodes, communicating with the API server to manage actual container states and networking.
+
+These core Kubernetes components interact through the API to operate the cluster as a unified system.
+
+## API Objects and Resource Model
+
+Kubernetes operates based on declarative configuration.
+
+- Object Definition: All cluster resources (e.g., Pod, Service, Deployment) are defined in YAML or JSON format.
+- Spec and Status: Each object has a 'spec' field (desired state) and a 'status' field (current state), allowing controllers to monitor and adjust the actual state accordingly.
+- Versioning: API resources follow versioning schemes like v1, v1beta1, ensuring stability and compatibility.
+
+## Extensibility and Customization: CRDs and Controllers
+
+- Custom Resource Definitions (CRDs):  
+  Beyond the existing API, users can add custom resource types. This enables the creation of domain-specific objects and the development of custom controllers to manage them.
+- Controller Pattern:  
+  Controllers continuously monitor changes in the API server, bridging the gap between the desired and actual states.
+
+## Security and API Access Control
+
+The API server acts as the gateway for cluster security.
+
+- Authentication and Authorization:  
+  During API calls, it authenticates users or service accounts and controls permissions through Role-Based Access Control (RBAC).
+- Admission Controllers:  
+  Pre-process incoming requests to enforce security policies or other cluster regulations.
