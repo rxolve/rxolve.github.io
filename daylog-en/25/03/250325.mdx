@@ -1,0 +1,50 @@
+---
+title: "A Simple Overview of Concurrency and Parallelism"
+date: "250325"
+tags: ["Concept"]
+---
+
+#### Concurrency
+
+- Definition:  
+  Concurrency is the concept of designing a system where multiple tasks appear to be executed simultaneously.  
+  In reality, parts of one task are executed, followed by parts of another task, with fast context switching making them appear concurrent.
+- Characteristics:
+  - Possible even on a single core: Multiple tasks can run on a single CPU core using time slicing.
+  - Structural approach: Focuses on managing multiple tasks efficiently and includes patterns to handle complexity (e.g., event loops, asynchronous programming).
+  - Resource sharing issues: When concurrent tasks access shared resources, synchronization problems such as race conditions and deadlocks can arise.
+
+> For example, Node.js asynchronous I/O operates on a concurrency model that handles multiple requests in a single thread.
+
+#### Parallelism
+
+- Definition:  
+  Parallelism refers to the execution of multiple tasks physically at the same time.  
+  This is achieved by utilizing multiple cores or multiple CPUs.
+- Characteristics:
+  - True simultaneous execution: When multiple cores are available, each core processes different tasks independently, enabling genuine parallel execution.
+  - Performance improvement: Parallel processing maximizes CPU efficiency and reduces overall execution time.
+  - Limitations: Not all tasks can be parallelized; tasks with dependencies or I/O-bound operations may benefit more from concurrency.
+
+> For example, data parallel processing and multi-threaded computation-heavy tasks can be executed in parallel on a multi-core system, enhancing performance.
+
+#### Relationship and Differences Between Concurrency and Parallelism
+
+- Concurrency is a design philosophy:  
+  It is a logical concept that manages and schedules multiple tasks efficiently.  
+  Concurrency can be implemented even in a single-processor environment.
+- Parallelism is an execution method:  
+  It is a physical concept where multiple tasks execute simultaneously.  
+  Parallel execution requires multiple cores or CPUs.
+- Inclusion relationship:  
+  Parallel processing can be considered a subset of concurrency.  
+  In other words, parallelism is a type of concurrency where tasks are truly executed simultaneously.
+
+#### Summary
+
+- Concurrency:  
+  A design approach where multiple tasks are logically managed to appear as if they are running simultaneously.  
+  It can be implemented even on a single core using time slicing and is particularly effective for I/O-bound tasks.
+- Parallelism:  
+  A method where multiple tasks are physically executed at the same time, typically using multi-core or multiple CPU environments.  
+  It is beneficial for compute-intensive tasks and aims to achieve actual performance gains.
