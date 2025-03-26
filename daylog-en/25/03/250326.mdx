@@ -1,0 +1,83 @@
+---
+title: "Fetching Commit History with git log"
+date: "250326"
+tags: ["Git"]
+---
+
+As the evaluation season approaches, I needed a clear overview of past work.  
+Let's explore how to retrieve commit history from a Git repository and filter commits by a specific user.
+
+```bash
+git log --all --since="2024-07-01" --pretty=format:"%an|%ad|%s" --date=short | grep "user_id" | nl -w1 -s'|' > user_commits.txt
+```
+
+#### `git log --all --since="2024-07-01"`
+
+- `git log`  
+  The basic command to display commit history in a Git repository.
+
+- `--all`  
+  Retrieves commit history from all local branches. This option is essential if you want to analyze the entire repository rather than a specific branch.
+
+- `--since="2024-07-01"`  
+  Filters commits made after July 1, 2024. This helps focus on changes within a specific period.
+
+#### `--pretty=format:"%an|%ad|%s" --date=short`
+
+- `--pretty=format:"%an|%ad|%s"`  
+  Defines the output format of the commit log.
+
+  - `%an`: Author name
+  - `%ad`: Commit date
+  - `%s`: Commit message
+
+  Each piece of information is separated by a pipe (`|`) for better readability.
+
+- `--date=short`  
+  Displays dates in a concise format (e.g., `2024-07-01`).
+
+#### Piping (`|`) to Connect Commands
+
+The `git log` command is piped into subsequent commands to process and filter data efficiently.  
+This approach is highly useful when chaining commands in a shell to streamline data processing.
+
+#### `grep "user_id"`
+
+- `grep "user_id"`  
+  Filters the output to include only lines containing "user_id".  
+  This ensures that only commits related to the specified user are selected, whether they appear in the commit message or author name.
+
+#### `nl -w1 -s'|'`
+
+- `nl` (number lines)  
+  Adds line numbers to each row of the output.
+
+- `-w1`  
+  Sets the minimum width of the line number to one character.
+
+- `-s'|'`  
+  Specifies `|` as the separator between the line number and commit information.  
+  Example output:
+
+  ```
+  1|user1|2024-07-05|Update user profile feature
+  2|user123|2024-07-06|Fix user login issue
+  ```
+
+#### `> user_commits.txt`
+
+- `>`  
+  Redirects the final output to the `user_commits.txt` file.  
+  This allows for later analysis or sharing without displaying the results directly in the terminal.
+
+#### Summary
+
+This command sequence works as follows:
+
+1. Retrieves all commits from all branches since July 1, 2024.
+2. Outputs author, date, and message, separated by a pipe (`|`).
+3. Filters results to include only those containing "user_id".
+4. Adds line numbers for better readability.
+5. Saves the final output to `user_commits.txt`.
+
+By combining these Git and shell commands, we can efficiently extract and analyze commit data based on specific criteria. 🚀
