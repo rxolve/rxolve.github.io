@@ -1,0 +1,90 @@
+---
+title: "커스텀 레퍼지토리 데코레이터 패턴"
+date: "250327"
+tags: ["NestJS"]
+---
+
+TypeORM의 0.3.x 버전부터 기존에 널리 사용되던 `@EntityRepository()` 데코레이터가 더 이상 권장되지 않습니다.  
+이에 따라 기존의 방식대로 커스텀 레퍼지토리를 정의할 수 없게 되었고, NestJS의 의존성 주입(DI)과 모듈 시스템에 맞게 커스텀 레퍼지토리를 구현할 새로운 방법이 필요해졌습니다.
+
+## 문제 상황: @EntityRepository의 한계
+
+- Deprecated 문제:  
+  이전에는 `@EntityRepository()`를 사용해 엔티티와 연결된 커스텀 레퍼지토리를 손쉽게 정의할 수 있었습니다.  
+  하지만 최신 TypeORM 버전에서는 이 데코레이터가 더 이상 지원되지 않아, 동일한 기능을 다른 방식으로 구현해야 합니다.
+
+- NestJS와의 통합:  
+  NestJS는 강력한 DI 컨테이너와 모듈 시스템을 제공하기 때문에, 커스텀 레퍼지토리도 Nest의 관점에서 Provider로 등록하고 관리할 수 있도록 해야 합니다.
+
+## CustomRepository 데코레이터 패턴의 동작 원리
+
+아래 코드는 CustomRepository 데코레이터의 기본 형태입니다.
+
+```typescript
+import { SetMetadata } from "@nestjs/common";
+
+export const TYPEORM_EX_CUSTOM_REPOSITORY = "TYPEORM_EX_CUSTOM_REPOSITORY";
+
+export function CustomRepository(
+  entity: new (...args: any[]) => any
+): ClassDecorator {
+  return SetMetadata(TYPEORM_EX_CUSTOM_REPOSITORY, entity);
+}
+```
+
+#### 메타데이터 등록
+
+- SetMetadata 함수 활용:  
+  `SetMetadata`는 NestJS에서 제공하는 유틸리티 함수로, 클래스 또는 메서드에 특정 키-값 형태의 메타데이터를 설정할 수 있습니다.  
+  여기서는 메타데이터 키로 `'TYPEORM_EX_CUSTOM_REPOSITORY'`를, 값으로는 데코레이터에 전달된 `entity`를 저장합니다.
+
+- 의도:  
+  이 메타데이터는 해당 클래스(보통 커스텀 레퍼지토리 클래스)가 특정 엔티티와 연결되어 있음을 나타내며, 이후 동적으로 해당 레퍼지토리들을 모듈에 등록할 때 활용됩니다.
+
+#### 동적 Provider 등록
+
+CustomRepository 데코레이터로 등록된 클래스는 NestJS의 `DiscoveryService`나 `Reflector`를 통해 검색됩니다.  
+이를 통해 커스텀 모듈(예: `TypeOrmCustomModule`)에서 각 레퍼지토리에 대해 다음과 같은 작업을 수행할 수 있습니다.
+
+- 엔티티 기반 레포지토리 생성:  
+  `DataSource.getRepository(entity)`를 호출하여 기본 레포지토리를 가져온 후, 커스텀 레퍼지토리 클래스를 확장하여 새로운 인스턴스를 생성합니다.
+- DI 컨테이너에 등록:  
+  이렇게 생성된 인스턴스를 NestJS의 Provider로 등록함으로써, 다른 서비스나 컨트롤러에서 주입받아 사용할 수 있게 됩니다.
+
+이 패턴을 사용하면 기존에 @EntityRepository가 제공하던 기능을 NestJS의 구조에 맞게 재현할 수 있습니다.
+
+## 왜 이 패턴이 필요한가?
+
+#### 최신 TypeORM 버전에의 대응
+
+TypeORM 0.3.x 버전에서는 `@EntityRepository()` 데코레이터가 사라졌습니다.  
+기존 방식을 그대로 사용할 수 없으므로, 커스텀 레퍼지토리를 정의하고 등록하는 새로운 방법이 필요했습니다.
+
+#### NestJS의 DI와 모듈 시스템과의 통합
+
+NestJS에서는 Provider로 등록된 모든 클래스가 DI 컨테이너를 통해 관리됩니다.  
+CustomRepository 패턴은 아래와 같은 장점을 제공합니다.
+
+- 명시적 연결:  
+  데코레이터를 통해 해당 레퍼지토리가 어떤 엔티티와 연결되어 있는지 명시적으로 표시할 수 있습니다.
+- 동적 등록:  
+  모듈 초기화 시점에 메타데이터를 기반으로 모든 커스텀 레퍼지토리를 순회하며 동적으로 Provider를 등록할 수 있습니다.  
+  이를 통해 반복되는 보일러플레이트 코드를 줄이고, 일관된 방식으로 레퍼지토리를 관리할 수 있습니다.
+
+- 유연성:  
+  추후 레퍼지토리에 추가적인 기능(예를 들어 캐싱, 로깅, 트랜잭션 관리 등)을 주입하고 싶을 때, 해당 메타데이터를 기준으로 쉽게 확장할 수 있습니다.
+
+#### 유지보수성과 가독성 향상
+
+- 코드의 모듈화:  
+  데코레이터를 활용하면, 커스텀 레퍼지토리에 대한 설정을 한 곳에서 집중적으로 관리할 수 있습니다.
+- 오류 예방:  
+  메타데이터를 통해 각 레퍼지토리의 역할과 연결 엔티티를 명시함으로써, 잘못된 의존성 주입이나 초기화 오류를 줄일 수 있습니다.
+
+이러한 이유들로 인해 CustomRepository 패턴은 최신 TypeORM과 NestJS 환경에서 꼭 필요한 솔루션이 되었습니다.
+
+## 마치며
+
+NestJS와 TypeORM을 함께 사용할 때, `@EntityRepository()`의 사용 중단으로 인해 커스텀 레퍼지토리를 구현하는 새로운 방법이 요구되었습니다.  
+CustomRepository 데코레이터 패턴은 메타데이터를 통해 각 레퍼지토리가 어떤 엔티티와 연관되어 있는지를 명시하고, 이를 기반으로 동적 Provider 등록을 가능하게 합니다.  
+이 패턴은 최신 TypeORM 버전과 NestJS의 DI 시스템에 부합하며, 코드의 모듈화와 유지보수성을 크게 향상시키는 효과를 제공합니다.

@@ -1,0 +1,95 @@
+---
+title: "Custom Repository Decorator Pattern  "
+date: "250327"
+tags: ["NestJS"]
+---
+
+Starting from TypeORM version 0.3.x, the `@EntityRepository()` decorator, which was widely used before, is no longer recommended.  
+As a result, defining custom repositories in the traditional way is no longer possible, necessitating a new approach that aligns with NestJS’s dependency injection (DI) and module system.
+
+## Problem: The Limitations of @EntityRepository
+
+- Deprecation Issue:  
+  Previously, `@EntityRepository()` allowed easy definition of custom repositories associated with entities.  
+  However, since this decorator is no longer supported in the latest TypeORM version, an alternative method must be implemented to achieve the same functionality.
+
+- Integration with NestJS:  
+  Since NestJS provides a powerful DI container and module system, custom repositories should be registered and managed as providers within NestJS.
+
+## How the CustomRepository Decorator Pattern Works
+
+The following code represents the basic structure of the `CustomRepository` decorator:
+
+```typescript
+import { SetMetadata } from "@nestjs/common";
+
+export const TYPEORM_EX_CUSTOM_REPOSITORY = "TYPEORM_EX_CUSTOM_REPOSITORY";
+
+export function CustomRepository(
+  entity: new (...args: any[]) => any
+): ClassDecorator {
+  return SetMetadata(TYPEORM_EX_CUSTOM_REPOSITORY, entity);
+}
+```
+
+#### Registering Metadata
+
+- Using `SetMetadata` Function:  
+  `SetMetadata` is a utility function provided by NestJS that allows attaching key-value metadata to a class or method.  
+  Here, the key `'TYPEORM_EX_CUSTOM_REPOSITORY'` and the value `entity` (passed as an argument to the decorator) are stored as metadata.
+
+- Purpose:  
+  This metadata indicates that the decorated class (typically a custom repository class) is linked to a specific entity.  
+  It is later used when dynamically registering these repositories in a module.
+
+#### Dynamic Provider Registration
+
+Classes decorated with `CustomRepository` can be discovered using NestJS’s `DiscoveryService` or `Reflector`.  
+Using this approach, a custom module (e.g., `TypeOrmCustomModule`) can perform the following tasks for each repository:
+
+- Creating Entity-Based Repositories:  
+  The `DataSource.getRepository(entity)` method is called to retrieve the base repository,  
+  which is then extended to create a new instance of the custom repository class.
+- Registering in the DI Container:  
+  The created repository instance is registered as a provider in NestJS, making it available for injection in other services or controllers.
+
+By using this pattern, the functionalities previously provided by `@EntityRepository()` can be replicated in a way that fits NestJS’s architecture.
+
+## Why Is This Pattern Necessary?
+
+#### Adapting to the Latest TypeORM Version
+
+Since `@EntityRepository()` has been removed in TypeORM 0.3.x,  
+a new approach is required to define and register custom repositories.
+
+#### Integration with NestJS’s DI and Module System
+
+In NestJS, all registered providers are managed through the DI container.  
+The `CustomRepository` pattern offers several advantages:
+
+- Explicit Association:  
+  The decorator explicitly indicates which entity a given repository is linked to.
+
+- Dynamic Registration:  
+  At the module initialization stage, all custom repositories can be dynamically registered as providers based on their metadata.  
+  This reduces repetitive boilerplate code and ensures repositories are managed consistently.
+
+- Flexibility:  
+  If additional functionalities (e.g., caching, logging, transaction management) need to be injected into the repository in the future,  
+  the metadata can serve as a basis for easy expansion.
+
+#### Improved Maintainability and Readability
+
+- Modularized Code:  
+  By leveraging decorators, the configuration for custom repositories can be centrally managed in one place.
+
+- Error Prevention:  
+  Explicitly defining each repository’s role and associated entity through metadata helps prevent incorrect dependency injection and initialization errors.
+
+Due to these reasons, the `CustomRepository` pattern has become an essential solution in modern NestJS and TypeORM environments.
+
+## Conclusion
+
+With the deprecation of `@EntityRepository()`, a new method for implementing custom repositories in NestJS is required.  
+The `CustomRepository` decorator pattern utilizes metadata to specify the entity associated with each repository, enabling dynamic provider registration.  
+This approach aligns well with the latest TypeORM version and NestJS’s DI system, significantly improving code modularity and maintainability.
