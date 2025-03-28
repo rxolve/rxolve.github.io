@@ -1,0 +1,61 @@
+---
+title: "Function to Validate PostgreSQL BIGINT Range"
+date: "250328"
+tags: ["NestJS"]
+---
+
+PostgreSQL's `BIGINT` (`int8`) type represents a 64-bit integer with a range from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807.  
+To verify whether a string falls within the `BIGINT` range in NestJS, you can implement the following function.
+
+#### Function to Validate PostgreSQL `BIGINT` Range
+
+```typescript
+export const isBigIntString = (value: string): boolean => {
+  if (!/^-?\d+$/.test(value)) return false; // Check if it's a valid integer format
+
+  try {
+    const num = BigInt(value); // Convert to BigInt
+    return (
+      num >= BigInt("-9223372036854775808") &&
+      num <= BigInt("9223372036854775807")
+    );
+  } catch {
+    return false; // Return false if conversion fails (e.g., too large value)
+  }
+};
+```
+
+> Explanation
+>
+> - `^-?\d+$` → Ensures the string consists only of digits (allows a leading `-` for negative numbers)
+> - Uses `BigInt(value)` for safe conversion
+> - Checks if the value falls within the PostgreSQL `BIGINT` range
+
+#### Considering TypeORM Validation
+
+When validating DTOs in NestJS, you can use `class-validator`'s `@Matches()` to ensure the string conforms to the `BIGINT` format.
+
+```typescript
+import { Matches, Validate } from "class-validator";
+
+export class ExampleDto {
+  @Matches(/^-?\d+$/, { message: "Value must be a valid integer string" })
+  @Validate(IsBigIntString)
+  value: string;
+}
+
+import {
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from "class-validator";
+
+@ValidatorConstraint({ name: "IsBigIntString", async: false })
+export class IsBigIntString implements ValidatorConstraintInterface {
+  validate(value: string) {
+    return isBigIntString(value);
+  }
+  defaultMessage() {
+    return "Value is not a valid PostgreSQL BIGINT";
+  }
+}
+```

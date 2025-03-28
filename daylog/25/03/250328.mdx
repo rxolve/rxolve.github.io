@@ -1,0 +1,61 @@
+---
+title: "PostgreSQL BIGINT 범위를 확인하는 함수"
+date: "250328"
+tags: ["NestJS"]
+---
+
+PostgreSQL의 `BIGINT`(`int8`) 타입은 64비트 정수(-9,223,372,036,854,775,808 ~ 9,223,372,036,854,775,807)의 범위를 가집니다.  
+NestJS에서 문자열이 `BIGINT` 범위 내의 숫자인지 확인하는 함수를 만들려면 아래와 같이 작성할 수 있습니다.
+
+#### PostgreSQL `BIGINT` 범위를 확인하는 함수
+
+```typescript
+export const isBigIntString = (value: string): boolean => {
+  if (!/^-?\d+$/.test(value)) return false; // 정수 형식인지 확인
+
+  try {
+    const num = BigInt(value); // BigInt로 변환
+    return (
+      num >= BigInt("-9223372036854775808") &&
+      num <= BigInt("9223372036854775807")
+    );
+  } catch {
+    return false; // 변환 불가능한 경우 (예: 너무 큰 값)
+  }
+};
+```
+
+> 설명
+>
+> - `^-?\d+$` → 숫자로만 이루어졌는지 확인 (`-`가 맨 앞에 오는 경우 허용)
+> - `BigInt(value)`를 사용해 안전하게 변환
+> - PostgreSQL의 `BIGINT` 범위 내에 있는지 확인
+
+#### TypeORM `Validation`을 고려한 방식
+
+NestJS에서 DTO 검증을 할 때, `class-validator`의 `@Matches()`를 활용하여 `BIGINT` 문자열을 검증할 수도 있습니다.
+
+```typescript
+import { Matches, Validate } from "class-validator";
+
+export class ExampleDto {
+  @Matches(/^-?\d+$/, { message: "Value must be a valid integer string" })
+  @Validate(IsBigIntString)
+  value: string;
+}
+
+import {
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
+} from "class-validator";
+
+@ValidatorConstraint({ name: "IsBigIntString", async: false })
+export class IsBigIntString implements ValidatorConstraintInterface {
+  validate(value: string) {
+    return isBigIntString(value);
+  }
+  defaultMessage() {
+    return "Value is not a valid PostgreSQL BIGINT";
+  }
+}
+```
