@@ -1,0 +1,56 @@
+---
+title: "Unicode Property Escapes를 활용한 제어문자 제거 방법"
+date: "250329"
+tags: ["NestJS", "Issue"]
+---
+
+#### 문제 상황
+
+사용자가 입력한 문자열에 의도치 않게 C0 제어문자(Unicode U+0000 ~ U+001F)나 C1 제어문자(U+007F ~ U+009F)가 포함되어 있다면,  
+PostgreSQL과 같이 엄격한 문자 인코딩을 사용하는 데이터베이스에서는 쿼리 실행 시 에러가 발생할 수 있습니다.
+
+이러한 문제를 해결하기 위해서는 문자열을 전처리하여 문제를 유발하는 모든 제어문자를 제거할 필요가 있습니다.
+
+#### 해결: Unicode Property Escapes
+
+ECMAScript 2018부터 지원되는 Unicode property escapes 기능을 사용하면,  
+문자열 내에서 특정 Unicode 범위에 속하는 모든 문자를 쉽게 찾아 제거할 수 있습니다.
+
+Unicode property escapes 예시
+
+```typescript
+// /\p{C}/gu 정규표현식은 Unicode의 "Other (제어문자 등)" 범주에 속하는 모든 문자를 찾습니다.
+```
+
+이 방식을 사용하면 별도의 범위를 직접 지정하지 않고도 모든 제어문자를 제거할 수 있어 편리합니다.
+
+#### 구현 예제
+
+아래는 NestJS 프로젝트 내에서 사용할 수 있는 제어문자 제거 함수의 예제입니다.
+
+```typescript
+/
+ * 입력 문자열에서 모든 제어문자(Control Characters)를 제거합니다.
+ * 여기서는 Unicode property escapes를 사용하여 Unicode의 'Other' 범주에 속하는
+ * 모든 제어문자(\p{C})를 찾아 제거합니다.
+ *
+ * @param input - 원본 문자열
+ * @returns 제어문자가 제거된 문자열
+ */
+export function sanitizeInput(input: string): string {
+  // 'u' 플래그를 통해 Unicode 모드를 활성화하고, 'g' 플래그로 전체 일치를 처리합니다.
+  return input.replace(/\p{C}/gu, "");
+}
+```
+
+- 정규표현식 `/\p{C}/gu`
+  - `\p{C}`는 Unicode에서 "Other" 범주에 속하는 모든 제어문자(컨트롤 문자)를 의미합니다.
+  - `g` 플래그는 문자열 전체에서 해당 패턴을 검색하며,
+  - `u` 플래그는 Unicode 모드를 활성화하여 정확한 코드 포인트 단위로 검색할 수 있게 합니다.
+- `replace` 메서드
+  - 검색된 모든 제어문자를 빈 문자열(`''`)로 치환하여 제거합니다.
+
+#### 결론
+
+데이터베이스나 API 통신 등에서 발생할 수 있는 제어문자 문제는,  
+사용자 입력 또는 외부 소스에서 전달되는 데이터를 전처리하는 단계에서 미리 처리하는 것이 좋습니다.

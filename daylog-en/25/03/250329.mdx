@@ -1,0 +1,54 @@
+---
+title: "How to Remove Control Characters Using Unicode Property Escapes"
+date: "250329"
+tags: ["NestJS", "Issue"]
+---
+
+#### Problem Scenario
+
+If a user's input string unintentionally contains C0 control characters (Unicode U+0000 ~ U+001F) or C1 control characters (U+007F ~ U+009F), databases with strict encoding requirements—such as PostgreSQL—may throw errors when executing queries.
+
+To prevent such issues, it is necessary to preprocess the string and remove any problematic control characters.
+
+#### Solution: Unicode Property Escapes
+
+Starting from ECMAScript 2018, Unicode property escapes allow us to easily find and remove all characters belonging to specific Unicode ranges within a string.
+
+Example of Unicode property escapes:
+
+```typescript
+// The regular expression /\p{C}/gu finds all characters in the "Other" category (control characters, etc.) of Unicode.
+```
+
+This approach is convenient because it eliminates control characters without requiring explicit character range specifications.
+
+#### Implementation Example
+
+Below is a function that removes control characters, which can be used in a NestJS project.
+
+```typescript
+/
+ * Removes all control characters from the input string.
+ * This function uses Unicode property escapes to find and eliminate
+ * all characters in the "Other" category (\p{C}) of Unicode.
+ *
+ * @param input - The original string
+ * @returns The sanitized string with control characters removed
+ */
+export function sanitizeInput(input: string): string {
+  // The 'u' flag enables Unicode mode, and the 'g' flag ensures all matches are processed.
+  return input.replace(/\p{C}/gu, "");
+}
+```
+
+- Regular expression `/\p{C}/gu`
+  - `\p{C}` matches all control characters in Unicode's "Other" category.
+  - The `g` flag ensures that all occurrences in the string are replaced.
+  - The `u` flag enables Unicode mode, allowing accurate matching of Unicode code points.
+- `replace` method
+  - Replaces all matched control characters with an empty string (`''`).
+
+#### Conclusion
+
+Issues caused by control characters in databases or API communication should be addressed proactively.  
+It is best to preprocess user input or external data sources in advance to avoid potential errors.
