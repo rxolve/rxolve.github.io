@@ -1,0 +1,75 @@
+---
+title: "Regular Expressions and replace vs. replaceAll"
+date: "250331"
+tags: ["JavaScript"]
+---
+
+When working with strings in JavaScript, replacement operations are often necessary.
+It is particularly important to clearly understand the differences between `replace` and `replaceAll` when using regular expressions to find and replace all occurrences of a specific pattern in a string.
+
+## Basic Behavior of replace and replaceAll
+
+- replace
+
+  - When using a string pattern: Only the first matched occurrence is replaced.
+  - When using a regular expression:
+    - A regular expression without the `g` flag replaces only the first match.
+    - A regular expression with the `g` flag replaces all matches within the string.
+
+- replaceAll
+  - As the name suggests, this method replaces all occurrences of a match.
+  - It supports both string patterns and regular expressions, but if a regular expression is used, the `g` flag must be included.
+    > If a regular expression without the `g` flag is passed, a `TypeError` will occur.
+
+## The Role of the g Flag in Regular Expressions
+
+When the `g` flag is added to a regular expression, both `replace` and `replaceAll` behave identically. For example:
+
+```js
+const str = "foo foo foo";
+const regex = /foo/g;
+
+console.log(str.replace(regex, "bar")); // "bar bar bar"
+console.log(str.replaceAll(regex, "bar")); // "bar bar bar"
+```
+
+As seen in the example above, using a regular expression with the `g` flag produces the same result for both methods.
+
+## Why Use replaceAll?
+
+#### Clearer Code Intent
+
+- Readability: `replaceAll` explicitly conveys the intent of replacing all occurrences.
+- Error Prevention: When using a string pattern, `replace` only modifies the first match, which might lead to unintended results.
+
+#### Exceptional Cases
+
+- Using a Regular Expression: If `replaceAll` is given a regular expression without the `g` flag, an error occurs.
+  ```js
+  const re = /foo/; // Missing g flag
+  console.log(str.replaceAll(re, "bar")); // TypeError occurs!
+  ```
+
+Due to this behavior, `replaceAll` is often preferred in modern projects to reduce errors in code execution.
+
+## Practical Tips
+
+- Browser Compatibility  
+  `replaceAll` is supported in modern JavaScript engines but may not work in older browsers. If necessary, consider using a polyfill.
+
+- Explicit Code Intent  
+  In code reviews or team collaboration, using `replaceAll` makes it clear that all matches are intended to be replaced.
+
+- Replacing Using Regular Expressions  
+  If `replace` is used in existing code, adding the `g` flag to the regular expression can achieve the same effect as `replaceAll`.
+
+  ```js
+  const str = "a b c d e";
+  const newStr = str.replace(/ /g, "-");
+  console.log(newStr); // "a-b-c-d-e"
+  ```
+
+## Conclusion
+
+When the `g` flag is included in a regular expression, `replace` and `replaceAll` yield the same result. However, `replaceAll` explicitly conveys the intent of replacing all matches, improving code readability and preventing errors.
+By choosing the appropriate method based on the situation, you can enhance code stability and maintainability.
