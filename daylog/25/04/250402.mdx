@@ -1,0 +1,41 @@
+---
+title: "BullMQ에서 진행도 체크"
+date: "250402"
+tags: ["MessageQueue"]
+---
+
+BullMQ를 활용하여 백그라운드 작업을 처리할 때, 작업의 진행 상황(progress)을 추적하는 것은 사용자 경험 개선과 문제 디버깅에 매우 중요한 요소입니다.  
+전통적으로, 작업 처리 함수 내에서 `job.progress()`를 호출하여 진행 상황을 업데이트하는 방식이 널리 사용되고 있습니다.  
+이 방식은 간단하고 직관적이며, 작업이 어느 정도 진행되었는지 클라이언트나 모니터링 시스템에 피드백을 제공할 수 있다는 장점이 있습니다.
+
+## job.progress()를 활용한 진행도 체크
+
+작업 처리 로직 내에서 진행도를 업데이트하는 방법은 다음과 같이 간단합니다.
+
+```javascript
+queue.process(async (job) => {
+  // 초기 상태: 0% 진행
+  await job.progress(0);
+
+  // 작업의 일부 단계 실행
+  await doStepOne(job.data);
+  await job.progress(50); // 50% 완료
+
+  // 나머지 단계 처리
+  await doStepTwo(job.data);
+  await job.progress(100); // 작업 완료
+
+  return "result";
+});
+```
+
+위 코드처럼 각 작업 단계가 끝날 때마다 `job.progress()`를 호출해 진행도를 업데이트하면, BullMQ의 'progress' 이벤트를 통해 외부에서도 해당 정보를 수신할 수 있습니다.  
+예를 들어, 다음과 같이 이벤트 리스너를 설정할 수 있습니다.
+
+```javascript
+queue.on("progress", (job, progress) => {
+  console.log(`Job ${job.id} 진행도: ${progress}`);
+});
+```
+
+이 방식은 단순 작업이나 진행률이 선형적으로 변화하는 경우에는 충분히 유용합니다.
