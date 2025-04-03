@@ -1,0 +1,92 @@
+---
+title: "lit-html과 lit-element"
+date: "250403"
+tags: ["JavaScript"]
+---
+
+### lit-html: 선언적 템플릿 엔진
+
+- 기본 개념  
+  lit-html은 ES6의 템플릿 리터럴(tagged template literals)을 활용해 HTML 템플릿을 선언적으로 작성할 수 있도록 도와줍니다.  
+  기존의 문자열 기반 템플릿보다 가독성이 높고, 동적인 데이터 바인딩을 자연스럽게 구현할 수 있다는 점이 큰 장점입니다.
+
+- 효율성  
+  DOM 업데이트를 최적화하는 “차분 업데이트(diffing)” 기법을 사용하여, 실제 변경된 부분만 갱신합니다.  
+  이로 인해 불필요한 렌더링을 방지하고, 성능 최적화를 이끌어낼 수 있습니다.
+
+- 사용 예시
+
+  ```javascript
+  import { html, render } from "lit-html";
+
+  const myTemplate = (name) => html` <div>Hello, ${name}!</div> `;
+
+  render(myTemplate("World"), document.body);
+  ```
+
+  위와 같이 간단한 템플릿 정의와 렌더링 과정을 통해, 동적인 데이터를 손쉽게 바인딩할 수 있습니다.
+
+### lit-element: 웹 컴포넌트 개발의 확장
+
+- 기본 개념  
+  lit-element는 lit-html의 기능을 기반으로 한 웹 컴포넌트의 선언 및 관리 라이브러리입니다.  
+  클래스 기반의 API를 제공해, 커스텀 요소 정의와 라이프사이클 관리, 반응형 프로퍼티 시스템 등을 포함하고 있습니다.
+
+- 장점
+
+  - 간결한 컴포넌트 정의: 클래스 상속을 통해 웹 컴포넌트를 정의하고, 반응형 데이터 바인딩과 템플릿 렌더링을 손쉽게 결합할 수 있습니다.
+  - 경량화: 다른 프레임워크에 비해 라이브러리 자체의 크기가 매우 작으며, 필요한 기능만을 선택적으로 사용하도록 설계되었습니다.
+  - 명확한 라이프사이클: 커스텀 엘리먼트의 생성, 업데이트, 소멸 과정을 명확하게 관리할 수 있어, 복잡한 애플리케이션에서도 유지보수가 용이합니다.
+
+- 사용 예시
+
+  ```javascript
+  import { LitElement, html, css } from "lit-element";
+
+  class MyElement extends LitElement {
+    static get properties() {
+      return {
+        name: { type: String },
+      };
+    }
+
+    static get styles() {
+      return css`
+        div {
+          color: blue;
+        }
+      `;
+    }
+
+    constructor() {
+      super();
+      this.name = "World";
+    }
+
+    render() {
+      return html`<div>Hello, ${this.name}!</div>`;
+    }
+  }
+
+  customElements.define("my-element", MyElement);
+  ```
+
+  위 코드는 lit-element를 활용해 간단한 커스텀 엘리먼트를 만드는 예시로, 반응형 프로퍼티와 스타일링, 템플릿 렌더링이 어떻게 통합되는지를 잘 보여줍니다.
+
+### 왜 선택해야 할까?
+
+- 퍼포먼스와 효율성  
+  DOM 변화에 따른 최소한의 업데이트를 보장하기 때문에, 대규모 애플리케이션에서도 성능 저하 없이 동적인 UI를 구현할 수 있습니다.
+
+- 모던 웹 표준 준수  
+  웹 컴포넌트 표준에 기반하여, 다른 라이브러리나 프레임워크와의 호환성이 뛰어나고, 향후 웹 표준과의 시너지를 기대할 수 있습니다.
+
+- 개발 생산성 향상  
+  선언적 템플릿과 명확한 라이프사이클 관리는 코드의 가독성을 높이고, 유지보수를 쉽게 만들어 줍니다.  
+  이는 특히 복잡한 프로젝트나 장기 유지보수가 필요한 시스템에서 큰 이점으로 작용합니다.
+
+### 결론
+
+lit-html과 lit-element는 단순히 “UI 라이브러리” 이상의 가치를 제공합니다.  
+성능 최적화, 모던 웹 컴포넌트 표준 준수, 그리고 개발 생산성 향상이라는 세 마리 토끼를 한 번에 잡을 수 있는 도구로서, 현재 많은 개발자 커뮤니티에서 긍정적인 평가를 받고 있습니다.  
+향후 Lit 2.0으로 통합 및 개선된 버전이 나오면서, 이들의 역할은 더욱 중요해질 전망입니다.
