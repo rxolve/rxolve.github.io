@@ -1,0 +1,107 @@
+---
+title: "Preventing Duplicate API Requests"
+date: "250404"
+tags: ["NestJS"]
+---
+
+## Why Do Duplicates Occur?
+
+When multiple identical API POST requests arrive simultaneously, multiple threads (or processes) may attempt to access the database at nearly the same time.
+
+Some key reasons include:
+
+- Race Condition: If multiple requests try to insert data at the same time, one request may insert first while others attempt to insert the same data, leading to duplication.
+- Non-Idempotency: POST requests are inherently non-idempotent, meaning that sending the same request multiple times creates new resources each time.
+
+## Approaches to Prevent Duplicates
+
+### Database-Level Unique Constraints
+
+#### Explanation:
+
+- You can define a unique constraint on specific columns (e.g., user ID, order number, status) to prevent duplication.
+- For example, in MySQL, you can define a composite unique key as follows:
+
+  ```sql
+  CREATE TABLE orders (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
+      order_number VARCHAR(50) NOT NULL,
+      status VARCHAR(20) NOT NULL,
+      amount DECIMAL(10,2),
+      -- Other columns...
+      UNIQUE KEY unique_order (user_id, order_number, status)
+  ) ENGINE=InnoDB;
+  ```
+
+#### Pros:
+
+- Ensures complete prevention of duplicate inserts at the database level, regardless of application logic errors.
+
+#### Cons:
+
+- If concurrent insert attempts violate the constraint, an exception occurs, requiring the application to handle it properly.
+- In some cases, database lock contention may impact performance.
+
+### Using an Idempotency Key
+
+#### Explanation:
+
+- Clients send a unique Idempotency Key (e.g., a UUID) with each POST request.
+- The server checks whether the request has already been processed:
+  - If the key exists: The server returns the previous result or ignores the request.
+  - If the key does not exist: The request is processed, and the key is stored.
+
+#### Pros:
+
+- Effectively prevents duplicate processing at both client and server levels.
+- Ensures safe retries in case of network failures.
+
+#### Cons:
+
+- If clients fail to manage the key properly, duplicate detection may be unreliable.
+- The server needs additional storage (e.g., memory, Redis, or a database) to track idempotency keys.
+
+### Distributed Locking
+
+#### Explanation:
+
+- Uses a distributed cache system like Redis to acquire a lock before processing the request.
+- For example, using a unique identifier such as `"order:12345"` as the lock key ensures that only one request proceeds while others wait or fail.
+
+#### Pros:
+
+- Ensures only one request is processed in multi-server environments.
+- Useful for handling high traffic bursts.
+
+#### Cons:
+
+- Increases system complexity due to additional lock acquisition and release logic.
+- Requires careful management of lock expiration and release timing.
+
+### Request Queuing
+
+#### Explanation:
+
+- All POST requests are added to a queue and processed sequentially.
+- Message queue systems (e.g., RabbitMQ, Kafka) can be used to guarantee order and serialize request processing.
+
+#### Pros:
+
+- Guarantees request order and prevents duplicate creation.
+- Works well under high traffic conditions.
+
+#### Cons:
+
+- Increases architectural complexity.
+- Introduces response delays due to sequential processing.
+
+## Combining Strategies
+
+In real-world production environments, a single approach may not cover all scenarios. A combined strategy is usually more effective:
+
+- Database Unique Constraints: Serve as a final safeguard against duplicate inserts.
+- Idempotency Keys: Prevent duplicates at the API level and ensure safe retries.
+- Distributed Locking: Useful for critical operations like payment processing.
+
+By implementing multiple layers of protection, you can minimize failure points and improve overall system reliability.
