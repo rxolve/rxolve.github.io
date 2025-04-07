@@ -1,0 +1,89 @@
+---
+title: "Terminating Session-Holding Queries"
+date: "250407"
+tags: ["RDS"]
+---
+
+In production, when a query runs too long and holds onto a session, it can lead to degraded database performance and delayed application responses.  
+PostgreSQL provides the `pg_stat_activity` view for monitoring currently running queries and session states, and the `pg_terminate_backend` function to terminate problematic sessions when necessary.
+
+## Monitoring Running Queries
+
+#### pg_stat_activity
+
+`pg_stat_activity` is a system view in PostgreSQL that provides useful information about all active sessions, their states, and the start time of currently running queries.  
+By leveraging this view, you can easily identify long-running queries and sessions consuming excessive resources.
+
+#### Identifying Long-Running Queries
+
+The following query helps find active sessions with queries running for more than 5 minutes:
+
+```sql
+SELECT
+  pid,
+  usename,
+  datname,
+  query,
+  state,
+  now() - query_start AS duration
+FROM pg_stat_activity
+WHERE state = 'active'
+  AND now() - query_start > interval '5 minutes'
+ORDER BY duration DESC;
+```
+
+This will return session PIDs and the duration of running queries, helping you quickly identify problematic queries.
+
+## Terminating Problematic Sessions
+
+#### Why terminate sessions?
+
+When long-running queries hold onto sessions, it can cause delays and resource contention for other users or applications connecting to the same database.  
+In such cases, it's often necessary to forcefully terminate the query or the session. PostgreSQL offers two options:
+
+- `pg_cancel_backend(pid)`: Cancels the currently running query, but keeps the session alive.
+- `pg_terminate_backend(pid)`: Forcefully terminates the entire session.
+
+Here, we'll focus on terminating the entire session using `pg_terminate_backend`.
+
+#### Example: Using pg_terminate_backend
+
+Suppose `pg_stat_activity` reveals that session with PID 8121 has been running for too long.  
+To terminate it, run the following command:
+
+```sql
+SELECT pg_terminate_backend(8121);
+```
+
+This command will forcibly terminate the session with the given PID. Any ongoing transaction within that session will be rolled back, and the connection will be closed.
+
+> ⚠️ Caution:
+>
+> - Permissions: You need to be the owner of the session or have appropriate privileges (e.g., superuser or rds_superuser) to execute this function.
+> - Data Consistency: Since ongoing transactions will be rolled back, use with care to ensure application logic and data consistency are not compromised.
+
+## Operational Best Practices
+
+#### Automating Monitoring
+
+While manually checking queries via SQL clients is feasible, setting up automated monitoring and alerting is more effective in production environments.
+
+- Integration with CloudWatch and Lambda:  
+  Use an AWS Lambda function to periodically query `pg_stat_activity`. If any queries exceed a certain threshold (e.g., 5 minutes), send an alert via SNS or automatically invoke `pg_terminate_backend` through a script.
+- Using Performance Insights:  
+  PostgreSQL’s Performance Insights can help you analyze query performance and identify bottlenecks more intuitively.
+
+#### Logging and Post-Mortem Analysis
+
+When terminating sessions, it’s good practice to log the PID, termination timestamp, and query text.  
+This information can be used later for root cause analysis, such as identifying missing indexes or unoptimized queries.
+
+## Summary
+
+To effectively manage long-running, session-holding queries in PostgreSQL:
+
+1. Periodically monitor running queries and session states using `pg_stat_activity`.
+2. Use `pg_terminate_backend` to forcefully terminate sessions when necessary.
+
+By combining these techniques with automation tools (e.g., Lambda, CloudWatch), you can respond quickly to incidents and maintain long-term performance and stability.  
+And always remember to address the root causes—such as query tuning or adding indexes—to prevent recurring issues.
