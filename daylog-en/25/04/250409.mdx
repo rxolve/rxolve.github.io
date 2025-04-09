@@ -1,0 +1,70 @@
+---
+title: "Universals and Variable Naming"
+date: "250409"
+tags: ["Concept"]
+---
+
+## Universals
+
+In philosophy, a universal refers to a "shared essence" inherent in multiple individual entities or phenomena. Much like Plato’s theory of forms, a universal is a fundamental property that different concrete instances resemble. In the world of programming, this concept often manifests through abstract classes or interfaces, but it also plays a crucial role in variable naming.
+
+A variable name is more than just a symbol. A well-chosen name reveals the universal concept—the “meaning” the code is trying to express—and offers shared understanding to anyone reading the code.
+
+## Universal Thinking in Variable Naming
+
+### Choosing Variable Names
+
+A common dilemma when naming variables is this:  
+“How abstract is the concept I’m trying to express?”
+
+- Overly specific variable names:  
+  When a name includes too much detail, it may limit reusability or general applicability. For example, `averageOfStudentScoresForMath` may be clear in one context, but overly restrictive elsewhere.
+
+- Overly abstract variable names:  
+  Conversely, names like `data` or `info` are so generic that they fail to communicate any real meaning, making the code harder to understand.
+
+The key is to maintain a universal perspective while selecting the appropriate level of abstraction based on context. Every name should answer the question:  
+“What role does this variable play, and what universal concept does it represent?”
+
+### Balancing Abstraction and Concreteness
+
+While the idea of a universal lies at the heart of abstraction, it must also be adjusted to fit specific situations—this includes naming variables.
+
+- Universal names (e.g., `result`, `counter`, `buffer`):  
+  These names express abstract concepts that can be reused across various contexts.
+
+- Specific names (e.g., `userAge`, `sessionToken`):  
+  These clarify the use of a variable and make the code’s intent immediately apparent.
+
+The two approaches are complementary. Naming strategies grounded in universal concepts help modularize code and express abstract design principles while still allowing for concrete implementation when needed.
+
+## A Simple Example
+
+Let’s look at how variable names can reflect both abstraction and concreteness in a function that processes generalized data.
+
+```typescript
+// Abstract variable name representing a universal concept
+let items: any[] = fetchData();
+// Here, 'items' acts as a universal container that can hold various types of data.
+
+// General-purpose data processing function
+function processItems(data: any[]): any[] {
+  const processed: any[] = [];
+  for (const item of data) {
+    // The processing logic may depend on the item’s structure, but the variable name expresses its universal role.
+    processed.push(transform(item));
+  }
+  return processed;
+}
+
+// Concrete variable names reflecting specific contexts
+const userProfiles: UserProfile[] = filterUserProfiles(items);
+const sessionTokens: string[] = extractSessionTokens(items);
+```
+
+In this code, the name `items` is intentionally abstract—it doesn’t indicate the specific type or content of the data. Instead, its meaning is inferred from the context of the surrounding code.  
+On the other hand, names like `userProfiles` or `sessionTokens` are purposefully specific, improving readability and maintainability.
+
+## In Closing
+
+A good variable name bridges the abstract concepts within code and the concrete requirements of implementation. It clearly expresses the developer’s intended meaning and fosters a shared understanding among all who read it.
