@@ -1,0 +1,126 @@
+---
+title: "Logical Replication in PostgreSQL"
+date: "250410"
+tags: ["RDS"]
+---
+
+PostgreSQL supports both physical replication (replicating data at the block level) and logical replication (replicating individual tuple-level changes).  
+While MySQL refers to this as "binary logs," PostgreSQL relies on its internal Write-Ahead Logging (WAL) system.  
+Logical replication interprets WAL records "logically" and transmits data through a publish-subscribe model.
+
+## Overview of Logical Replication
+
+#### Physical vs. Logical Replication
+
+- Physical Replication (Streaming Replication):
+
+  - Transfers WAL data as-is (in binary) to create an identical disk image on the standby server.
+  - Downsides: Requires the same PostgreSQL version and architecture. Cannot selectively replicate specific tables or partial data.
+
+- Logical Replication:
+
+  - Decodes WAL entries into logical changes like individual INSERT, UPDATE, and DELETE operations.
+  - Operates on a publish (publication) and subscribe (subscription) model, allowing selective replication of specific tables or subsets of data. Works across different versions and platforms.
+  - However, DDL changes (e.g., schema alterations) are not replicated by default.
+
+## How Logical Replication Works
+
+### Key Components
+
+- WAL (Write-Ahead Log):  
+  A log that records all changes to data. PostgreSQL uses it for both crash recovery and replication. Logical replication extracts changes from WAL through a process called logical decoding.
+
+- Logical Decoding & Output Plugin:  
+  Interprets binary WAL entries and converts them into SQL-level INSERT/UPDATE/DELETE operations. PostgreSQL uses the built-in `pgoutput` plugin by default, but custom plugins can also be used.
+
+- Publication & Subscription:
+
+  - Publication: Defines the set of tables or data to be replicated.
+
+    ```sql
+    ALTER SYSTEM SET wal_level = logical;  -- Set wal_level to logical (requires restart)
+    SELECT pg_reload_conf();
+
+    CREATE PUBLICATION my_pub FOR TABLE mytable;
+    ```
+
+  - Subscription: Connects to a publication and receives changes. The subscriber can read from and optionally write to replicated tables.
+
+    ```sql
+    CREATE SUBSCRIPTION my_sub
+      CONNECTION 'host=primary_host port=5432 dbname=postgres user=replicator password=secret'
+      PUBLICATION my_pub;
+    ```
+
+#### Replication Process
+
+1. Initial Synchronization  
+   When a subscription is created, the snapshot of the source tables is sent to the subscriber to initialize the data.
+
+2. Streaming Changes in Real Time  
+   After synchronization, the publisher continues to decode WAL entries into logical operations and streams them to the subscriber.
+
+   - The publisher reads new WAL entries, converts them via the output plugin into INSERT/UPDATE/DELETE messages, and sends them using a `walsender` process.
+   - The subscriber’s `apply worker` receives the messages and applies them locally in the same transaction order.
+
+3. Status Updates  
+   The subscriber reports back the latest WAL LSN (Log Sequence Number) it has applied. This allows the publisher to manage disk space by retaining only the necessary WAL files.
+
+## Configuration Considerations
+
+#### Important Server Settings
+
+- wal_level:  
+  Must be set to `logical` to enable logical replication.
+
+  ```conf
+  wal_level = logical
+  ```
+
+- max_replication_slots & max_wal_senders:  
+  Sufficient slots and sender processes must be allocated.
+
+  ```conf
+  max_replication_slots = 10
+  max_wal_senders = 10
+  ```
+
+- pg_hba.conf Configuration:  
+  Access control must be configured to allow replication.
+
+  ```conf
+  host    replication    replicator    192.168.1.0/24    md5
+  ```
+
+#### Structural Constraints & Limitations
+
+- No DDL Replication:  
+  CREATE, ALTER, DROP (schema changes) are not automatically replicated. Schema must be manually synchronized beforehand.
+
+- Sequences & Large Objects Not Replicated:  
+  These need to be managed manually.
+
+- Table Requirements:  
+  Tables must have a primary key or a unique index. If not, `REPLICA IDENTITY FULL` must be set, which can degrade performance.
+
+- Limitations:
+  - Subscribers can write to the replicated tables, but conflicts may occur if changes overlap with replicated data.
+  - After initial sync, only DML changes are transmitted. Any inconsistencies must be manually resolved.
+
+## Conclusion
+
+PostgreSQL’s logical replication leverages its WAL mechanism to replicate data at a fine-grained level across databases.
+
+- Benefits:
+
+  - Selective replication of specific tables or subsets of data.
+  - Works across different versions or platforms.
+  - Subscribers can be used not only for read scaling but also for active-active data applications.
+
+- Drawbacks:
+  - No support for DDL, sequences, or large object replication by default.
+  - Requires careful monitoring of the replication process, especially around initial sync and status reporting.
+
+In production environments, third-party tools like ClusterControl, EDB solutions, and Severalnines are often used to automate replication setup, monitoring, and failover handling.
+
+With logical replication, PostgreSQL enables greater scalability, high availability, and data mobility—such as transferring data between OLTP and OLAP systems.
