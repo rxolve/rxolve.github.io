@@ -14,22 +14,15 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
-    "@mdx-js/loader": "^3.0.1",
-    "@mdx-js/react": "^3.0.1",
     "@next/mdx": "^14.2.3",
     "@radix-ui/react-slot": "^1.1.0",
     "@supabase/supabase-js": "^2.43.5",
     "@tailwindcss/forms": "^0.5.7",
-    "@types/mdx": "^2.0.13",
-    "@types/node": "20.5.7",
     "axios": "^1.7.7",
-    "bcrypt": "^5.1.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
-    "gray-matter": "^4.0.3",
     "lucide-react": "^0.416.0",
-    "mermaid": "^10.9.1",
     "next": "^14.0.2",
     "next-auth": "^5.0.0-beta.17",
     "next-mdx-remote": "^5.0.0",
@@ -38,32 +31,47 @@
     "react-dom": "18.2.0",
     "react-ga4": "^2.1.0",
     "react-syntax-highlighter": "^15.5.0",
-    "remark-gfm": "^4.0.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "5.2.2",
     "use-debounce": "^10.0.0",
     "zod": "^3.22.2",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.1",
-    "@types/mermaid": "^9.2.0",
+    "@types/node": "20.5.7",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.14",
-    "@types/react-syntax-highlighter": "^15.5.13",
     "@vercel/style-guide": "^5.0.1",
     "autoprefixer": "^10.4.19",
     "dotenv": "^16.3.1",
     "eslint": "^8.52.0",
     "eslint-config-next": "^14.0.0",
     "eslint-config-prettier": "9.0.0",
+    "gray-matter": "^4.0.3",
+    "mermaid": "^10.9.1",
     "postcss": "^8.4.39",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "0.5.4",
-    "tailwindcss": "^3.4.6"
+    "tailwindcss": "^3.4.6",
+    "typescript": "5.2.2"
   },
   "engines": {
     "node": ">=18.17.0"
+  },
+  "images": {
+    "formats": [
+      "image/avif",
+      "image/webp"
+    ],
+    "deviceSizes": [
+      640,
+      750,
+      828,
+      1080,
+      1200,
+      1920,
+      2048,
+      3840
+    ]
   }
 }
