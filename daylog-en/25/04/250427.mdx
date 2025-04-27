@@ -1,0 +1,63 @@
+---
+title: "Analysis and Resolution of 502 Errors Between Beanstalk Environments"
+date: "250427"
+tags: ["AWS"]
+---
+
+## Common Causes of 502 Errors
+
+An HTTP 502 Bad Gateway error indicates that a proxy or load balancer (LB) did not receive a valid response from the target server. Common causes include target connection failures (e.g., server down, blocked by security group/ACL), the target server prematurely closing the connection (e.g., Keep-Alive mismatch), malformed response headers (oversized or invalid), or attempts to send requests to deregistered instances.
+
+Specifically, if the target's Keep-Alive timeout is shorter than the default idle timeout of the ALB (60 seconds), the LB may return a 502 when the target closes the connection. Also, if unhealthy instances in the target group cannot handle all incoming traffic, 502/503 errors may occur.
+
+## Root Cause Analysis
+
+- Load Balancer Issues: The ALB may block or prematurely terminate connections. For example, if the ALB idle timeout (default 60s) exceeds the Node.js/NestJS default Keep-Alive timeout (5s), a 502 error may occur when the target (e.g., Nginx/Node.js) closes the connection first.
+- NestJS/Express Configuration: The default `keepAliveTimeout` for NestJS (Express) servers is 5 seconds. If connections are reused under heavy load and the server closes the connection, a 502 may be returned. You should also verify values like `headersTimeout`.
+- Nginx (Beanstalk Proxy) Timeouts: The default `keepalive_timeout` for Nginx is 75 seconds. `proxy_*_timeout` values are typically around 60–75 seconds. If the server takes longer than this to respond, Nginx may terminate the request.
+- System Overload: High CPU or memory usage, or event loop delays (e.g., due to GC, DB bottlenecks, TypeORM connection pool exhaustion) may cause delayed responses or connection timeouts, leading to 502s.
+- Network/Security Group: Misconfigured SGs or network ACLs between the ALB and instances may block traffic in certain AZs. Ensure that the ALB outbound and instance inbound rules are correctly configured for HTTP/HTTPS.
+- Health Checks & Scaling: If an EB instance is in a `Deregistering` state or fails health checks, requests may be routed to it and result in 502s. Review your health check path, timeout, and thresholds to ensure stability under load.
+
+## Load Balancer Configuration & Behavior Checks
+
+- Idle Timeout: The default ALB idle timeout is 60 seconds. If this is exceeded, the LB may close the connection and return a 504/502. Make sure this is greater than your server-side timeouts, or increase it (e.g., to 120s).
+- Target Group Health Checks: Configure proper health check paths (e.g., `/health`) and response codes. Review failure thresholds and interval settings. To handle increased traffic, increase the number of healthy instances.
+- Security Settings: Ensure HTTP/HTTPS traffic is allowed in the ALB security group and that instances trust the ALB’s SG. Also verify that NACLs allow communication between subnets (ephemeral ports 1024–65535).
+- Load Balancer Type Review: If you don’t need HTTP/L7 features, consider switching to an NLB. NLBs offer a longer default idle timeout (350s), making them more resilient to keep-alive mismatches. However, NLBs do not return HTTP status codes like 502.
+- Connection Logging & Metrics: Enable ALB access logs to inspect target and LB response codes during 502 events. Use CloudWatch metrics like `HTTPCode_ELB_502_Count` and `HTTPCode_Target_5XX_Count` to identify patterns.
+
+## NestJS & Axios Timeout/Error Handling
+
+- Axios Defaults: Axios has no default timeout (`timeout = 0`). Set a timeout explicitly via `axios.create({ timeout: N })` or `HttpModule.register({ timeout: N })` in NestJS. Catch `ECONNABORTED` errors for retry or user handling.
+- Keep-Alive with Axios: By default, Axios opens a new connection for each request. Use `http.Agent` or `https.Agent` with `keepAlive: true` to enable connection reuse:
+  ```js
+  const agent = new http.Agent({ keepAlive: true });
+  axios.get(url, { httpAgent: agent });
+  ```
+  This reduces socket creation overhead and TIME_WAIT issues.
+- NestJS Server Settings: If directly accessing the HTTP server (`const server = app.getHttpServer()`), adjust `server.keepAliveTimeout` and `server.headersTimeout` to values greater than the ALB idle timeout (e.g., 60000ms).
+- Error Handling: Catch and log timeouts or network errors in NestJS using `try/catch` around `lastValueFrom(this.httpService.get(...))` or RxJS `catchError`. Integrate logs with CloudWatch for traceability.
+
+## Timeout Checklist (Client/Server)
+
+- Client (Expert): Check Axios settings (`timeout`, `maxRedirects`, `headers`) and connection config (`http.Agent`). Also inspect DNS resolution, firewall/proxy presence, `NO_PROXY` env settings, and connection pool saturation (`maxSockets`).
+- Server (Market): Monitor instance CPU, memory, and event loop delays. High CPU usage or GC pauses may slow responses. Check for Node.js event loop lag (`cpu_utilization`, `pm2 metrics`) and scale out if necessary.
+- Infrastructure: Analyze instance status and response times in ALB target groups, Nginx error logs (`/var/log/nginx/...`), and app logs. Use AWS CloudWatch and X-Ray for pinpointing timeout locations.
+- Database: Inspect RDS connection limits and delays. While the cluster may be healthy, check for regional latency or replica lag under load. Review TypeORM connection pool size and query performance.
+
+## ALB/NLB, Health Checks, Target Group Optimization
+
+- Increase ALB Idle Timeout: Ensure the server Keep-Alive/read timeout exceeds ALB idle timeout. Either increase the ALB idle timeout (e.g., to 120s) or extend server-side timeouts.
+- Target Group Settings: Confirm listener and target group protocols are correctly set (HTTP/HTTPS). Review health check path, port, and status code (200, etc.). Set the “Deregistration Delay” to a higher value (e.g., 300s) to let nodes finish in-flight requests, reducing 502/503 occurrences.
+- Consider NLB: For high traffic scenarios, NLB offers more stable TCP-level balancing. With a default 350s idle timeout, it reduces connection dropouts. However, NLB lacks HTTP-specific handling—stick with ALB if HTTP visibility is needed.
+- Beanstalk Health Checks: Review EB health check settings (enabled/disabled, interval, response timeout). Increase initial delay to avoid early health check failures, and use lightweight endpoints to prevent disruption during deployments.
+
+## Summary of Recommendations
+
+- Adjust Timeouts: Increase `keepAliveTimeout`/`headersTimeout` in NestJS and related timeouts in Nginx (`keepalive_timeout`, `proxy_read_timeout`, etc.) above default 5–60s values.
+- Align Keep-Alive/Idle Timeouts: Ensure ALB idle timeout > server Keep-Alive timeout. Or, match both to avoid premature disconnections.
+- Monitor Logs & Metrics: Enable ALB access logs, monitor CloudWatch metrics, and use AWS X-Ray to analyze bottlenecks.
+- Configure Axios Properly: Set explicit timeout and enable keep-alive reuse.
+- Scale Responsibly: Add instances or increase connection pools to handle peak load.
+- Optimize Health Checks: Fine-tune deregistration delays, health check paths, and instance boot behavior in EB.
