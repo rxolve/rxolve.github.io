@@ -20,9 +20,7 @@ const ArticleList = ({ list, date }: ArticleListProps) => {
       {list?.map((post) => (
         <article key={post.id}>
           <details open={list?.length === 1 || date === post.date}>
-            <summary>
-              {post.date} {post.title}
-            </summary>
+            <summary>{post.title}</summary>
             <MDXRemote
               source={post.content}
               components={mdxComponents}
