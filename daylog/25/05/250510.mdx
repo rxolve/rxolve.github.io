@@ -1,0 +1,54 @@
+---
+title: "AWS S3 Presigned URL"
+date: "250510"
+tags: ["AWS"]
+---
+
+AWS S3의 객체는 기본적으로 비공개(private)이며, 소유자만 접근할 수 있습니다.  
+하지만 Presigned URL을 생성하면 서버 자격 증명을 직접 노출하지 않고 URL을 가진 누구에게나 지정된 시간 동안 객체에 접근 권한을 부여할 수 있습니다.  
+이 URL에는 AWS Signature Version 4 기반의 서명(signature)과 만료 시간(Expires)이 쿼리 파라미터로 포함되어 있어, 기한이 지나면 자동으로 접근이 차단됩니다.
+
+#### 왜 Presigned URL인가?
+
+- 간편한 파일 공유: 이메일이나 메신저로 민감한 파일을 안전하게 전송할 때
+- 클라이언트 직접 업로드: 서버 부하를 줄이고, 대용량 파일도 효율적으로 수신 가능
+- 권한 최소화: IAM 정책으로 최소한의 `s3:GetObject`·`s3:PutObject` 권한만 부여
+
+#### 작동 원리
+
+1. 서버에서 AWS 자격 증명을 사용해 Presigned URL을 생성 (Expiration 설정 포함)
+2. 클라이언트는 반환된 URL로 직접 S3에 HTTP 요청(`GET`, `PUT`, `HEAD` 등)을 전송
+3. AWS는 URL 내 쿼리 파라미터(`X-Amz-Signature`, `X-Amz-Expires` 등)를 검증한 뒤, 요청 처리
+4. 사용자는 AWS SDK나 HTTP 클라이언트 없이도 안전하게 객체를 주고받을 수 있습니다.
+
+> 비유: Presigned URL은 “잠금장치가 사라진 문”과 같습니다. 문 앞에 서 있는 사람(클라이언트)은 URL(열쇠)만 있으면, 유효 시간 내에 자유롭게 드나들 수 있습니다.
+
+#### 주요 사용 사례
+
+- 파일 다운로드 공유
+
+  - 소셜 네트워크, 메일, 챗봇 등 외부 시스템으로 파일 전송 시
+  - Expire 시간을 짧게(5분~1시간) 설정해 보안성 강화
+
+- 클라이언트 사이드 업로드
+
+  - React·Vue·Angular 앱에서 백엔드 위탁 없이 S3로 직접 업로드
+  - `PUT`이나 `POST` Presigned URL 활용 가능
+
+- 메타데이터 조회
+
+  - `HEAD` 요청을 통해 객체 크기, 콘텐츠 타입 등 정보만 조회
+  - 특히 대용량 객체 업로드 전 확인 용도로 유용
+
+- 제한적 API 호출
+
+  - 단기적 API 토큰 대신 Presigned URL을 활용해 비용·권한 통제
+  - CloudFront Signed URL과 결합 시 CDN 배포에도 적용 가능
+
+#### 보안 유의 사항
+
+- 만료 시간 관리: 민감도에 따라 5분~1시간 권장. 너무 길면 탈취 위험, 너무 짧으면 UX 저하
+- HTTPS 강제: URL 전송 시 중간자 공격 방지
+- 권한 최소화: IAM 정책으로 `s3:GetObject`, `s3:PutObject` 등 최소한의 권한만 허용
+- CloudTrail 로깅: 누구가 언제 URL을 사용했는지 추적
+- POST Presigned + CORS: 대용량 Multipart Upload 시 활용 가능

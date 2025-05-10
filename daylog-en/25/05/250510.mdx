@@ -1,0 +1,54 @@
+---
+title: "AWS S3 Presigned URL"
+date: "250510"
+tags: ["AWS"]
+---
+
+By default, AWS S3 objects are private and only accessible by the owner.  
+However, by generating a Presigned URL, you can grant anyone with the URL temporary access to a specific object without exposing your server's credentials.  
+This URL includes query parameters like a signature (based on AWS Signature Version 4) and an expiration time, after which the URL becomes invalid automatically.
+
+#### Why Use a Presigned URL?
+
+- Easy File Sharing: Send sensitive files securely via email or messenger.
+- Direct Client Upload: Offload heavy file uploads from your server and allow efficient client-to-S3 transfers.
+- Least Privilege Access: Grant only minimal permissions like `s3:GetObject` or `s3:PutObject` via IAM policy.
+
+#### How It Works
+
+1. The server uses AWS credentials to generate a Presigned URL (with an expiration setting).
+2. The client sends an HTTP request (`GET`, `PUT`, `HEAD`, etc.) directly to S3 using the Presigned URL.
+3. AWS validates the URL's query parameters (e.g., `X-Amz-Signature`, `X-Amz-Expires`) before fulfilling the request.
+4. The user can interact with the S3 object securely—without needing AWS SDKs or separate HTTP clients.
+
+> 💡 Analogy: A Presigned URL is like a door without a lock. As long as the visitor (client) has the key (URL), they can freely go in and out within the valid time frame.
+
+#### Common Use Cases
+
+- File Download Sharing
+
+  - Share files with external systems like social media, email, or chatbots.
+  - Strengthen security by setting a short expiration (5 minutes to 1 hour).
+
+- Client-Side Uploads
+
+  - Allow users to upload directly to S3 from React, Vue, or Angular apps without going through your backend.
+  - Use `PUT` or `POST` Presigned URLs.
+
+- Metadata Inspection
+
+  - Use `HEAD` requests to fetch object size, content type, and other metadata.
+  - Useful for verifying large uploads before they happen.
+
+- Limited API Access
+  - Replace short-term API tokens with Presigned URLs for cost and permission control.
+  - Combine with CloudFront Signed URLs for CDN distribution.
+
+#### Security Considerations
+
+- Manage Expiration Time: Recommend 5 minutes to 1 hour depending on sensitivity.  
+  Too long increases risk of exposure; too short may impact UX.
+- Enforce HTTPS: Prevent man-in-the-middle attacks when URLs are transmitted.
+- Minimal IAM Permissions: Only allow the required actions (`s3:GetObject`, `s3:PutObject`, etc.).
+- Use CloudTrail: Monitor when and by whom each Presigned URL was used.
+- POST Presigned + CORS: Ideal for large Multipart Upload scenarios.
