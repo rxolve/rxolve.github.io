@@ -1,0 +1,72 @@
+---
+title: "AWS Summit Seoul 2025: Bedrock Session Highlights"
+date: "250515"
+tags: ["AWS"]
+---
+
+At AWS Summit Seoul 2025, a notable number of sessions were dedicated to AWS Bedrock, closely tied to the growing momentum of Generative AI.  
+From Daangn Pay’s Text-to-SQL implementation and CJ CheilJedang’s enterprise AI platform, to breakthroughs in image search, enhanced RAG accuracy, and Bedrock-powered SaaS development — the event was rich with real-world use cases and architectural best practices.  
+This post summarizes the key Bedrock sessions at the Summit, highlighting their technical content, usage patterns, and practical insights.
+
+---
+
+## Key Bedrock Sessions from the Summit
+
+### Daangn Pay’s Data Transformation with Text-to-SQL
+
+In the session titled “Driving Data Innovation with Text-to-SQL on Amazon Bedrock: Daangn Pay’s Fintech Strategy”, the team demonstrated how natural language queries were converted into SQL, lowering the barrier to financial data analysis.  
+The speaker explained prompt engineering techniques for reliably generating complex SQL, and how they built a real-time query architecture using AWS Lambda and Aurora Serverless.
+
+- Imagine a user saying, _“Show me last month’s expenses.”_ Bedrock acts like a chef reading a recipe (SQL), while Lambda is the kitchen preparing and serving the dish to the table — all behind the scenes.
+
+---
+
+### CJ CheilJedang’s Integrated AI Platform
+
+In “CJ CheilJedang’s AI Transformation: Building an Enterprise-Optimized AI Platform with Amazon Bedrock”, the session detailed how internal data and workflows were unified under a standardized AI platform using Bedrock.
+
+- By combining fine-tuned models and a RAG (Retrieval-Augmented Generation) pipeline, they automated food safety document summarization and real-time quality predictions.
+- When a food inspection report is input, the platform generates business-friendly summaries like _“Watch out for the following issues with this product.”_
+
+---
+
+### Revolutionizing Image Search Services
+
+In the session titled “Reimagining Image Search with Amazon Bedrock”, the speaker showed how Bedrock’s multimodal capabilities were used to generate image embeddings for similar image search and recommendation systems.
+
+- Flow: Image → Bedrock API → Embedding via CLIP-like model → Indexed in OpenSearch/Kendra → User query → Similarity search → Results.
+- It's like telling a virtual museum guide, _“Show me artworks similar to this flower,”_ and Bedrock translates each image into a melody, finding others with harmonizing tunes.
+
+---
+
+### RAG Accuracy Optimization: Mastering Knowledge Bases
+
+The session “Secrets to Boosting RAG Accuracy: Mastering Amazon Bedrock Knowledge Bases” was a live demo that walked through the full pipeline — from data source connections to query-response engine tuning using AWS’s managed Knowledge Base.
+
+- Steps: Data ingestion (Glue/Databases), embedding generation (SageMaker + Bedrock), retrieval + result composition (best practice filters).
+- It also introduced the use of _purpose-driven prompt templates_ that assign weights to search results to boost response consistency and accuracy.
+
+---
+
+### Building SaaS Services with Bedrock
+
+The session “Building Generative AI SaaS Services with Amazon Bedrock” shared how to efficiently provision tenant-specific instances in a multi-tenant environment, optimize costs, and ensure security compliance.
+
+- Architecture: API Gateway + Lambda microservices → Bedrock calls → Result caching via DynamoDB/Timestream → Integration with per-tenant billing system.
+- Analogy: Like a shared office’s meeting room booking system — when a customer sends a request, a free room (LLM instance) is assigned, cleaned up after use, and prepared for the next guest.
+
+---
+
+## Insights from the Summit
+
+- Model diversity matters: Bedrock’s multi-vendor FM support is like a toolbox — choose the best tool (model) for each task.
+- Serverless is the new norm: Combining Lambda with Bedrock enables fast prototyping and effortless scaling with minimal infrastructure overhead.
+- Responsible AI is essential: Across sessions, speakers emphasized secure architectures using IAM, KMS, VPC endpoints, and ethical AI practices through prompt/output filtering.
+
+---
+
+## Best Practices
+
+1. Prompt design is your blueprint: For complex scenarios like SQL conversion, image embeddings, and RAG pipelines, modularize prompt templates to increase reusability and clarity.
+2. Logging and monitoring are essential: Attach CloudWatch metrics to every Bedrock call — monitor latency, error rates, and cost patterns in real time to detect anomalies.
+3. Start small, scale smart: Validate fine-tuning or RAG on a small slice of internal data first, then expand to production datasets in a gradual rollout strategy.

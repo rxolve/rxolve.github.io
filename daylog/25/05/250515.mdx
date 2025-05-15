@@ -1,0 +1,57 @@
+---
+title: "AWS Summit Seoul 2025: Bedrock 세션 정리"
+date: "250515"
+tags: ["AWS"]
+---
+
+AWS Summit Seoul 2025에서는 생성형 AI와 밀접히 연관된 AWS Bedrock에 대한 세션이 유독 많았습니다.  
+당근페이의 Text-to-SQL 구현부터, CJ제일제당의 통합 AI 플랫폼 구축, 이미지 검색 서비스 혁신, RAG 정확도 향상, Bedrock 기반 SaaS 개발에 이르기까지 다양한 실전 사례와 아키텍처 설계 노하우가 공유되었습니다.  
+Summit에서 발표된 주요 Bedrock 세션들을 중심으로, 각 발표 내용과 활용 패턴, 그리고 모범 사례와 인사이트를 정리합니다.
+
+## Summit 현장에서 발표된 주요 Bedrock 세션
+
+#### 당근페이의 Text-to-SQL 데이터 혁신
+
+“Amazon Bedrock 기반 Text-to-SQL로 완성하는 데이터 혁신: 당근페이의 핀테크 성공 전략” 세션에서는 자연어 질의를 SQL로 자동 변환해 금융 데이터 분석의 문턱을 낮춘 사례가 소개되었습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)). 발표자는 프롬프트 엔지니어링을 통해 복잡한 SQL 문을 안정적으로 생성하는 기법과, AWS Lambda 및 Aurora Serverless를 연계해 서버리스 아키텍처에서 실시간 질의를 처리한 아키텍처를 상세히 설명했습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+
+- 마치 사용자가 “지난달 지출 내역 보여줘”라고 말하면, Bedrock이 뒤에서 요리사가 레시피를 읽듯 SQL 레시피를 짜 주고, Lambda가 주방에서 요리를 완성해 테이블에 올려주는 구조입니다.
+
+#### CJ제일제당의 통합 AI 플랫폼 구축
+
+“CJ제일제당의 AI 혁신! Amazon Bedrock과 함께하는 사내 최적화 AI 플랫폼의 모든 것” 세션에서는, 사내 데이터와 업무 프로세스를 Bedrock으로 통합해 전사 AI 서비스를 표준화한 여정이 다뤄졌습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+
+- 파인튜닝된 전용 모델과 RAG(인출 증강 생성) 파이프라인을 결합해, 식품 안전 문서 자동 요약과 실시간 품질 예측 기능을 구현 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+- 식품 검사 보고서를 입력하면, 플랫폼이 “이 제품은 다음 이슈를 주의하세요”라는 비즈니스 규칙 해설과 함께 리포트를 생성해 줍니다.
+
+#### 이미지 검색 서비스의 혁신
+
+“Amazon Bedrock을 이용한 이미지 검색서비스의 혁신” 세션에서는, Bedrock의 멀티모달(multi-modal) 기능을 활용해 이미지 임베딩을 생성하고, 이를 기반으로 유사 이미지 검색 및 상품 추천 시스템을 구축한 방식을 공유했습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+
+- 이미지 → Bedrock API 호출 → CLIP 계열 모델로 임베딩 생성 → OpenSearch/Kendra에 색인 → 사용자 질의 시 유사도 검색 → 결과 반환.
+- 마치 전시회에서 “이 꽃 사진과 비슷한 작품 보여줘”라고 하면, Bedrock이 각 사진을 ‘음악 노트’로 바꿔서, 멜로디가 비슷한 작품을 찾아주는 느낌입니다.
+
+#### RAG 정확도 향상: Knowledge Base 완전정복
+
+“RAG 정확도 향상 비결: Amazon Bedrock Knowledge Base 완전정복” 세션에서는 AWS가 제공하는 관리형 Knowledge Base 기능을 활용해, 데이터 소스 연결부터 질의-응답 엔진 튜닝까지 전 과정을 데모로 시연했습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+
+- 데이터 수집(Glue/Database), 임베딩 생성(SageMaker + Bedrock), 검색 및 결과 조합(베스트 프랙티스 필터링) ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+- 검색 결과 순위에 가중치를 주는 ‘목적별 프롬프트 템플릿’을 활용해 응답의 일관성과 정확도를 높이는 방법을 구체적으로 설명했습니다.
+
+#### Bedrock 기반 SaaS 서비스 구축
+
+“Amazon Bedrock을 활용한 생성형 AI 기반 SaaS 서비스 구축” 세션에서는, 멀티테넌시 환경에서 각 고객별 인스턴스를 효율적으로 프로비저닝하고, 비용을 최적화하며, 보안을 준수하는 방안을 제시했습니다 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+
+- 구조: API Gateway + Lambda 마이크로서비스 → Bedrock 호출 → 결과 캐싱을 위한 DynamoDB/Timestream → 고객별 청구 정산 시스템 연동 ([aws-summit-seoul-2025-agenda-overview-v7](https://pages.awscloud.com/rs/112-TZM-766/images/aws-summit-seoul-2025-agenda-overview-v7.pdf)).
+- 비유: 공유 오피스의 회의실 예약 시스템처럼, 고객 요청이 들어올 때마다 빈 회의실(LLM 인스턴스)을 빠르게 배정하고, 끝나면 청소(세션 정리)를 거쳐 다음 고객에게 넘겨주는 운영 방식입니다.
+
+## Summit 참여를 통해 얻은 인사이트
+
+- 모델 다양성의 중요성: Bedrock의 멀티벤더 FM 지원은 ‘도구 상자’처럼, 과제별로 최적 모델을 골라 쓰는 유연성을 제공합니다.
+- 서버리스 패턴의 보편화: Lambda와 Bedrock의 조합은 인프라 부담 없이 빠른 프로토타이핑과 스케일 아웃을 가능하게 합니다.
+- 책임 있는 AI 실천: 세션들 전반에서 IAM, KMS, VPC 엔드포인트를 활용한 보안 아키텍처, 그리고 프롬프트·출력 필터링을 통한 윤리적 AI 운영 방안이 함께 강조되었습니다.
+
+## 베스트 프랙티스
+
+1. 프롬프트 설계도 설계도면처럼 상세히: SQL 변환, 이미지 임베딩, RAG 파이프라인 등 복잡한 시나리오는 프롬프트 템플릿을 모듈화해 재사용성을 높이세요.
+2. 로깅과 모니터링을 기본으로: Bedrock 호출에는 CloudWatch 지표를 꼼꼼히 달아, 지연 시간·오류율·비용 패턴을 실시간 분석하고 이상 징후를 포착해야 합니다.
+3. 작은 데이터로 빠르게 실험: 사내 데이터 일부로 파인튜닝이나 RAG 기능을 검증한 뒤, 운영 데이터로 확장하는 ‘점진적 도입’ 전략이 안전합니다.
