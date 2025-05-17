@@ -1,0 +1,144 @@
+---
+title: “Standard Folder and Component Structure for Next.js”
+date: “250517”
+tags: [“Next.js”]
+---
+
+> Source: ([Getting Started: Project Structure | Next.js](https://nextjs.org/docs/app/getting-started/project-structure?utm_source=chatgpt.com))
+
+- Place all pages, layouts, and data-fetching logic inside the `app/` directory
+- Separate reusable UI components into a `components/` folder
+- Use the `lib/` (or `utils/`) folder for business logic helpers and API clients
+- Create dedicated folders for `hooks/`, `context/`, `styles/`, and `public/`
+- Optionally wrap everything inside a top-level `src/` directory to clearly separate source code from the project root
+
+---
+
+## 1. Top-Level Directory Structure
+
+```
+my-next-app/
+├── app/
+├── components/
+├── lib/
+├── hooks/
+├── context/
+├── styles/
+├── public/
+├── tests/
+├── types/
+├── next.config.js
+├── package.json
+└── tsconfig.json
+```
+
+- `app/`
+
+  - Manages pages, layouts, and data-fetching logic using the App Router.
+  - Example: `app/(dashboard)/layout.tsx`, `app/(dashboard)/page.tsx`, `app/profile/settings/route.ts`.
+
+- `components/`
+
+  - A collection of reusable, "pure UI components" like buttons, cards, and modals.
+  - Example: `components/Button.tsx`, `components/Navbar/index.tsx`.
+
+- `lib/` or `utils/`
+
+  - Stores helper functions for business logic, API clients, or external service wrappers.
+  - Example: `lib/apiClient.ts`, `lib/formatDate.ts`.
+
+- `hooks/`
+
+  - Organizes custom React hooks by feature.
+  - Example: `hooks/useAuth.ts`, `hooks/useFetchPosts.ts`.
+
+- `context/`
+
+  - Defines and composes React Context Providers.
+  - Example: `context/AuthProvider.tsx`, `context/ThemeContext.tsx`.
+
+- `styles/`
+
+  - Contains global CSS, Tailwind configs, or CSS Modules.
+  - Example: `styles/globals.css`, `styles/theme.css`.
+
+- `public/`
+
+  - Static files like images, favicons, or `robots.txt`.
+  - Example: `public/logo.svg`, `public/og-image.png`.
+
+- `tests/`
+
+  - Houses unit and integration tests (Jest, RTL, etc.).
+  - Example: `tests/components/Button.test.tsx`.
+
+- `types/`
+  - Defines global TypeScript types.
+  - Example: `types/index.d.ts`, `types/User.ts`.
+
+---
+
+## 2. Inside the `app/` Directory
+
+```
+app/
+├── layout.tsx
+├── page.tsx
+├── globals.css
+├── (dashboard)/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── settings/
+│       └── page.tsx
+└── api/
+    └── auth/
+        └── route.ts
+```
+
+1. `layout.tsx`:
+
+   - Shared layout with global elements like header and footer.
+
+2. `page.tsx`:
+
+   - Main component for each route. Supports data fetching using the `use` keyword in server components.
+
+3. Route Groups (e.g. `(dashboard)`):
+
+   - Used to group related routes that share a layout.
+
+4. API Routes (`app/api/.../route.ts`):
+   - App Router-based API endpoints defined as file-based route handlers.
+
+---
+
+## 3. Component Structure Example
+
+```
+components/
+├── Button/
+│   ├── Button.tsx
+│   └── Button.module.css
+├── Card/
+│   ├── Card.tsx
+│   └── Card.styles.ts
+└── Navbar/
+    ├── Navbar.tsx
+    └── Navbar.test.tsx
+```
+
+- Each component is placed in its own folder with its implementation, styles, and tests grouped together.
+- This approach scales well as you start adding things like Storybook MDX files or separate type declarations.
+
+---
+
+## 4. Other Recommended Folders
+
+- `config/`: Configuration files like `.env` variables, feature flags, etc.
+- `services/`: “Stateful service logic” such as backend API integrations or auth flows
+- `middleware.ts`: Global middleware for auth, logging, etc. (available in Next.js 13+)
+- `assets/`: Static resources like SVGs or fonts that are processed before build time
+
+---
+
+Using this as a base structure, you can tailor your project depending on scale and team preferences—by adding a `features/` folder, adopting a monorepo, or layering in conventions for enterprise-grade Next.js apps.
