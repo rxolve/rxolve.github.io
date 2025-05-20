@@ -1,0 +1,106 @@
+---
+title: "Architecture Decision Records (ADR)"
+date: "250520"
+tags: ["Concept"]
+---
+
+Architecture Decision Records (ADR) are a technique for documenting important decisions made during the system design process, along with their background, considerations, and outcomes, all in a consistent format.  
+They help team members quickly understand the rationale and trade-offs behind technical choices, and ensure that architectural knowledge is passed down intact—even as the project grows or team members change.  
+An ADR is not just a memo; it’s a design journal that clearly shows: what problem (context) existed → what alternatives were considered → what decision was made → and what the consequences were.
+
+## What is an ADR?
+
+#### Definition
+
+- An ADR is a small markdown document for recording Architecturally Significant Decisions.
+- Each document includes five sections: Title, Status, Context, Decision, and Consequences.
+- It is managed as a plain text file (.md), usually stored in a directory like `doc/adr/` in sequential order.
+
+#### Analogy
+
+- Travel journal: Just like a single photo can capture the mood of a day during a trip, a single ADR captures the essence of the architectural thought process at a given moment.
+- Medical chart: Like a chart logs a patient’s diagnosis, treatment, and progress, an ADR structures the reasoning, alternatives, and outcomes of a system decision.
+
+## Why Use ADRs?
+
+#### Knowledge Transfer and Collaboration
+
+- The original architect may remember why a certain framework or S3 storage option was chosen, but that knowledge fades with time.
+- Later developers might wonder or guess by reading the code, but with an ADR, they can instantly understand: “On YYYY-MM-DD, this option was chosen due to cost and maintainability concerns.”
+
+#### Transparency in Decision-Making
+
+- ADRs are more polished than meeting notes—they strip away the noise and leave the core.
+- Just like with code, ADRs should go through pull requests (PRs) to allow team-wide review and consensus.
+
+## ADR Format and Example
+
+#### Basic Template
+
+```markdown
+# ADR 001: [Title]
+
+## Status
+
+(Examples: Proposed, Accepted, Deprecated)
+
+## Context
+
+- Background and requirements that led to this decision
+- Constraints and conditions considered
+
+## Decision
+
+- Final chosen option
+- Details like key parameters, versions, configurations
+
+## Consequences
+
+- Positive and negative impacts of the decision
+- Any follow-up tasks or trade-offs
+```
+
+#### Monorepo vs. Multi-repo
+
+```markdown
+# ADR 002: Monorepo vs. Multi-repo
+
+## Status
+
+Accepted
+
+## Context
+
+- 5 team members, 3 services
+- Need for code sharing and reusable libraries
+
+## Decision
+
+- Chose Monorepo approach
+  - Using TurboRepo
+  - Shared CI pipelines
+
+## Consequences
+
+- Easier code reuse
+- Simplified branch management per PR
+- Initially longer build times (→ caching needed)
+```
+
+## Practical Tips
+
+1. Write small, write often  
+   Even small decisions should be recorded as ADRs if they bring meaningful architectural change.
+2. Use sequential numbers  
+   Naming files like `0001.md`, `0002.md` makes it easier to search and refer.
+3. Manage the status  
+   Keep track of state changes like Proposed → Accepted → Deprecated for easy future reviews.
+4. Link ADRs to PRs  
+   If a code change requires a new ADR, always reference the ADR number in the commit message or PR description.
+5. Review regularly  
+   During sprint retros or quarterly meetings, review the ADR log and mark outdated ones as Deprecated.
+
+## Final Thoughts
+
+ADR might feel like a hassle at first, but for long-term projects or distributed teams, it becomes an essential "architecture backup."  
+Like a travel diary you can revisit—“Why did we make that decision back then?”—an ADR is a powerful tool you’ll be glad to have. Start today by documenting even just one small decision.
