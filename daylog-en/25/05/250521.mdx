@@ -1,0 +1,137 @@
+---
+title: "next-openapi-gen"
+date: "250521"
+tags: ["Next.js"]
+---
+
+`next-openapi-gen` is a tool that analyzes route handlers in a Next.js App Router-based project and automatically generates an OpenAPI 3.0 spec (in JSON format) along with various UI options like Scalar, Swagger, or Redoc.  
+It supports both TypeScript types and Zod schemas, and allows you to customize the API documentation using JSDoc comments.  
+Using the CLI's `init` command, you can create a config file, and with the `generate` command, generate documentation that can be viewed immediately at the `/api-docs` path — significantly reducing the hassle of manually maintaining your API spec.
+
+## Overview
+
+`next-openapi-gen` parses your Next.js project source code to automatically generate OpenAPI documentation.
+
+- Scans `route.ts` files in the Next.js App Router to collect endpoint information.
+- Reads TypeScript types or Zod schemas directly to define request/response formats.
+- Allows you to add API descriptions and examples via JSDoc tags like `@desc`, `@pathParams`, and `@response`.
+
+Because the documentation stays in sync with the source code, you can avoid the common issue of outdated API specs.
+
+## Installation and Initialization
+
+#### Install the package
+
+```bash
+npm install next-openapi-gen --save-dev
+```
+
+#### Initialize (`init`)
+
+```bash
+npx next-openapi-gen init --ui scalar --docs-url /api-docs
+```
+
+- Use the `--ui` flag to choose which UI to provide (Swagger, Redoc, etc.)
+- Use the `--docs-url` to define the path where the documentation will be available
+
+This command will create a `next.openapi.json` config file in your project root and set up the `/api-docs` page.
+
+## Configuration Options (`next.openapi.json`)
+
+```json
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Next.js API", "version": "1.0.0" },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "apiDir": "src/app/api",
+  "schemaDir": "src/types",
+  "schemaType": "typescript",
+  "outputFile": "openapi.json",
+  "docsUrl": "/api-docs",
+  "includeOpenApiRoutes": false
+}
+```
+
+- `apiDir`: Directory path for your API routes
+- `schemaDir`: Location of TypeScript types or Zod schemas
+- `schemaType`: Choose between `typescript` or `zod`
+- `includeOpenApiRoutes`: Whether to include only routes annotated with `@openapi`
+
+## Usage Examples
+
+#### Based on TypeScript Types
+
+```ts
+// src/app/api/users/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+
+type UserParams = { id: string };
+type UserResponse = { id: string; name: string; email: string };
+
+/**
+ * @desc Fetch user info
+ * @pathParams UserParams
+ * @response UserResponse
+ * @openapi
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // Actual logic...
+  return NextResponse.json({
+    id: params.id,
+    name: "Alice",
+    email: "alice@example.com",
+  });
+}
+```
+
+#### Based on Zod Schemas
+
+```ts
+// src/app/api/products/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+
+export const ProductParams = z.object({
+  id: z.string().describe("Product ID"),
+});
+export const ProductResponse = z.object({
+  id: z.string().describe("Product ID"),
+  name: z.string().describe("Product name"),
+  price: z.number().positive().describe("Product price"),
+});
+
+/**
+ * @desc Fetch product info
+ * @pathParams ProductParams
+ * @response ProductResponse
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // Actual logic...
+}
+```
+
+## Generating and Viewing Docs
+
+1. Generate the OpenAPI spec:
+
+   ```bash
+   npx next-openapi-gen generate
+   ```
+
+2. Visit `/api-docs`  
+   Open your browser and go to `http://localhost:3000/api-docs` to browse your documentation using Swagger UI, Redoc, etc.
+
+## Alternatives
+
+- **next-swagger-doc**: Generates Swagger spec using JSDoc comments
+- **@ts-rest/open-api**: Generates spec using API contracts
+- **OpenAPI Generator**: Generates client/server code from external JSON/YAML specs
+
+`next-openapi-gen` natively supports the Next.js App Router and directly utilizes your types and schemas, offering excellent consistency and productivity for development.

@@ -1,0 +1,131 @@
+---
+title: "next-openapi-gen"
+date: "250521"
+tags: ["Next.js"]
+---
+
+`next-openapi-gen`은 Next.js App Router 기반 프로젝트에서 라우트 핸들러를 분석해 자동으로 OpenAPI 3.0 스펙(JSON)과 다양한 UI(Scalar, Swagger, Redoc 등)를 생성해 주는 도구입니다.  
+TypeScript 타입과 Zod 스키마를 지원하며, JSDoc 주석을 통해 세부 문서를 커스터마이징할 수 있습니다.  
+초기화 CLI(`init`)로 설정 파일을 만들고, `generate` 명령으로 문서를 생성해 `/api-docs` 경로에서 바로 확인할 수 있어, 수작업으로 스펙을 유지·관리하던 불편함을 대폭 줄여 줍니다.
+
+## 개요
+
+`next-openapi-gen`은 Next.js 프로젝트 소스 코드 자체를 파싱하여 OpenAPI 문서를 자동 생성합니다.
+
+- Next.js App Router의 `route.ts` 파일을 스캔해 엔드포인트 정보를 수집합니다.
+- TypeScript 타입 또는 Zod 스키마를 직접 읽어 요청/응답형식을 정의합니다.
+- JSDoc 주석(`@desc`, `@pathParams`, `@response` 등)을 통해 API 설명과 예시를 추가할 수 있습니다.
+
+이처럼 소스코드와 문서(spec)가 항상 싱크되므로, 문서가 오래 방치되는 문제를 예방할 수 있습니다.
+
+## 설치 및 초기 설정
+
+#### 패키지 설치
+
+```bash
+npm install next-openapi-gen --save-dev
+```
+
+#### 초기화(`init`)
+
+```bash
+npx next-openapi-gen init --ui scalar --docs-url /api-docs
+```
+
+- `--ui` 옵션으로 제공할 문서 UI(Swagger, Redoc 등)를 선택
+- `--docs-url`로 문서를 확인할 경로 지정
+
+이 명령을 실행하면 프로젝트 루트에 `next.openapi.json` 설정 파일과, `/api-docs` 페이지가 자동으로 생성됩니다.
+
+## 구성 옵션 (`next.openapi.json`)
+
+```json
+{
+  "openapi": "3.0.0",
+  "info": { "title": "Next.js API", "version": "1.0.0" },
+  "servers": [{ "url": "http://localhost:3000" }],
+  "apiDir": "src/app/api",
+  "schemaDir": "src/types",
+  "schemaType": "typescript",
+  "outputFile": "openapi.json",
+  "docsUrl": "/api-docs",
+  "includeOpenApiRoutes": false
+}
+```
+
+- apiDir: API 라우트 디렉터리 경로
+- schemaDir: 타입(또는 Zod 스키마) 위치
+- schemaType: `typescript` 또는 `zod` 선택
+- includeOpenApiRoutes: `@openapi` 태그가 붙은 라우트만 포함 여부
+
+## 사용 예제
+
+#### TypeScript 타입 기반
+
+```ts
+// src/app/api/users/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+type UserParams = { id: string };
+type UserResponse = { id: string; name: string; email: string };
+
+/
+ * @desc 사용자 정보 조회
+ * @pathParams UserParams
+ * @response UserResponse
+ * @openapi
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // 실제 로직...
+  return NextResponse.json({ id: params.id, name: "Alice", email: "alice@example.com" });
+}
+```
+
+#### Zod 스키마 기반
+
+```ts
+// src/app/api/products/[id]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+export const ProductParams = z.object({ id: z.string().describe("상품 ID") });
+export const ProductResponse = z.object({
+  id: z.string().describe("상품 ID"),
+  name: z.string().describe("상품명"),
+  price: z.number().positive().describe("상품 가격")
+});
+
+/
+ * @desc 상품 정보 조회
+ * @pathParams ProductParams
+ * @response ProductResponse
+ */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  // 실제 로직...
+}
+```
+
+## 문서 생성 및 확인
+
+1. 문서 생성
+
+   ```bash
+   npx next-openapi-gen generate
+   ```
+
+2. `/api-docs` 방문
+   브라우저에서 `http://localhost:3000/api-docs`로 이동하여 Swagger UI, Redoc 등을 통해 문서를 탐색할 수 있습니다.
+
+## 대안 비교
+
+- next-swagger-doc: JSDoc 주석 기반으로 Swagger 스펙 생성
+- @ts-rest/open-api: API 계약(contract)으로 스펙 생성
+- OpenAPI Generator: 외부 스펙(JSON/YAML)로 클라이언트/서버 코드 생성
+
+`next-openapi-gen`은 Next.js의 App Router를 네이티브 지원하면서도 타입·스키마를 직접 활용하므로, 코드 일관성과 개발 생산성 측면에서 우수합니다.
