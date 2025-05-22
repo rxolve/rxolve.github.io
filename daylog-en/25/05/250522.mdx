@@ -1,0 +1,48 @@
+---
+title: "AWS Bedrock Cost Optimization Strategies"
+date: "250522"
+tags: ["AWS"]
+---
+
+To operate large-scale training data efficiently on AWS Bedrock, it’s essential to apply cost optimization strategies across four key areas: storage, processing, cataloging, and governance.  
+Start by storing raw data in Amazon S3 using a combination of storage classes (Standard, Intelligent‐Tiering, Glacier) based on access patterns. Then, apply lifecycle policies to automatically transition infrequently accessed data to lower-cost tiers.  
+Next, convert data into columnar formats like Parquet and use proper partitioning to reduce I/O costs. Minimize the frequency of Glue crawler runs and use AWS Lake Formation for centralized management to lower costs related to crawling, ETL, and access control.  
+For ingestion and preprocessing, use a serverless architecture (EventBridge → Lambda → Step Functions) to leverage usage-based billing. During analysis, use serverless query engines like Amazon Athena or Redshift Spectrum to avoid maintaining fixed infrastructure.  
+Finally, implement cost allocation tags and monitor CloudWatch metrics to track service- or team-specific usage and costs, enabling proactive governance and helping reduce the total cost of ownership (TCO).
+
+## Overview: AWS Bedrock and Data Lakes
+
+AWS Bedrock is a fully managed foundation model (FM) service, and a large-scale data lake is essential for training and inference workloads.  
+A data lake allows you to collect, store, catalog, and analyze raw data in a scalable way, supporting Bedrock custom model training and RAG (Retrieval-Augmented Generation) workflows.
+
+## Key Components of a Data Lake and Their Cost Structure
+
+### Storage: Amazon S3
+
+- Storage Classes: Use a mix of Standard, Intelligent-Tiering (automatically detects access patterns), and Glacier Deep Archive (for long-term storage) to optimize storage costs.
+- Lifecycle Policies: Set object lifecycles to transition or delete data after a specified period, achieving ongoing cost reductions.
+
+### Data Format and Partitioning
+
+- Columnar Formats (Parquet, ORC): More I/O-efficient than row-based formats, reducing query costs.
+- Optimal File Size & Partitioning: Avoid overly small files (metadata overhead) or overly large ones (processing delays). A file size between 128MB and 1GB is ideal. Partition data by date or category for performance and cost savings.
+
+### Data Catalog & Governance
+
+- AWS Glue Data Catalog: Use it as a metadata repository, but minimize crawler runs and stagger schedules to control costs.
+- AWS Lake Formation: Centralizes permissions and enables fine-grained access control, reducing security and governance costs (no additional charges beyond base resource usage).
+
+## Serverless Data Ingestion & Preprocessing
+
+- EventBridge → Lambda → Step Functions Architecture: Event-driven processing that only incurs charges when triggered, enabling efficient batch processing at scale.
+- Kinesis Data Firehose: Streams real-time data directly into S3, reducing the need for intermediate infrastructure.
+
+## Leveraging Serverless Query Engines
+
+- Amazon Athena: Pay per query based on the amount of data scanned. Ideal for exploratory analysis on large datasets.
+- Redshift Spectrum: Query S3 data directly without maintaining a Redshift cluster, enabling complex analytics cost-effectively.
+
+## Monitoring & Cost Governance
+
+- Cost Allocation Tags: Use tags like `dept:ai`, `team:ml`, and `env:prod` to track Bedrock-related usage of S3, Glue, and Lambda by team or project.
+- CloudWatch Metrics: Monitor S3 request counts, Glue crawler run durations, and Lambda invocation metrics to detect abnormal usage patterns early.
