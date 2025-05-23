@@ -1,0 +1,94 @@
+---
+title: "Operating Bedrock Knowledge Base with Incremental Sync"
+date: "250523"
+tags: ["AWS"]
+---
+
+## Understanding RAG-Based Knowledge Bases and Incremental Sync
+
+#### What Is a RAG-Based Knowledge Base?
+
+Retrieval-Augmented Generation (RAG) is a technique that improves the accuracy of generated responses by retrieving relevant information from external sources and including it in the prompt.  
+Amazon Bedrock Knowledge Bases simplify the process of building a RAG pipeline by converting data sources like S3, Confluence, and web crawlers into a vector store.
+
+#### How Incremental Sync Works
+
+Incremental Sync processes only the content that has changed since the last sync — newly added, updated, or deleted files are vectorized.  
+This eliminates the need to re-index all documents, resulting in faster sync times and lower operational costs.
+
+---
+
+## Initial Setup Steps
+
+#### Preparing and Uploading Data to S3
+
+1. Extract data from your RDS or CMS in JSON or Markdown format.
+2. Include metadata such as a unique ID, title, content, and created date in each file to improve search accuracy.
+3. Upload files to an S3 bucket using the AWS CLI:
+   ```bash
+   aws s3 cp ./posts/ s3://my-bedrock-bucket/posts/ --recursive
+   ```
+
+#### Creating the Knowledge Base and Data Source
+
+1. In the AWS Management Console, go to Amazon Bedrock → Knowledge bases.
+2. Click “Create knowledge base” and enter a name and description.
+3. In the Data sources step, select S3 and specify the path to your uploaded files.
+4. For chunking, choose either “Automatic” or “Custom” depending on your document length.
+5. Assign an IAM Role that allows Bedrock to access the specified S3 bucket.
+6. Click “Create” to begin the initial synchronization automatically.
+
+---
+
+## Configuring and Automating Incremental Sync
+
+#### Enabling Incremental Sync
+
+- Bedrock Knowledge Bases support Incremental Sync by default and will only process changed content without any additional configuration.
+- You can configure the sync frequency as either on-demand or scheduled (e.g., daily at midnight).
+
+#### Example Automation Script
+
+The following is a sample Bash script that uploads a new post at 2:00 AM daily and immediately triggers synchronization:
+
+```bash
+#!/bin/bash
+
+# 1. Upload new post to S3
+aws s3 cp ./new_post.json s3://my-bedrock-bucket/posts/
+
+# 2. Trigger data source sync in Bedrock
+aws bedrock update-data-source \
+  --knowledge-base-id kb-0123456789abcdef0 \
+  --data-source-id ds-abcdef1234567890 \
+  --sync-now
+```
+
+This script can be integrated with AWS Lambda or CodePipeline for full automation.
+
+---
+
+## Operational Tips and Best Practices
+
+#### Using Metadata Filtering
+
+- Applying metadata filters (e.g., by date, category) allows you to include only specific documents in the search, improving response speed and accuracy.
+- For instance, you can configure the system to only index documents with `date >= 2025-01-01` to exclude outdated content.
+
+#### Optimizing Change Detection
+
+- Set up S3 "Object Created" event notifications to detect changes and trigger real-time syncs via Lambda.
+- This enables immediate indexing upon upload, rather than waiting for scheduled intervals.
+
+#### Monitoring and Evaluation
+
+- Use AWS CloudWatch Metrics such as `KnowledgeBaseSyncSuccessCount` and `KnowledgeBaseSyncDuration` to monitor sync performance.
+- Regularly review the [Evaluate and improve performance of Amazon Bedrock Knowledge Bases](https://aws.amazon.com/blogs/machine-learning/evaluate-and-improve-performance-of-amazon-bedrock-knowledge-bases/?utm_source=chatgpt.com) blog post to fine-tune chunk size, embedding models, and filter criteria.
+
+---
+
+## Conclusion
+
+With Incremental Sync, you can efficiently process only newly added data each day.  
+By combining S3 event notifications and Lambda, real-time updates are possible. Metadata filtering and CloudWatch monitoring further maximize search quality and operational stability.  
+RAG-based Knowledge Bases are a perfect fit for services managing frequently updated content.
