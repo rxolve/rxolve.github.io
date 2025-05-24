@@ -1,0 +1,76 @@
+---
+title: "Using the Windsurf Cascade Model"
+date: "250524"
+tags: ["Tool"]
+---
+
+## Features and Limitations of the Default Cascade Base Model
+
+#### Pros and Cons of Cascade Base
+
+- Fast Responses & Low Credit Consumption: As the default model, Cascade Base is lightweight and delivers fast responses while consuming fewer credits compared to advanced models.
+- Limited Context Handling: On the downside, its maximum context window (token limit) is restricted. This means it may struggle with understanding or generating long files or deeply nested function chains.
+
+#### Comparison with Cursor AI
+
+- The “Smartness” of Cursor AI: Cursor AI leverages larger LLMs (like Claude 3.5) under the hood, allowing for deeper code understanding and generation.
+- The “Lightweight” Nature of Cascade Base: Think of Cascade Base as a light urban tram—quick and nimble with frequent stops—whereas Cursor AI is a high-speed train, ideal for long, intensive journeys.
+
+---
+
+## How to Access Advanced Settings
+
+#### Opening the Settings Panel
+
+1. Click the `Windsurf – Settings` button at the bottom-right of the editor, or select `Windsurf Settings` from the top-right profile dropdown.
+2. Alternatively, press `Ctrl/Cmd + Shift + P` and type `Open Windsurf Settings Page` to open it directly.
+
+#### Changing Models & Adjusting Priorities
+
+- In the model dropdown, consider switching from the default `Cascade Base` to more advanced models like `Mistral-heavy` or `Claude 3.5`.
+- You can configure fallback models so if the first model fails, Windsurf automatically tries the next one.
+
+---
+
+## Key Parameter Tuning
+
+#### Max Tokens (Context Size)
+
+- Increasing the Max Context lets the AI “see” longer files all at once, which is helpful for large-scale refactoring.
+- Example: Changing `max_tokens: 4096` to `8192` allows processing entire repositories at once.
+
+#### Temperature, Top-k, and Top-p
+
+- Lowering temperature (e.g., 0.2–0.4) makes results more consistent. Increasing it (e.g., above 0.8) yields more “creative” outputs.
+- A good combo like `Top-k=40` and `Top-p=0.9` limits candidate outputs while encouraging diverse but relevant completions.
+
+#### Model Context Protocol (MCP)
+
+- Enabling MCP allows context streaming from external tools or custom servers into your Cascade session in real time.
+- This is handy when you want query results from large databases or CI/CD logs to influence your AI prompts instantly.
+
+---
+
+## Example Workflow
+
+1. Open settings: Profile dropdown → Windsurf Settings
+2. Switch model: Cascade Base → Mistral-heavy
+3. Increase max tokens: 4096 → 8192
+4. Adjust temperature: 0.5 → 0.3
+5. Enable MCP: Settings → Advanced → `Enable MCP`
+6. Test: Ask the AI to refactor a large component → confirm consistent output
+
+---
+
+## Tips
+
+- Pre-program frequent tasks: Register commonly used commands or code snippets as macros so Cascade can suggest them automatically.
+- Auto-fix Lint Errors: Turn on the `Auto-fix` option to let the AI fix lint issues in its output (with no extra credit cost).
+- Run multiple Cascades simultaneously: You can open several topic-specific Cascades and switch between them via a dropdown for multitasking.
+
+---
+
+## Final Thoughts
+
+The Cascade Base model excels in agility, but for more complex projects, advanced models and parameter tuning are essential.  
+Make full use of Advanced Settings—model selection, token limits, temperature, and MCP—to build a customized AI coding environment, just like tailoring a recipe to your taste.
