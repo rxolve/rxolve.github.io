@@ -1,0 +1,129 @@
+---
+title: "BFF"
+date: "250525"
+tags: ["Concept"]
+---
+
+## BFF 패턴이란?
+
+- 정의: 여러 종류의 클라이언트(UI)가 있을 때, 단일 백엔드(API)가 모든 클라이언트를 담당하는 대신, 클라이언트 종류별로 전용 백엔드를 두는 패턴입니다.
+- 유래: SoundCloud에서 내부 프레임워크 명으로 시작되어 Sam Newman이 확산
+- 기존 vs BFF
+  - _기존 방식_: 하나의 범용 API에 클라이언트별 요구사항을 점진적으로 추가
+  - _BFF 방식_: “웹용 BFF”, “모바일용 BFF”처럼 클라이언트별 백엔드를 분리
+
+## 왜 BFF를 도입해야 할까?
+
+#### 성능 최적화
+
+- 모바일에서는 경량화된 payload, 웹에서는 상세한 데이터 제공
+- 여러 마이크로서비스 호출을 BFF에서 한 번에 처리해 왕복 횟수(Round-trip)를 줄임
+
+#### 개발 효율성
+
+- 프론트엔드 팀이 백엔드 요구사항을 직접 제어
+- 풀스택 팀(full-stack team)이 소유권을 가짐으로써 빠른 피드백 사이클 확보
+
+#### 유지보수 및 확장성
+
+- 클라이언트별 변경이 독립적이므로 사이드 이펙트 최소화
+- API 게이트웨이 패턴의 변형으로, 보안·인증·로깅 등의 공통 기능은 게이트웨이에서 처리
+
+## BFF 구현 가이드 (NestJS 예시)
+
+#### 프로젝트 구조
+
+```
+/src
+  /bff-web      # 웹 BFF
+    main.ts
+    app.module.ts
+    controllers/
+    services/
+  /bff-mobile   # 모바일 BFF
+    main.ts
+    app.module.ts
+    controllers/
+    services/
+  /core-services # 공통 마이크로서비스 집합
+    ...
+```
+
+#### 웹 BFF 예시
+
+```typescript
+// bff-web/controllers/product.controller.ts
+import { Controller, Get, Query } from "@nestjs/common";
+import { ProductService } from "../services/product.service";
+
+@Controller("products")
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async getWebProducts(@Query("page") page: number) {
+    // Core 서비스에서 받아온 데이터를 웹 전용으로 가공
+    const items = await this.productService.fetchAll({ page, size: 20 });
+    return items.map((item) => ({
+      id: item.id,
+      title: item.name,
+      description: item.description,
+      imageUrl: item.images[0],
+      price: item.price.toLocaleString() + "원",
+    }));
+  }
+}
+```
+
+- _설명_: 페이징 크기를 웹에 맞게 조정하고, 불필요한 필드(재고, 내부 코드 등)는 제거
+
+#### 모바일 BFF 예시
+
+```typescript
+// bff-mobile/controllers/product.controller.ts
+import { Controller, Get, Query } from "@nestjs/common";
+import { ProductService } from "../services/product.service";
+
+@Controller("products")
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async getMobileProducts(@Query("limit") limit: number) {
+    const items = await this.productService.fetchAll({
+      page: 1,
+      size: limit || 10,
+    });
+    // 모바일 UI에서는 이미지와 가격만 있으면 충분
+    return items.map((item) => ({
+      id: item.id,
+      imageUrl: item.images[0],
+      price: item.price,
+    }));
+  }
+}
+```
+
+- _설명_: 페이로드를 최대한 줄여 네트워크 비용 최소화
+
+## 실전 예시
+
+- 케이터링 주방:
+
+  - 하나의 공용 주방(백엔드)이 모든 행사(웹, 모바일)에 동일 메뉴를 공급 → 준비·전송 과부하
+  - BFF 도입: 행사별 맞춤주방(웹용 BFF: 풀코스, 모바일용 BFF: 도시락) → 최적화
+
+- 넷플릭스 API 게이트웨이:
+  - 넷플릭스는 클라이언트별 어댑터 코드로 최적화된 응답 제공
+
+## 고려사항 및 트레이드오프
+
+- 도입 비용: 클라이언트별 서비스 수 증가 → 배포·운영 복잡도 상승
+- 공통 로직 중복: 인증·인가·로깅 기능은 API 게이트웨이나 공통 미들웨어로 분리 필요
+- 서비스 간 호출 비용: BFF가 과도하게 많은 마이크로서비스를 호출하지 않도록 설계
+
+## 결론
+
+BFF 패턴은 다양한 클라이언트 요구를 만족시키며 개발 및 운영 효율을 높여 줍니다.  
+다만 서비스 수 증가에 따른 복잡도 상승을 염두에 두고, 공통 기능은 별도 게이트웨이나 라이브러리로 관리하는 것이 좋습니다.  
+NestJS와 같은 모던 프레임워크를 활용하면 빠르게 프로토타입을 만들고 각 UI에 맞춘 맞춤형 API를 제공할 수 있습니다.

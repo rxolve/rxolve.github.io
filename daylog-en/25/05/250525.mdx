@@ -1,0 +1,130 @@
+---
+title: "BFF"
+date: "250525"
+tags: ["Concept"]
+---
+
+## What is the BFF Pattern?
+
+- Definition: When you have multiple types of clients (UI), instead of a single backend (API) serving all of them, the BFF (Backend For Frontend) pattern introduces a dedicated backend for each client type.
+- Origin: Originally coined as an internal framework name at SoundCloud, popularized by Sam Newman.
+- Traditional vs. BFF
+  - _Traditional_: A single generic API incrementally expands to accommodate each client’s requirements.
+  - _BFF_: Separate backend services for each client, like “Web BFF” and “Mobile BFF”.
+
+## Why Use BFF?
+
+#### Performance Optimization
+
+- Mobile clients receive lightweight payloads, while web clients get more detailed data.
+- Multiple microservice calls are aggregated in the BFF layer to reduce round-trips.
+
+#### Development Efficiency
+
+- Frontend teams gain more control over the backend logic relevant to their UI.
+- Full-stack teams can own their BFF, enabling faster feedback and iteration.
+
+#### Maintainability & Scalability
+
+- Client-specific changes are isolated, minimizing side effects.
+- Acts as a variant of the API Gateway pattern—common concerns like auth/logging can be handled in a shared layer.
+
+## BFF Implementation Guide (NestJS Example)
+
+#### Project Structure
+
+```
+/src
+  /bff-web      # Web BFF
+    main.ts
+    app.module.ts
+    controllers/
+    services/
+  /bff-mobile   # Mobile BFF
+    main.ts
+    app.module.ts
+    controllers/
+    services/
+  /core-services # Shared microservices
+    ...
+```
+
+#### Web BFF Example
+
+```typescript
+// bff-web/controllers/product.controller.ts
+import { Controller, Get, Query } from "@nestjs/common";
+import { ProductService } from "../services/product.service";
+
+@Controller("products")
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async getWebProducts(@Query("page") page: number) {
+    // Process data from core services for the web frontend
+    const items = await this.productService.fetchAll({ page, size: 20 });
+    return items.map((item) => ({
+      id: item.id,
+      title: item.name,
+      description: item.description,
+      imageUrl: item.images[0],
+      price: item.price.toLocaleString() + "₩",
+    }));
+  }
+}
+```
+
+- _Explanation_: Adjusts page size for web; removes unnecessary fields like stock or internal codes.
+
+#### Mobile BFF Example
+
+```typescript
+// bff-mobile/controllers/product.controller.ts
+import { Controller, Get, Query } from "@nestjs/common";
+import { ProductService } from "../services/product.service";
+
+@Controller("products")
+export class ProductController {
+  constructor(private readonly productService: ProductService) {}
+
+  @Get()
+  async getMobileProducts(@Query("limit") limit: number) {
+    const items = await this.productService.fetchAll({
+      page: 1,
+      size: limit || 10,
+    });
+    // For mobile, image and price are often enough
+    return items.map((item) => ({
+      id: item.id,
+      imageUrl: item.images[0],
+      price: item.price,
+    }));
+  }
+}
+```
+
+- _Explanation_: Payload is minimized to reduce network costs.
+
+## Real-World Examples
+
+- Catering Kitchen Analogy:
+
+  - A single shared kitchen (backend) prepares the same meal for every event (web, mobile) → overloaded prep & delivery
+  - With BFF: Each event gets a tailored kitchen (Web BFF = full course; Mobile BFF = lunchbox) → optimal performance
+
+- Netflix API Gateway:
+  - Netflix serves optimized responses through client-specific adapter code.
+
+## Considerations and Trade-offs
+
+- Adoption Cost: Number of services increases, leading to more complex deployment and ops.
+- Duplication of Common Logic: Auth, authorization, and logging should be handled in a shared gateway or middleware.
+- Service Call Overhead: BFF should not turn into a bottleneck by calling too many microservices.
+
+## Conclusion
+
+The BFF pattern helps meet diverse client requirements and improves development and operational efficiency.  
+However, it also introduces architectural complexity due to the increased number of services.  
+For shared concerns, a common gateway or library is recommended.  
+Using modern frameworks like NestJS, you can quickly build prototypes and serve UI-optimized APIs for each platform.
