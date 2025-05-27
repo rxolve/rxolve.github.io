@@ -1,0 +1,72 @@
+---
+title: "Strangler Pattern"
+date: "250527"
+tags: ["Design"]
+---
+
+The Strangler Pattern is an architectural approach in which, instead of replacing a legacy system all at once, you gradually build a new system around it, “strangling” the old code until it is completely replaced. This pattern takes its name from the ecological metaphor of the Strangler Fig tree, which envelops its host tree as it grows and eventually supplants it.
+
+## When to Use
+
+#### Migrating a Large Monolithic System in Phases
+
+A Big-Bang replacement carries high risk, cost, and likelihood of failure. The Strangler Pattern addresses this by allowing you to move new functionality into a fresh system without taking the old system offline, enabling a step-by-step switchover.
+
+#### Maintaining Business Continuity While Evolving Features
+
+When you need to introduce new features without service interruption, the Strangler Pattern lets you route requests for specific new functionality to the modernized system, satisfying business requirements while keeping the legacy system running.
+
+## How It Works
+
+1. Insert a Proxy (Facade)  
+   Place a proxy layer between clients and the legacy system. Initially, most requests continue to go to the legacy system.
+
+2. Gradually Switch Over Features  
+   Implement individual features in the new system, and configure the proxy to send only those feature-specific requests to the new system. Repeat this process to incrementally reduce the legacy system’s scope.
+
+3. Retire the Legacy System  
+   Once all functionality has moved to the new system, decommission the legacy system, remove the proxy, and connect clients directly to the new system.
+
+#### Code Example
+
+```typescript
+// facade.middleware.ts
+@Injectable()
+export class FacadeMiddleware implements NestMiddleware {
+  constructor(private proxyService: ProxyService) {}
+  use(req: Request, res: Response, next: NextFunction) {
+    if (this.proxyService.shouldUseNewSystem(req)) {
+      // Route request to the new system
+      return this.proxyService.routeToNewSystem(req, res);
+    }
+    // Continue to the legacy system
+    next();
+  }
+}
+```
+
+```typescript
+// proxy.service.ts
+@Injectable()
+export class ProxyService {
+  private migratedPaths = ["/orders", "/users"];
+  shouldUseNewSystem(req: Request): boolean {
+    return this.migratedPaths.includes(req.path);
+  }
+  routeToNewSystem(req: Request, res: Response) {
+    // Forward the request via HTTP client to the new API
+  }
+}
+```
+
+## Advantages
+
+- Risk Mitigation: By transitioning in phases, you limit the blast radius of any failures.
+- Continuous Delivery: You can deploy new features immediately while keeping the old system operational, similar to a blue-green deployment.
+- Shared Data Source: Both legacy and new systems can use the same data store, simplifying data consistency.
+
+## Considerations
+
+- Single Point of Failure: The proxy layer can become a bottleneck or failure point if not properly scaled and monitored.
+- Complex Routing Logic: Managing which requests go to which system adds complexity and demands thorough testing and monitoring.
+- Data Model Synchronization: You need a strategy to keep differing data models in sync between the legacy and new systems.
