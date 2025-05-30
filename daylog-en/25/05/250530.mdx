@@ -1,0 +1,61 @@
+---
+title: "Reverse Proxy"
+date: "250530"
+tags: ["Network"]
+---
+
+A reverse proxy is a server that acts as an intermediary between clients and backend servers, helping manage and optimize traffic.  
+It centralizes functionalities like load balancing, caching, SSL termination, and security filtering. It also hides backend server IPs to enhance security while improving performance and availability.  
+By serving as a single entry point, a reverse proxy simplifies operations and consolidates monitoring, making it easier to detect and respond to issues.  
+However, it can become a single point of failure (SPOF), and the added configuration/operational complexity means it must be implemented with care.
+
+## Concept
+
+#### What is a Reverse Proxy?
+
+A reverse proxy receives requests from clients, forwards them to the appropriate backend server, and then returns the server's response to the client.  
+From the client’s perspective, the reverse proxy appears to be the actual web server.
+
+#### Difference from a Forward Proxy
+
+A forward proxy is positioned on the client side to protect clients, whereas a reverse proxy is located on the server side to protect servers.
+
+## How It Works
+
+#### Request Flow
+
+1. The client sends an HTTP/HTTPS request to the reverse proxy.
+2. The reverse proxy selects the optimal backend server based on load balancing policies or URL mapping rules.
+3. It forwards the request to the chosen backend server and returns the server’s response to the client.
+
+#### Key Features
+
+- Load Balancing: Distributes traffic across multiple servers to prevent overload and increase availability.
+- Caching: Caches static content or frequently accessed data to reduce backend load and speed up responses.
+- SSL Termination: Handles SSL/TLS decryption, reducing load on backend servers and centralizing certificate management.
+- Security Filtering: Integrates with web application firewalls (WAF), performs IP filtering, and manages authentication/authorization to block direct attacks.
+- Logging and Monitoring: Since all traffic passes through the proxy, centralized log collection and monitoring become feasible.
+
+## Advantages
+
+- Improved Security: Hides backend server IPs and reduces the attack surface.
+- Performance Optimization: Enhances response speed and reduces network load through caching and content compression.
+- Operational Efficiency: Centralizes functions like authentication, SSL management, and logging, easing individual server configuration.
+- Scalability: Makes it easy to horizontally scale backend servers to handle traffic growth.
+
+## Drawbacks and Considerations
+
+- Single Point of Failure: If the proxy server fails, the entire service may go down. High availability setup is essential.
+- Configuration Complexity: Managing multiple features and policies involves a learning curve.
+- Increased Latency: Improper setup can add delays due to the extra processing step.
+
+## Implementation Examples
+
+- Nginx: Easily configured as a reverse proxy using the `proxy_pass` directive, and supports modules for load balancing, caching, and SSL.
+- HAProxy: A high-performance load balancer that offers fine-grained control over TCP/HTTP traffic.
+- Traefik: A service discovery-based reverse proxy optimized for dynamic environments and integrates well with container orchestration systems.
+
+## Conclusion
+
+A reverse proxy is a core component in modern web architecture that helps achieve security, performance, and operational efficiency.  
+Before adoption, it's important to thoroughly assess system requirements and traffic patterns, and to ensure high availability and monitoring strategies are in place.
