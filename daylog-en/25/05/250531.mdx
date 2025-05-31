@@ -1,0 +1,218 @@
+---
+title: "Signal Pattern"
+date: "250531"
+tags: ["Frontend"]
+---
+
+## Overview of the Signal Pattern
+
+- What is a signal?
+
+  - A signal is a reactive variable that holds an internal value and notifies pre-registered subscribers whenever that value changes.
+  - Unlike traditional events, a signal is a primitive that represents state changes, and it triggers connected effects only when its value is updated.
+
+- Why is it needed in frontend development?
+  - In large-scale applications, managing state and UI update logic can become complex. Using the signal pattern allows you to avoid direct state sharing between components or prop drilling, and design the system to react only where needed.
+  - Unlike React’s `useState` + `useEffect` combo, signals detect value changes without dependency arrays and automatically re-run effects, making code more intuitive and concise.
+
+## How Signals Work
+
+#### Core Concepts
+
+1. Storing values
+
+   - A signal internally maintains its current value, which can be accessed via a getter function (e.g., `read()`).
+
+2. Managing subscribers
+
+   - A signal registers specific functions (which we'll call “always-run callbacks”) in a `subscribers` set so that they can be called when the signal changes.
+
+3. Notifying on value change
+   - When the signal's setter (`write`) is invoked and the value is updated, it iterates over the `subscribers` set and runs each callback to update the UI or execute logic.
+
+#### `createSignal` / `createEffect` Core Flow
+
+```javascript
+let currentListener = undefined;
+
+function createSignal(initialValue) {
+  let value = initialValue;
+  const subscribers = new Set();
+
+  const read = () => {
+    if (currentListener !== undefined) {
+      subscribers.add(currentListener);
+    }
+    return value;
+  };
+
+  const write = (newValue) => {
+    value = newValue;
+    subscribers.forEach((fn) => fn());
+  };
+
+  return [read, write];
+}
+
+function createEffect(callback) {
+  currentListener = callback;
+  callback();
+  currentListener = undefined;
+}
+```
+
+- The global variable `currentListener` tracks the currently registering effect.
+- When `read()` is called, it checks for an active `currentListener` and adds it to the `subscribers`.
+- `createEffect(callback)` sets `currentListener`, executes the callback once immediately (so it reads signals and gets subscribed), and then clears `currentListener`. This allows the effect to re-run when the subscribed signal changes.
+
+## Implementing Signals in Pure JavaScript
+
+Here’s a simple example of how to implement the signal pattern using plain JavaScript.
+
+#### Code Example
+
+```javascript
+function createSignal(initialValue) {
+  let value = initialValue;
+  const subscribers = new Set();
+
+  const get = () => {
+    if (currentEffect !== null) {
+      subscribers.add(currentEffect);
+    }
+    return value;
+  };
+
+  const set = (newValue) => {
+    value = newValue;
+    subscribers.forEach((eff) => eff());
+  };
+
+  return [get, set];
+}
+
+let currentEffect = null;
+
+function createEffect(effectFn) {
+  currentEffect = effectFn;
+  effectFn();
+  currentEffect = null;
+}
+
+const [count, setCount] = createSignal(0);
+
+createEffect(() => {
+  console.log("Count changed:", count());
+});
+
+setTimeout(() => {
+  setCount(1); // Outputs: Count changed: 1
+}, 1000);
+
+setTimeout(() => {
+  setCount(2); // Outputs: Count changed: 2
+}, 2000);
+```
+
+- `createSignal(0)` creates a signal with an initial value of 0 and returns a getter and setter.
+- The callback passed to `createEffect` invokes `count()` during its initial run, causing it to be registered as a subscriber. Whenever `setCount` is called later, the callback is automatically re-executed.
+
+> This allows you to explore reactive programming concepts without being tied to a specific framework.
+
+## Signals in Popular Frameworks
+
+#### SolidJS
+
+- SolidJS is a frontend framework that uses signals as its core reactive primitive.
+- Its `createSignal` function follows the same principles as our pure JS version and works seamlessly with `createEffect` or `createMemo`.
+- Since SolidJS compiles templates with static analysis, it minimizes DOM updates without needing a virtual DOM, achieving high performance.
+
+```jsx
+import { createSignal, createEffect } from "solid-js";
+
+function Counter() {
+  const [count, setCount] = createSignal(0);
+
+  createEffect(() => {
+    console.log("Current count:", count());
+  });
+
+  return (
+    <button onClick={() => setCount(count() + 1)}>
+      Click count: {count()}
+    </button>
+  );
+}
+```
+
+#### Angular (v16+)
+
+- Starting with Angular v16, a new reactive model using Signals was introduced to replace Zone.js-based Change Detection.
+- Angular's `signal()` creates a reactive value, and `effect()` allows subscriptions that automatically update the component template.
+- For example, `count = signal(0)` can be directly bound in the template with `{{ count() }}`, triggering updates only for affected parts.
+
+```ts
+import { Component, signal } from "@angular/core";
+
+@Component({
+  selector: "app-counter",
+  template: `<button (click)="increment()">Click count: {{ count() }}</button>`,
+})
+export class CounterComponent {
+  count = signal(0);
+
+  increment() {
+    this.count.update((n) => n + 1);
+  }
+}
+```
+
+#### Standardization Proposal
+
+- A TC39 proposal led by Rob Eisenberg and Daniel Ehrenberg aims to standardize the Signal API across frameworks like React, Vue, and Angular.
+- This Stage 0 proposal outlines core mechanics like value read/write and subscription tracking to unify reactive primitives across the web platform.
+
+## Pros and Cons of the Signal Pattern
+
+### Pros
+
+1. Performance Optimization
+
+   - Only updates the parts of the DOM that depend on the changed signal, reducing unnecessary work compared to virtual DOM diffing.
+   - Eliminates overhead from Angular’s Zone.js by replacing it with fine-grained reactivity.
+
+2. Concise Code
+
+   - Unlike `useEffect` in React, signals automatically track dependencies, reducing boilerplate and improving clarity.
+   - Replaces imperative state handling with declarative reactive flows, improving readability.
+
+3. Low Coupling
+   - Enables state sharing across components without prop drilling or global stores.
+   - Decouples subscription logic from update logic, improving modularity.
+
+### Cons
+
+1. Memory Leak Risk
+
+   - If subscribers are not properly cleaned up, signals can retain callbacks and cause memory leaks.
+   - Developers must implement cleanup logic explicitly to avoid issues with garbage collection.
+
+2. Learning Curve
+
+   - Developers familiar with React or Vue may find the signal model unfamiliar, and should watch out for issues like circular dependencies or implicit subscriptions.
+
+3. Ecosystem Variability
+   - Since standardization is not finalized, different frameworks may have incompatible APIs or version-related issues.
+
+## Conclusion
+
+The signal pattern offers a powerful way to manage state changes with low coupling and high performance in frontend development.  
+Implementing `createSignal` and `createEffect` from scratch helps deepen your understanding of reactive flows, and leveraging framework-specific APIs like SolidJS or Angular’s signals can enhance both productivity and performance.
+
+### Recommendations
+
+1. Memory Management: Always implement cleanup functions to prevent memory leaks in signal subscriptions.
+2. Framework Fit: Choose SolidJS for performance-critical apps or use Angular’s signal API if you’re already in that ecosystem.
+3. Watch the Standard: Follow the TC39 proposal progress and prepare to adopt official signal APIs once standardized.
+
+By adopting the signal pattern, state management becomes more declarative and intuitive, unlocking major gains in performance and simplicity.
