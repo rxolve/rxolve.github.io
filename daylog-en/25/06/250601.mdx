@@ -1,0 +1,77 @@
+---
+
+title: "Human coders are still better than LLMs"  
+date: "250601"  
+tags: ["Article"]
+
+> https://antirez.com/news/153
+
+In the blog post above, _antirez_ argues that while AI tools are extremely useful in assisting with practical coding tasks, they are still far from replacing human creativity and intelligence.  
+He shares an experience where, while working on Redis’s HNSW (Vector Sets) implementation, he leveraged an LLM (Gemini 2.5 PRO) to troubleshoot a complex bug, but ultimately came up with a simple and clever XOR-based solution—something only a human could have devised.  
+By walking through the suggestions given by the LLM and their limitations, and how a human eventually devised the final fix, he underscores that creative problem-solving still heavily favors human intelligence.
+
+## Background
+
+### Redis Vector Sets and the HNSW Structure
+
+- _antirez_ was implementing the HNSW (Hierarchical Navigable Small World) data structure in Redis to enable fast storage and retrieval of large-scale vector data.
+- HNSW is a graph-based structure where each node connects to others across multiple levels, allowing fast nearest neighbor searches.
+- To boost performance in the Redis module implementation, he serialized the graph structure directly into RDB files and reconstructed it using pointers during restoration, avoiding the costly process of reinserting all vectors into the graph.
+
+### Data Corruption and Reciprocal Links
+
+- However, random data corruption (e.g., in RDB files or RESTORE payloads) could break the mutual linking between nodes. For instance, node A may point to B, but B no longer points back to A.
+- If node B is later deleted, the dangling reference from A may cause a use-after-free error.
+- Ensuring all links are reciprocal is necessary, but a brute-force approach—checking all links of all nodes—takes O(N²) time, doubling the loading time for large vector sets (e.g., 20 million vectors).
+
+## Main Content
+
+### Initial Approach: Binary Search on Sorted Links
+
+- _antirez_ first attempted the traditional approach: sort each node's neighbor pointers and use binary search to verify mutual connections.
+- However, the overhead of sorting and searching became significant at scale, increasing load time from 45 to over 90 seconds on a 20M vector dataset.
+
+### Exploring Solutions with an LLM
+
+- He opened Gemini 2.5 PRO and asked if there was a faster way to reduce the O(N²) checks.
+- The best suggestion Gemini gave was to sort the pointer arrays and use binary search—something he had already tried.
+- Next, Gemini proposed using a hash table: record a link as a key (A:B:X), and when its counterpart is found, remove it. If the hash table is empty in the end, all links are reciprocal.
+  - _antirez_ pointed out that creating string keys with `snprintf()` is inefficient. He suggested using `memcpy()` to generate fixed-size binary keys instead, which Gemini agreed would be more efficient.
+
+### Human’s Creative Solution: XOR Accumulator
+
+- Ultimately, _antirez_ came up with a simple and elegant alternative: instead of a hash table, use a fixed-size accumulator.
+  - Represent each link (A:B:X) as a 20-byte structure (8-byte pointer + 8-byte pointer + 4-byte level), and XOR it into a 128-bit register.
+  - Since XOR’ing the same value twice cancels it out, all mutual links will reduce the register to 0. If the result is non-zero, there's an asymmetric link.
+- This drastically reduces both memory usage and runtime complexity.
+
+### Limitations and Further Enhancements
+
+- The XOR method is susceptible to collisions. For example, three orphaned links might cancel each other out by chance, especially since memory allocators often produce predictable addresses—something Gemini pointed out.
+- _antirez_ countered this by adding a hashing step:
+  1. Use a fast hash function like Murmur-128.
+  2. Generate a random seed `S` from `/dev/urandom`, then compute hash(S:A:B:X).
+  3. XOR the hash result into the accumulator.
+  - Because the seed is secret and the hash spreads values well, it's extremely unlikely for attackers to deliberately forge corrupt payloads that cancel out.
+- Gemini agreed that this method was both practical and performant, though not an absolute defense. It emphasized that the feature is opt-in and primarily for enhanced safety.
+
+### The Roles of Humans and LLMs
+
+- _antirez_ concludes that LLMs are great as “smart ducks”—they help you talk through your ideas—but the true creative leap and problem understanding still lie with humans.
+- Especially in complex system design and security-conscious scenarios, LLMs are useful for hints, not for fully baked solutions.
+
+## Conclusions and Takeaways
+
+1. LLMs are assistants, not creative problem-solvers
+
+   - LLMs significantly enhance productivity in areas like quick code generation, idea sketching, and writing test cases.
+   - But they don’t replace human reasoning in defining problems or making creative leaps. Human intuition and domain knowledge remain critical in solving complex or security-sensitive bugs.
+
+2. Practical algorithm design: simple but powerful solutions
+
+   - The XOR accumulator in this case is a great example of a lightweight, performant solution that cuts memory and time costs drastically.
+   - The final solution was born from reviewing LLM ideas and iteratively improving them with human insight.
+
+3. Cautions when using LLMs
+   - Blindly accepting LLM suggestions may lead to overlooking real-world performance issues or security flaws.
+   - Every LLM-generated idea should go through a human-led process of verification → improvement → re-verification.
