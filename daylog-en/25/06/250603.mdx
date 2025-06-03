@@ -1,0 +1,81 @@
+---
+Title: The Influence of Lisp on JavaScript
+Date: 250603
+Tags: JavaScript, Lisp
+---
+
+Brendan Eich was hired by Netscape in 1995 to implement a scripting language for the browser. His original intention was to build a Scheme-based (i.e., Lisp family) language.  
+However, under pressure from Netscape executives, he adopted a C-style syntax similar to Java, which led to the birth of what we now know as JavaScript.  
+Despite this, core concepts like the philosophy of functional programming, first-class functions, and closures were directly borrowed from Lisp languages, deeply influencing JavaScript’s syntax and runtime model.  
+Unlike Lisp's S-expressions, JavaScript employs C-family syntax centered on braces `{}` and semicolons `;`.  
+The differences are especially evident in variable binding, the symbol concept, macro systems, and list-based data structures. In particular, Lisp’s macro capabilities have been partially recreated in JavaScript through transpiler plugins and AST abstraction.
+
+---
+
+## Historical Background
+
+### Brendan Eich’s Vision and Scheme-Based Design
+
+- Brendan Eich was hired by Netscape in 1995 to design a scripting language for their browser. Eich originally aimed to implement a language based on Scheme (a dialect of Lisp), intending to provide closures and first-class functions as fundamental features in the browser.
+- Eich was inspired by the idea of “doing Scheme in the browser,” and his early prototypes focused on free variable binding and the functional nature of closures.
+
+### Netscape’s Requirements and Java-Style Syntax
+
+- Netscape executives insisted that the language use syntax resembling Java, so Eich adopted a C-style syntax with curly braces `{}`.
+- As a result, JavaScript became a hybrid language: it offered familiar Java-like syntax to browser developers while incorporating functional programming features inspired by Scheme.
+
+### Early Implementation and Name Changes
+
+- Eich had only 10 days to build the first prototype, which was initially code-named _Mocha_.
+- Mocha was later renamed _LiveScript_, and finally _JavaScript_ by the end of 1995, after collaboration with Sun Microsystems.
+- Although JavaScript adopted Java-like surface syntax, it retained deep conceptual ties to the Lisp family in terms of design philosophy and runtime behavior.
+
+---
+
+## Syntactic Differences
+
+### S-Expressions vs. C-Style Expressions
+
+- Lisp family (S-expressions): All code is written as lists, like `(operator operand1 operand2 ...)`. The core data structure is the list, implemented as linked cons cells.
+- JavaScript (C-style): Uses infix notation with operators between operands, and structures blocks using braces `{}` and semicolons `;`.
+- While Lisp treats code and data as the same structure—facilitating metaprogramming—JavaScript requires manipulation at the AST (Abstract Syntax Tree) level for similar effects.
+
+### Function Declarations and First-Class Functions
+
+- Lisp (e.g., Scheme): Functions are expressions, defined as `(define (f x) (+ x 1))` or `(lambda (x) (+ x 1))`. Names are bound as symbols, and anonymous functions (lambdas) are natural and concise.
+- JavaScript: Functions are declared as `function f(x) { return x + 1; }` or `const f = function(x) { return x + 1; };`. Since ES6, arrow functions like `const f = (x) => x + 1;` have become common.
+- Both treat functions as first-class objects, assignable to variables or passed as arguments. However, JavaScript syntax separates declaration from invocation with keywords like `function` and block structures.
+
+### Variable Binding and Symbols
+
+- Lisp: Variables and function names are symbols at runtime. The symbol `a` exists as an object, while the string `"a"` is its representation.
+- JavaScript: Identifiers are declared via `var`, `let`, or `const`, and do not exist as runtime symbol objects. The `Symbol()` type introduced in ES6 is primarily for creating unique object keys, not for general symbolic binding.
+
+### Closures and Scope Model
+
+- Lisp: Closures are foundational. When a function is defined, it retains references to its enclosing environment, enabling access to free variables and facilitating data encapsulation and higher-order functions.
+- JavaScript: Also forms closures by capturing the lexical scope at the time of function declaration. Inner functions can reference outer variables, forming closures.
+- JavaScript’s scope model includes nuances like hoisting and block-level declarations (`let`, `const`) that differ from Lisp's more consistent lexical scoping.
+
+### Macros and Metaprogramming
+
+- Lisp: Macros allow manipulation of code-as-data during compilation. For example, a custom `(when cond expr1 expr2 ...)` macro can transform into `(if cond (begin expr1 expr2 ...))`.
+- JavaScript: Lacks native macro support. However, transpilers like Babel or Sweet.js enable AST-level transformations to mimic macro behavior.
+- JavaScript relies on build-time tools for metaprogramming, whereas Lisp allows more direct and flexible compile-time code transformations.
+
+### Data Structures: Lists vs. Objects and Arrays
+
+- Lisp: Lists are the primary data structure, built from cons cells. Recursion and functional transformations on lists are idiomatic and concise.
+- JavaScript: Uses `Object` for key-value pairs and `Array` for index-based collections. It lacks a native list structure similar to Lisp’s.
+- JavaScript arrays do not behave like linked lists and are not implemented as cons cells. Functional list operations require libraries like `lodash` or `Ramda`.
+
+---
+
+## Conclusion
+
+Although JavaScript appears to follow C-style (Java-like) syntax on the surface, its underlying design and many of its features are heavily influenced by Lisp, particularly Scheme.  
+Eich originally intended to build a Scheme-based language, which is why core elements like functional programming, closures, and first-class functions became central to JavaScript.  
+However, Lisp concepts like S-expressions, symbol-based binding, and macros were not directly incorporated, and a Java-like syntax was adopted to appeal to existing developers.  
+As a result, JavaScript emerged as a blend of both paradigms. Over time, tools like transpilers and functional libraries helped JavaScript developers reintroduce and extend Lisp-like capabilities.  
+In terms of developer experience, JavaScript inherited the REPL tradition through browser consoles and Node.js, and functional programming has been reinvigorated in its ecosystem via libraries like Lodash and Ramda.  
+Ultimately, JavaScript can be seen as a language that absorbed and adapted Lisp’s core ideas for the web environment.
