@@ -1,0 +1,134 @@
+---
+title: "Claude Code"
+date: "250604"
+tags: ["Tool"]
+---
+
+Claude Code is an agent-based coding tool developed by Anthropic, operating directly in the terminal. It understands your codebase through natural language commands and supports tasks like code editing, bug fixing, test execution, and more.  
+Without the need for a separate server or complex setup, Claude Code integrates directly with your local development environment, offering a fast and efficient workflow.  
+Powered by the latest Claude 4 models (Claude Opus 4, Claude Sonnet 4), it provides advanced code generation, debugging, and architectural Q&A features, and is also compatible with enterprise platforms like Amazon Bedrock and Google Vertex AI.
+
+---
+
+## What is Claude Code?
+
+### Agent-Based Coding Tool
+
+Claude Code is an agent that lets you explore the entire codebase using natural language and perform tasks such as file editing, bug fixing, running tests, searching Git history, resolving merge conflicts, and creating commits and PRs.  
+Since it automatically understands the code context, developers don’t need to manually specify files or configurations—they can begin writing or reviewing code right away.
+
+### Backed by Claude Models
+
+Claude Code is powered by Claude 4 models (Opus 4 and Sonnet 4), enabling it to handle complex code generation and debugging tasks.  
+Claude Opus 4 excels at deep reasoning and advanced coding tasks, while Claude Sonnet 4 is optimized for faster response times and efficient performance.
+
+### Designed for Security and Privacy
+
+Claude Code is designed with security and privacy in mind. Developer commands are sent directly to Anthropic’s API and run locally in the terminal without intermediate servers.  
+Since it operates with awareness of the overall project structure, it minimizes the risk of exposing sensitive information externally.
+
+---
+
+## Key Features
+
+### Code Editing and Bug Fixing
+
+Claude Code locates the necessary part of a file and modifies it or adds new features as requested.  
+For instance, a command like “Add null checks to this function” in natural language will immediately apply the logic to the code.
+
+### Test and Lint Execution
+
+It runs the test suite, analyzes errors, and suggests fixes.  
+It also runs linters to detect style issues and either auto-format the code or recommend best practices.
+
+### Git History Search and Merge Conflict Resolution
+
+Claude Code can search the Git log to find who made changes and when, and in the event of a merge conflict, it identifies the conflicted files and suggests resolutions.
+
+### External Documentation and Resource Lookup
+
+By integrating web search, Claude Code can reference official documentation and online resources to provide up-to-date information.  
+This enables quick access to standard library usage, third-party package docs, error codes, and more.
+
+---
+
+## How to Use
+
+### Installation
+
+You can install it globally using npm in the terminal:
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+After installation, use the `claude-code` command to start.
+
+### Setup
+
+1. Set the Anthropic API key as an environment variable:
+
+   ```bash
+   export ANTHROPIC_API_KEY="your_issued_API_key_here"
+   ```
+
+   This key allows Claude Code to authenticate with Anthropic’s servers.
+
+2. Run the command from your project’s root directory to automatically scan the codebase and build context.
+
+### Basic Command Examples
+
+- Request file editing:
+
+  ```bash
+  claude-code edit "src/index.ts" --prompt "Add type checking to this function"
+  ```
+
+  This opens `src/index.ts` and adds type checks to the function.
+
+- Run tests and debug:
+
+  ```bash
+  claude-code run-tests --fix
+  ```
+
+  Executes tests, analyzes failures, and suggests fixes.
+
+- Resolve Git conflicts:
+  ```bash
+  claude-code resolve-conflicts
+  ```
+  Identifies conflicted files in the current branch and proposes solutions.
+
+---
+
+## Tips
+
+### Scripting for Lower-Level Access
+
+Claude Code intentionally provides low-level APIs so developers can script custom workflows.  
+For example, you can create a script to automate linting, testing, and code review summarization before deployment and integrate it into your pipeline.
+
+### Be Specific with Natural Language Prompts
+
+Specific goals work better than vague instructions.  
+Rather than saying “Improve this function’s performance,” say “Optimize this loop to reduce complexity from O(n²) to O(n).”  
+This helps Claude Code generate more accurate and relevant suggestions.
+
+### Use the Latest Claude Models
+
+Advanced models like Claude Opus 4 or Sonnet 4 excel in understanding complex code structures, reasoning, and handling large-scale data.  
+For major refactorings or cross-module dependency analysis, Opus 4’s extended reasoning capabilities provide reliable results.
+
+### Enterprise Integration
+
+In enterprise environments, Claude Code can be integrated with Amazon Bedrock or Google Vertex AI to meet security, compliance, and scalability requirements.  
+This supports centralized API token management, audit logging, in-VPC communication, and other enterprise-grade deployment strategies.
+
+---
+
+## Conclusion
+
+Claude Code is a powerful agent-based tool that enables developers to interact with their code using natural language in the terminal and automate a wide range of development tasks.  
+From installation and basic usage to leveraging advanced features with Claude 4 models, adopting Claude Code can significantly boost productivity in coding and maintenance.  
+By mastering detailed prompt writing and scripting workflows, teams can build customized automation pipelines that align with their development process.
