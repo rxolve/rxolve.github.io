@@ -1,0 +1,120 @@
+---
+title: "A2A"
+date: "250605"
+tags: ["AI"]
+---
+
+A2A (Agent-to-Agent) is an open communication protocol designed to enable AI agents—built on different platforms, by different vendors, and in different frameworks—to collaborate and communicate using a standardized interface.
+In other words, agents using A2A can exchange information and divide complex tasks as if they speak a shared “common language,” allowing them to participate in the same workflow naturally and efficiently.
+This enables agents developed by different companies or teams to interoperate seamlessly, facilitating the construction of more flexible and scalable agent-based systems.
+
+## Background and Necessity
+
+Traditionally, AI agents have been tied to specific platforms or frameworks, operating in isolation or within limited scopes.
+However, in real-world enterprise environments, it's common for multiple AI agents to coexist and handle complex business logic together.
+For instance, a sales agent might handle lead generation, while an engineering agent produces post-analysis reports, and a financial forecasting agent projects future revenue. These agents often need to work together.
+If each agent only operates via its proprietary protocol, interoperability drops and custom orchestration code must be written—drastically increasing system complexity.
+
+A2A was introduced to solve this issue. Spearheaded by Google in collaboration with partners like Anthropic, LangChain, Cohere, Salesforce, MongoDB, SAP, and more, A2A provides a clear standard for agent-to-agent communication.
+With A2A, enterprises can implement agent collaboration without drastically altering their existing IT stack.
+
+## Design Principles
+
+The A2A protocol follows five core design principles:
+
+1. Accept Agent Capabilities
+   Agents can collaborate in an unstructured, natural way—even without sharing memory, tools, or context. Each agent operates independently while exchanging only necessary information to support multi-agent scenarios.
+
+2. Build on Existing Standards
+   Based on widely adopted technologies like HTTP, Server-Sent Events (SSE), and JSON-RPC 2.0, A2A ensures smooth integration with existing enterprise systems.
+
+3. Enterprise-Grade Security by Default
+   From day one, A2A has supported OpenAPI-level authentication and authorization, preventing unauthorized access and data leaks during agent communication.
+
+4. Support for Long-Running Tasks
+   From quick responses to multi-day research tasks requiring human input, A2A supports a broad range of operations. Real-time feedback, notifications, and status updates help agents carry out multi-step workflows reliably.
+
+5. Modality-Agnostic
+   A2A is not limited to text-based communication—it supports multimedia modalities like audio and video streaming, allowing agents to exchange rich data including voice, visuals, and images.
+
+## Communication Mechanism
+
+The A2A protocol uses the following technologies for communication:
+
+- HTTP(S)-based communication: Message exchanges occur over HTTPS. APIs are designed in a REST-like style, allowing agents to invoke each other’s endpoints.
+- JSON-RPC 2.0: A lightweight remote procedure call protocol where requests and responses are exchanged in JSON format. This standard structure enables agents to invoke each other’s methods and receive responses.
+- Server-Sent Events (SSE): Used to stream updates in real time, especially for long-running tasks. Clients (or other agents) can keep an open HTTP connection to receive events as they occur.
+
+These components enable agents to share their state in real time and handle complex collaborations with ease.
+
+## Difference Between A2A and MCP (Model Context Protocol)
+
+MCP, proposed by Anthropic, is a protocol focused on enabling a single AI model to interact with external tools or systems. In contrast, A2A is a decentralized protocol designed for multi-agent collaboration.
+
+- MCP (Model Context Protocol): Centralized in nature, optimized for scenarios where an agent calls external tools (e.g., search, databases, calculators). It supports tool-usage by a single agent.
+- A2A (Agent-to-Agent): Decentralized, enabling agents built by different vendors or on different frameworks to work together. For example, a sales agent can request insights from a strategy agent, which processes internal data and returns results back.
+
+In real-world use, A2A and MCP can complement each other: A2A handles inter-agent collaboration, while MCP supports tool interactions.
+
+## Key Features & Ecosystem
+
+1. Universal Interoperability
+
+   - Agents can communicate using common message formats and APIs regardless of their hosting environment—cloud, on-premise, or vendor-specific.
+   - Agents built by one organization can collaborate with those from another without custom code.
+
+2. Enterprise-Grade Security
+
+   - Built-in security mechanisms match OpenAPI authentication/authorization standards.
+   - Agents verify each other’s identity and only accept authorized messages—ensuring secure communications.
+
+3. Modular Scalability
+
+   - A2A supports everything from quick tasks to long-term research involving multiple agents.
+   - Features like real-time feedback and status streaming via SSE simplify system-wide monitoring.
+
+4. Broad Industry Participation
+
+   - Over 50 industry partners, including Google, Microsoft, Anthropic, LangChain, Cohere, Salesforce, MongoDB, and SAP, are involved.
+   - Open-source repository: [https://github.com/google-a2a/A2A](https://github.com/google-a2a/A2A) provides specifications, sample code, SDKs, and documentation for easy onboarding.
+
+## Example Use Cases
+
+- Travel Planning Agent Workflow
+  A sample workflow may involve two local agents collaborating to plan a trip. The first agent gathers tourist spots based on user requests, and the second handles currency conversion and booking. Once done, results are sent back to the first agent.
+  Developers only need to implement individual agent logic—A2A handles the coordination.
+
+- Enterprise Multi-Agent Automation System
+  Platforms like Azure AI Foundry and Copilot Studio support A2A to enable automated pipelines involving internal and external agents.
+  For instance: Finance Reporting Agent → Forecasting Agent → Audit Report Generator → Delivery Agent, forming a sequential workflow.
+
+## Getting Started & Resources
+
+1. Official GitHub Repository
+
+   - URL: [https://github.com/google-a2a/A2A](https://github.com/google-a2a/A2A)
+   - Includes specs, example code, API docs, and SDKs (e.g., A2A client for Python).
+
+2. Online Docs & Sample Code
+
+   - A2A official website: [https://a2aprotocol.ai/](https://a2aprotocol.ai/)
+   - Contains documentation, tutorials, code snippets, and setup guides.
+   - You’ll also find examples showing how A2A integrates with MCP for end-to-end workflows.
+
+3. SDKs & Sample Applications
+
+   - SDKs are available for Python, JavaScript/TypeScript, Java, etc.
+   - Sample apps help test local agent collaboration easily.
+   - The _Semantic Kernel_ travel planning example is especially beginner-friendly.
+
+4. Community & Working Groups
+
+   - As an open-source project, anyone can contribute via GitHub issues, discussions, and working groups.
+   - Major contributors (Google, Microsoft, Anthropic, etc.) share protocol updates and roadmap regularly.
+
+## Future Outlook
+
+A2A acts as a common language for AI agents, ensuring interoperability even when they are independently developed and operated.
+As more key players like Google, Microsoft, Anthropic, and LangChain join the ecosystem, agent-based automation becomes increasingly feasible without overhauling existing systems.
+In the future, agents will combine their specialized capabilities to complete more sophisticated workflows—A2A will be the core infrastructure enabling this evolution.
+Coupled with protocols like MCP, agents will not only interoperate internally but also integrate seamlessly with external tools and systems, delivering highly capable and adaptive AI services.
