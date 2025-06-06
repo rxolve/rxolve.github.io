@@ -1,0 +1,91 @@
+---
+title: "The Prompt Engineering Playbook for Programmers"
+date: "250606"
+tags: ["Article"]
+---
+
+> https://addyo.substack.com/p/the-prompt-engineering-playbook-for
+
+## Summary
+
+### 1. 7 Core Principles
+
+To get high-quality results from AI, keep these seven core principles in mind:
+
+- **Provide rich context**: Include relevant code snippets and environment details.
+- **Be specific with goals and questions**: Instead of saying “please fix this,” say “optimize this function from O(n) to O(log n).”
+- **Break down complex tasks**: Avoid overwhelming the AI with multi-step jobs; ask step-by-step.
+- **Include input/output examples**: Showing what you expect helps guide the AI.
+- **Iterate and refine**: If the first response isn't ideal, rephrase or provide additional guidance.
+- **Maintain clarity and consistency**: Be consistent with terminology, style, and structure.
+- **Use roles/personas**: For example, “Act as a senior engineer reviewing this code” can improve answer quality.
+
+### 2. Practical Use Cases
+
+- **Bug detection and fixing**  
+  Provide error messages and a minimal reproducible snippet. Ask specific questions like, “Where is the variable value going wrong in this function?”
+
+- **Code refactoring and optimization**  
+  Instead of just “refactor this,” say “Improve readability and reduce complexity,” and ask for an explanation from a “senior engineer” perspective.
+
+- **Implementing new features**  
+  Describe the feature in plain English, break it down into smaller tasks, and provide similar code or architectural examples from your project to help AI generate accurate solutions.
+
+### 3. Common Prompt Pitfalls
+
+- Vague requests (“It’s not working, please fix it”)
+- Asking too much in a single prompt
+- Not defining success criteria
+- Ignoring follow-up questions from the AI
+- Using ambiguous references like “the previous output”
+
+### 4. Tactical Prompt Rewriting
+
+- If the AI solves the wrong problem or fails, pinpoint the mismatch (language, missing requirements) and adjust the prompt accordingly.
+- Break down complex prompts again and, if needed, restart the session from scratch with improved instructions.
+
+---
+
+## Practical Tips
+
+### 1. Provide a Minimal Reproducible Code Snippet
+
+Even if your codebase is large, extract just enough code to reproduce the issue.
+
+```typescript
+// Test for formatPrice function
+function formatPrice(amount: number): string { … }
+console.log(formatPrice(2.5)); // Expected: '$2.50'
+```
+
+### 2. Define Concrete Performance Goals
+
+Example: “Reduce the execution time of this function by 50%.”
+
+### 3. Use Role/Persona Prompts
+
+Example: “You are a senior NestJS developer. Please review this code.”
+
+### 4. Design a Step-by-Step Question Flow
+
+When implementing a new feature:
+
+1. Explain the feature in plain language.
+2. Ask for requirements for each module.
+3. Review generated code and request related test cases.
+
+### 5. Use TODO Comments as Inline Prompts
+
+Leverage inline comments like `// TODO: add user authentication logic` in your IDE, and ask the AI to complete only those sections.
+
+### 6. Emphasize Missed Requirements in Follow-ups
+
+Example: “You missed the TypeScript type declarations in the previous response. Please include them and rewrite.”
+
+### 7. Use Prompt Labels
+
+When combining multiple prompts, use labels like `[1. Debug]`, `[2. Refactor]` to avoid confusion.
+
+---
+
+This playbook is a powerful guide for making the most out of AI tools in real-world development workflows.
