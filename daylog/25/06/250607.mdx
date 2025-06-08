@@ -1,0 +1,138 @@
+---
+title: "Currying"
+date: "2506"
+tags: ["JavaScript"]
+---
+
+## 커링이란?
+
+- 정의: 다수의 인자를 받는 함수를, 인자를 하나씩 받는 일련의 함수들로 분해하는 기법입니다.
+- 예시:
+
+  ```js
+  // 일반 함수
+  function add(x, y) {
+    return x + y;
+  }
+
+  // 커링 함수
+  function curryAdd(x) {
+    return function (y) {
+      return x + y;
+    };
+  }
+
+  const add5 = curryAdd(5);
+  console.log(add5(3)); // 8
+  ```
+
+## 왜 사용할까?
+
+1. 재사용성 증가
+
+   - `add(5, 3)`처럼 매번 인자를 전부 넘기는 대신, `add5 = curryAdd(5)` 로 특정 인자를 고정한 후 재사용할 수 있습니다.
+
+2. 지연 평가(Lazy Evaluation)
+
+   - 필요한 시점까지 실제 연산을 미루고, 인자가 모두 채워졌을 때만 계산할 수 있습니다.
+
+3. 부분 적용(Partial Application)
+
+   - 함수의 일부 인자만 고정하여 새로운 함수를 쉽고 깔끔하게 만들 수 있습니다.
+
+## JS로 커링 구현하기
+
+```js
+/
+ * anyFunc: 커링 대상이 될 함수
+ * arity: 함수가 필요로 하는 총 인자 개수 (없으면 func.length 사용)
+ */
+function curry(anyFunc, arity = anyFunc.length) {
+  return function curried(...args) {
+    // 인자를 충분히 받았으면 원본 함수 호출
+    if (args.length >= arity) {
+      return anyFunc.apply(this, args);
+    }
+    // 아직 인자가 부족하면 더 받을 수 있는 함수 반환
+    return function (...moreArgs) {
+      return curried.apply(this, args.concat(moreArgs));
+    };
+  };
+}
+
+// 예제 함수: 세 개의 인자를 더하는 함수
+function sum3(a, b, c) {
+  return a + b + c;
+}
+
+const curriedSum3 = curry(sum3);
+console.log(curriedSum3(1)(2)(3)); // 6
+console.log(curriedSum3(1, 2)(3)); // 6
+console.log(curriedSum3(1)(2, 3)); // 6
+```
+
+## 화살표 함수 사용
+
+```js
+const curry2 = (fn, arity = fn.length) =>
+  (function nextCurried(prevArgs) {
+    return prevArgs.length >= arity
+      ? fn(...prevArgs)
+      : (…more) => nextCurried(prevArgs.concat(more));
+  })([]);
+
+// 사용 예시
+const curriedMultiply = curry2((a, b, c) => a * b * c);
+console.log(curriedMultiply(2)(3)(4)); // 24
+```
+
+## 라이브러리 활용
+
+- Lodash: `_.curry`
+
+  ```js
+  const _ = require("lodash");
+  const curried = _.curry((a, b, c) => a + b + c);
+  console.log(curried(1)(2)(3)); // 6
+  ```
+
+- Ramda: `R.curry`
+
+  ```js
+  import { curry } from "ramda";
+  const curriedSub = curry((a, b) => a - b);
+  console.log(curriedSub(10)(4)); // 6
+  ```
+
+## 커링과 부분 적용의 차이
+
+- 커링: 함수를 다단계로 나누어 호출하는 방식
+- 부분 적용(Partial Application): 함수의 일부 인자만 고정하여 새 함수 반환
+
+  ```js
+  const partial =
+    (fn, ...fixedArgs) =>
+    (...restArgs) =>
+      fn(...fixedArgs, ...restArgs);
+
+  function greet(greeting, name) {
+    return `${greeting}, ${name}!`;
+  }
+
+  const sayHelloTo = partial(greet, "Hello");
+  console.log(sayHelloTo("Alice")); // Hello, Alice!
+  ```
+
+커링과 부분 적용은 개념이 비슷하지만, 커링은 “한 번에 하나의 인자”를 받도록 설계된 반면, 부분 적용은 “여러 개의 인자 중 일부”를 고정할 수 있다는 점이 다릅니다.
+
+## 언제 사용하면 좋을까?
+
+- 함수형 프로그래밍을 지향할 때
+- 여러 단계로 구성된 파이프라인(pipeline) 또는 compose 로직을 짤 때
+- 재사용 가능한 헬퍼 함수를 만들고 싶을 때
+
+## 정리
+
+1. 커링은 여러 인자를 단계별로 받도록 분해하는 기법입니다.
+2. 재사용성·지연 평가·부분 적용 등의 장점을 누릴 수 있습니다.
+3. 순수 JS로 직접 구현하거나, Lodash/Ramda 같은 라이브러리를 활용할 수 있습니다.

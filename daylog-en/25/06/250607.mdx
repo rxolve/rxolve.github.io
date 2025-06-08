@@ -1,0 +1,138 @@
+---
+title: "Currying"
+date: "2506"
+tags: ["JavaScript"]
+---
+
+## What is Currying?
+
+- **Definition**: Currying is a technique of transforming a function that takes multiple arguments into a series of functions that each take a single argument.
+- **Example**:
+
+  ```js
+  // Regular function
+  function add(x, y) {
+    return x + y;
+  }
+
+  // Curried function
+  function curryAdd(x) {
+    return function (y) {
+      return x + y;
+    };
+  }
+
+  const add5 = curryAdd(5);
+  console.log(add5(3)); // 8
+  ```
+
+````
+
+## Why Use Currying?
+
+1. **Improved Reusability**
+   Instead of passing all arguments every time like `add(5, 3)`, you can fix the first argument and reuse the function like `add5 = curryAdd(5)`.
+
+2. **Lazy Evaluation**
+   You can delay execution until all arguments are provided.
+
+3. **Partial Application**
+   Currying makes it easy to create new functions by pre-filling some of the arguments.
+
+## Implementing Currying in JavaScript
+
+```js
+/**
+ * anyFunc: the target function to curry
+ * arity: total number of arguments the function expects (defaults to func.length)
+ */
+function curry(anyFunc, arity = anyFunc.length) {
+  return function curried(...args) {
+    // If enough arguments are provided, call the original function
+    if (args.length >= arity) {
+      return anyFunc.apply(this, args);
+    }
+    // Otherwise, return a new function to collect more arguments
+    return function (...moreArgs) {
+      return curried.apply(this, args.concat(moreArgs));
+    };
+  };
+}
+
+// Example function: sum of three numbers
+function sum3(a, b, c) {
+  return a + b + c;
+}
+
+const curriedSum3 = curry(sum3);
+console.log(curriedSum3(1)(2)(3)); // 6
+console.log(curriedSum3(1, 2)(3)); // 6
+console.log(curriedSum3(1)(2, 3)); // 6
+```
+
+## Using Arrow Functions
+
+```js
+const curry2 = (fn, arity = fn.length) =>
+  (function nextCurried(prevArgs) {
+    return prevArgs.length >= arity
+      ? fn(...prevArgs)
+      : (...more) => nextCurried(prevArgs.concat(more));
+  })([]);
+
+// Example
+const curriedMultiply = curry2((a, b, c) => a * b * c);
+console.log(curriedMultiply(2)(3)(4)); // 24
+```
+
+## Using Libraries
+
+- **Lodash**: `_.curry`
+
+  ```js
+  const _ = require("lodash");
+  const curried = _.curry((a, b, c) => a + b + c);
+  console.log(curried(1)(2)(3)); // 6
+  ```
+
+- **Ramda**: `R.curry`
+
+  ```js
+  import { curry } from "ramda";
+  const curriedSub = curry((a, b) => a - b);
+  console.log(curriedSub(10)(4)); // 6
+  ```
+
+## Currying vs Partial Application
+
+- **Currying**: Transforms a function into a sequence of functions, each taking one argument.
+- **Partial Application**: Fixes one or more arguments and returns a new function.
+
+  ```js
+  const partial =
+    (fn, ...fixedArgs) =>
+    (...restArgs) =>
+      fn(...fixedArgs, ...restArgs);
+
+  function greet(greeting, name) {
+    return `${greeting}, ${name}!`;
+  }
+
+  const sayHelloTo = partial(greet, "Hello");
+  console.log(sayHelloTo("Alice")); // Hello, Alice!
+  ```
+
+Although the concepts are similar, currying is designed to receive **one argument at a time**, while partial application can fix **some of the arguments**, regardless of how many.
+
+## When to Use Currying
+
+- When following functional programming principles
+- When composing functions into pipelines
+- When you want to create highly reusable utility functions
+
+## Summary
+
+1. Currying is a technique for breaking down functions into smaller, argument-by-argument steps.
+2. It offers benefits like reusability, lazy evaluation, and ease of partial application.
+3. You can implement it manually or use libraries like Lodash or Ramda.
+````
