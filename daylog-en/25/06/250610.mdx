@@ -1,0 +1,180 @@
+---
+title: "Hackle A/B Testing"
+date: "250610"
+tags: ["Tool"]
+---
+
+This post provides a step-by-step guide on how to implement Hackle for efficient A/B testing in a Next.js project.
+
+## Getting Started: Install & Initialize Hackle SDK
+
+1. Install the package:
+
+   ```bash
+   npm install @hackle/nextjs-sdk
+   # or
+   yarn add @hackle/nextjs-sdk
+````
+
+2. Set environment variables:
+
+   * Add your API keys to `.env.local`:
+
+     ```env
+     NEXT_PUBLIC_HACKLE_ENV_ID=your_environment_id
+     HACKLE_API_KEY=your_secret_api_key
+     ```
+
+3. Update `next.config.js`:
+
+   ```js
+   module.exports = {
+     env: {
+       NEXT_PUBLIC_HACKLE_ENV_ID: process.env.NEXT_PUBLIC_HACKLE_ENV_ID,
+     },
+   };
+   ```
+
+4. Initialize the client in `_app.tsx`:
+
+   ```tsx
+   // pages/_app.tsx
+   import { HackleProvider } from "@hackle/nextjs-sdk";
+   import type { AppProps } from "next/app";
+
+   function MyApp({ Component, pageProps }: AppProps) {
+     return (
+       <HackleProvider
+         envId={process.env.NEXT_PUBLIC_HACKLE_ENV_ID!}
+         debug={process.env.NODE_ENV === "development"}
+       >
+         <Component {...pageProps} />
+       </HackleProvider>
+     );
+   }
+
+   export default MyApp;
+   ```
+
+## User Identification & Segmentation
+
+Hackle supports segmentation based on a unique `userId` and additional "attributes".
+
+```tsx
+import { useUser } from "@hackle/nextjs-sdk";
+
+export default function Home() {
+  const { setUser } = useUser();
+
+  useEffect(() => {
+    setUser({
+      id: "user_123",              // Logged-in user ID or anonymous UUID
+      properties: {
+        plan: "premium",           // Additional attributes
+        country: "KR",
+      },
+    });
+  }, []);
+  
+  return <div>Welcome!</div>;
+}
+```
+
+* Anonymous users: Use a UUID issued from the server and assign it as `id`
+* Attribute updates: You can call `setUser({ properties: { ... } })` any time to update attributes
+
+## Experiment Assignment & UI Variation
+
+The key is to use the "Experiment Key" to branch the control/test variations.
+
+```tsx
+import { useVariation } from "@hackle/nextjs-sdk";
+
+export default function Button() {
+  const { variationKey } = useVariation("button_color_test");
+
+  return (
+    <button
+      style={{
+        backgroundColor:
+          variationKey === "red_button" ? "red" : "blue",
+      }}
+    >
+      Click Me
+    </button>
+  );
+}
+```
+
+* Since `useVariation(experimentKey)` is asynchronous, to reduce flickering during the initial load:
+
+  * Assign the variation on the server side in advance, or
+  * Use a skeleton UI to delay the visual transition until the variation is resolved
+
+## Event Tracking & Dispatch Strategies
+
+#### Real-time Tracking
+
+```tsx
+import { useEvent } from "@hackle/nextjs-sdk";
+
+function SignupButton() {
+  const { track } = useEvent();
+
+  const onClick = () => {
+    track("signup_completed", { method: "email" });
+  };
+
+  return <button onClick={onClick}>Sign Up</button>;
+}
+```
+
+#### Batch Tracking
+
+* For high-traffic services, queue events (e.g., Redis) and batch-send from the server periodically
+
+## Environment & Remote Config Management
+
+1. Use different `envId` values for DEV / STAGING / PROD
+2. Start/stop experiments and control traffic without code changes
+
+   ```tsx
+   import { useConfig } from "@hackle/nextjs-sdk";
+
+   export default function Banner() {
+     const { config } = useConfig("homepage_banner_test");
+
+     // config.value: Parameters managed remotely
+     return <img src={config.value.imageUrl} alt="Banner" />;
+   }
+   ```
+
+## Monitoring & Statistical Significance
+
+* Dashboard: Monitor real-time exposure and metric changes in Hackle’s web dashboard
+* Log monitoring: Integrate with Sentry, Datadog for error tracking
+* Statistical testing: Use p-values and confidence intervals, based on predefined duration and sample size
+
+## QA & Rollback Plan
+
+1. Staging Testing
+
+   * Test in a staging environment that mirrors real traffic conditions
+
+2. Emergency Stop
+
+   ```bash
+   # Example with hackle-cli
+   hackle experiments stop button_color_test --env staging
+   ```
+
+3. Rollback
+
+   * Prepare a rapid recovery plan using previous version branches or tags
+
+## Tips
+
+* Naming convention: Use the format `proj_feature_experiment` for experiment keys
+* Code structure: Isolate A/B test logic into hooks or helper functions
+* Documentation: Record hypothesis, duration, sample size, and owner in README or wiki
+* Flicker prevention: Consider assigning variations inside `getServerSideProps` on initial render

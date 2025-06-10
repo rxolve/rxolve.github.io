@@ -1,0 +1,175 @@
+---
+title: "핵클 A/B 테스트"
+date: "250610"
+tags: ["Tool"]
+---
+
+Next.js 프로젝트에 핵클을 도입해 효율적인 A/B 테스트를 수행하는 방법을 단계별로 정리했습니다. 
+
+## 시작하기: 핵클 SDK 설치 & 초기화
+
+1. 패키지 설치
+
+   ```bash
+   npm install @hackle/nextjs-sdk
+   # 또는
+   yarn add @hackle/nextjs-sdk
+   ```
+2. 환경변수 설정
+
+   * `.env.local` 에 API 키 등록
+
+     ```env
+     NEXT_PUBLIC_HACKLE_ENV_ID=your_environment_id
+     HACKLE_API_KEY=your_secret_api_key
+     ```
+3. next.config.js
+
+   ```js
+   module.exports = {
+     env: {
+       NEXT_PUBLIC_HACKLE_ENV_ID: process.env.NEXT_PUBLIC_HACKLE_ENV_ID,
+     },
+   };
+   ```
+4. \_app.tsx 에 클라이언트 초기화
+
+   ```tsx
+   // pages/_app.tsx
+   import { HackleProvider } from "@hackle/nextjs-sdk";
+   import type { AppProps } from "next/app";
+
+   function MyApp({ Component, pageProps }: AppProps) {
+     return (
+       <HackleProvider
+         envId={process.env.NEXT_PUBLIC_HACKLE_ENV_ID!}
+         debug={process.env.NODE_ENV === "development"}
+       >
+         <Component {...pageProps} />
+       </HackleProvider>
+     );
+   }
+
+   export default MyApp;
+   ```
+
+## 사용자 식별 & 세그멘테이션
+
+핵클은 고유한 `userId` 와 “속성(attributes)” 기반으로 세그멘테이션을 지원합니다.
+
+```tsx
+import { useUser } from "@hackle/nextjs-sdk";
+
+export default function Home() {
+  const { setUser } = useUser();
+
+  useEffect(() => {
+    setUser({
+      id: "user_123",              // 로그인 유저 ID 또는 익명 UUID
+      properties: {
+        plan: "premium",           // 추가 속성
+        country: "KR",
+      },
+    });
+  }, []);
+  
+  return <div>Welcome!</div>;
+}
+```
+
+* 익명 유저: 서버에서 UUID 쿠키 발급 후 `id` 로 사용
+* 속성 업데이트: 필요할 때마다 `setUser({ properties: { … } })` 호출 가능
+
+## 실험 배정 & UI 분기
+
+핵심은 “Experiment Key” 를 사용해 컨트롤 / 테스트 변형을 분기하는 것!
+
+```tsx
+import { useVariation } from "@hackle/nextjs-sdk";
+
+export default function Button() {
+  const { variationKey } = useVariation("button_color_test");
+
+  return (
+    <button
+      style={{
+        backgroundColor:
+          variationKey === "red_button" ? "red" : "blue",
+      }}
+    >
+      클릭해 주세요
+    </button>
+  );
+}
+```
+
+* `useVariation(experimentKey)` 가 비동기로 동작하므로, 초기 로딩 시 깜빡임(Flicker)을 줄이려면
+
+  * 서버 사이드에서 미리 할당하거나
+  * Skeleton UI 를 활용해 변형 노출을 지연시킵니다.
+
+## 이벤트 트래킹 & 전송 전략
+
+#### 즉시 전송(Real-time)
+
+```tsx
+import { useEvent } from "@hackle/nextjs-sdk";
+
+function SignupButton() {
+  const { track } = useEvent();
+
+  const onClick = () => {
+    track("signup_completed", { method: "email" });
+  };
+
+  return <button onClick={onClick}>회원가입</button>;
+}
+```
+
+#### 배치 전송(Batch)
+
+* 대량 트래픽이 예상되면, 일정 시간마다 큐(예: Redis) 에 저장 후 서버에서 한 번에 전송
+
+## 환경 & Remote Config 관리
+
+1. DEV / STAGING / PROD 별로 다른 `envId` 사용
+2. 코드 변경 없이 실험 시작·중단·트래픽 조정
+
+   ```tsx
+   import { useConfig } from "@hackle/nextjs-sdk";
+
+   export default function Banner() {
+     const { config } = useConfig("homepage_banner_test");
+
+     // config.value: 원격에서 관리되는 파라미터
+     return <img src={config.value.imageUrl} alt="Banner" />;
+   }
+   ```
+
+## 모니터링 & 통계 유의성
+
+* 대시보드: 핵클 웹 대시보드에서 실시간 노출, 지표 변화 확인
+* 로그 모니터링: Sentry, Datadog 연동으로 오류 추적
+* 유의성 검증: p-value, 신뢰구간을 사전에 정의한 기간·샘플 사이즈 기준에 따라 확인
+
+## QA & 롤백 플랜
+
+1. 스테이징 테스트
+
+   * 실제 트래픽 비슷한 환경에서 실험 검증
+2. 긴급 중단
+
+   ```bash
+   # hackle-cli 예시
+   hackle experiments stop button_color_test --env staging
+   ```
+3. Rollback
+
+   * 이전 버전 브랜치 및 태그로 신속 복구 시나리오 준비
+
+## 팁
+
+* 키 네이밍: `proj_feature_experiment` 형태로 통일
+* 코드 분리: A/B 테스트 로직은 훅(Hooks) 또는 헬퍼 함수로 분리
+* 문서화: 가설, 기간, 샘플 사이즈, 담당자 정보를 README 또는 위키에 기록
+* 플리커 방지: `getServerSideProps` 에서 미리 variation 할당 고려
