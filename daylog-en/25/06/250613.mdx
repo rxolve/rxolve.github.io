@@ -1,0 +1,85 @@
+---
+title: 'Browser Background Audio Playback'
+date: '250613'
+tags: ['Browser']
+---
+
+When delivering audio content through web services, ensuring continuous playback even when users switch tabs or apps is a key element of good user experience.  
+This is especially critical in mobile environments where browser policies frequently change, and support can vary significantly across in-app browsers (WebViews). Proper implementation and thorough testing are essential.
+
+## Why Background Playback Matters
+
+- Music & Podcast Services: Playback should continue even when users switch to another app.
+- News Narration & Audiobooks: Users should be able to read or listen with the screen off.
+- ASMR & Meditation Apps: Audio-only experiences should work without requiring the screen.
+
+To avoid breaking user immersion, seamless playback in the background is a must.
+
+## Key Implementation Principles
+
+- Start playback via user gesture: Mobile browsers block autoplay of sound, so `audio.play()` must be triggered by explicit gestures like button clicks.
+- Use the Media Session API: This enhances UX by allowing playback control via the lock screen or notification center.
+- Use the Page Visibility API: Detect when the page goes into the background to run additional logic (e.g., analytics, playback state management).
+
+```html
+<button id="playBtn">Play/Pause</button>
+<audio id="audioPlayer" src="sample.mp3" preload="auto"></audio>
+<script>
+  const audio = document.getElementById('audioPlayer');
+  const btn = document.getElementById('playBtn');
+  btn.addEventListener('click', async () => {
+    try {
+      if (audio.paused) {
+        await audio.play();
+        btn.textContent = 'Pause';
+      } else {
+        audio.pause();
+        btn.textContent = 'Play';
+      }
+    } catch (e) {
+      console.warn('Playback failed:', e);
+    }
+  });
+
+  if ('mediaSession' in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: 'Sample Track',
+      artist: 'Artist',
+      album: 'Album',
+    });
+    navigator.mediaSession.setActionHandler('play', () => audio.play());
+    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+  }
+</script>
+```
+
+## Browser Support Overview
+
+| Browser                | Background Playback Support | Notes                                     |
+| ---------------------- | --------------------------- | ----------------------------------------- |
+| iOS Safari (14+)       | ✅                          | Works even in regular tabs                |
+| iOS WKWebView (in-app) | ✅                          | Supported in recent versions              |
+| Android Chrome/WebView | ✅                          | Works regardless of PWA installation      |
+| KakaoTalk Browser      | ✅                          | Supported on both Android and iOS WebView |
+
+> Note: On older versions like iOS 13 or earlier, background playback may be interrupted in Safari or WKWebView. Clearly define and test your target OS/browser versions.
+
+## PWA Manifest Settings (Optional)
+
+Adding your site as a PWA to the home screen can enable more stable background playback on iOS, especially when running in `standalone` mode.
+
+```json
+{
+  "name": "Background Audio Demo",
+  "short_name": "AudioDemo",
+  "start_url": "/background_playback.html",
+  "display": "standalone",
+  "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
+}
+```
+
+## Additional Considerations
+
+- Audio focus management: On Android, implement logic to pause/resume when another app requests audio focus.
+- UX guidance: Clearly communicate to users that playback will continue in the background (e.g., “Music will keep playing even when you switch apps”).
+- Version testing: Always test on real devices across your target OS and browser versions for reliable playback.
