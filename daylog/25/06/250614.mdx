@@ -1,0 +1,139 @@
+---
+title: "GitHub SSH 키 설정"
+date: "250614"
+tags: ["Git"]
+---
+
+
+## SSH 키란?
+
+* SSH(Secure Shell): 원격 서버에 암호화된 통신 채널을 제공하는 프로토콜
+* SSH 키: 공개키(Public Key)와 개인키(Private Key) 한 쌍으로 구성
+
+  * 개인키: 로컬에 안전하게 보관
+  * 공개키: GitHub 등 원격 서버에 등록
+* 키 기반 인증을 사용하면 비밀번호 입력 없이도 안전하게 인증 가능
+
+## SSH 키 생성
+
+1. 터미널(혹은 Git Bash)을 열고, 홈 디렉터리로 이동
+
+   ```bash
+   cd ~/.ssh
+   ```
+
+   만약 `~/.ssh` 디렉터리가 없다면:
+
+   ```bash
+   mkdir -p ~/.ssh
+   chmod 700 ~/.ssh
+   cd ~/.ssh
+   ```
+
+2. 새 SSH 키 쌍 생성
+
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email@example.com"
+   ```
+
+   * `-t ed25519`: 안전하고 빠른 Ed25519 알고리즘 사용
+   * `-C`: 키에 코멘트(주로 이메일) 추가
+
+3. 프롬프트에 따라 입력
+
+   ```
+   Enter file in which to save the key (/Users/you/.ssh/id_ed25519):
+   → [엔터] (기본 경로 사용 권장)
+
+   Enter passphrase (empty for no passphrase):
+   → [원하시는 경우 패스프레이즈 입력, 아니면 엔터]
+
+   Enter same passphrase again:
+   → [동일한 패스프레이즈 입력]
+   ```
+
+4. 생성 확인
+
+   ```bash
+   ls -al ~/.ssh
+   # id_ed25519, id_ed25519.pub 파일 확인
+   ```
+
+## SSH 에이전트에 키 등록
+
+1. SSH 에이전트 실행
+
+   ```bash
+   eval "$(ssh-agent -s)"
+   ```
+
+   출력 예시:
+
+   ```
+   Agent pid 59566
+   ```
+
+2. 개인키를 에이전트에 추가
+
+   ```bash
+   ssh-add ~/.ssh/id_ed25519
+   ```
+
+   * 패스프레이즈를 설정했다면 입력하라는 프롬프트가 표시됩니다.
+
+## GitHub에 공개키 등록
+
+1. 공개키 내용을 복사
+
+   ```bash
+   cat ~/.ssh/id_ed25519.pub
+   ```
+
+   출력된 문자열 전체를 복사
+
+2. GitHub 웹사이트 접속
+
+   * 우측 상단 프로필 사진 → Settings 클릭
+   * 좌측 사이드바 SSH and GPG keys 선택
+   * New SSH key 버튼 클릭
+
+3. Key 등록
+
+   * Title: 키에 대한 설명(예: “work-laptop”, “home-pc” 등)
+   * Key: 복사해 둔 공개키(`id_ed25519.pub`) 내용 붙여넣기
+   * Add SSH key 클릭
+
+## 설정 확인 및 테스트
+
+1. GitHub 서버에 접속 테스트
+
+   ```bash
+   ssh -T git@github.com
+   ```
+2. 정상 응답 예시
+
+   ```
+   Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+   ```
+
+   * 만약 경고(“Are you sure you want to continue connecting (yes/no/\[fingerprint])?”)가 뜨면 `yes` 입력
+
+## (선택) SSH 설정 파일로 관리
+
+여러 키를 사용하거나, 기본 외 다른 파일명을 사용하고 싶다면 `~/.ssh/config` 파일을 만들어 관리할 수 있습니다.
+
+```text
+Host github.com
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+```
+
+## 요약
+
+1. `ssh-keygen`으로 키 생성
+2. `ssh-agent`에 개인키 등록
+3. GitHub에 공개키 등록
+4. `ssh -T git@github.com`으로 연결 확인
+
