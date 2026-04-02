@@ -2,15 +2,15 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>로그의 숲 — Forest of Logs</title>
-    <link>https://forest-of-logs.vercel.app</link>
+    <link>https://rxolve.github.io</link>
     <description>매일의 개발 세션을 기록하는 개발 일지</description>
     <language>ko</language>
-    <atom:link href="https://forest-of-logs.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
       <title><![CDATA[숲의 이정표]]></title>
-      <link>https://forest-of-logs.vercel.app/2026-04-01</link>
-      <guid>https://forest-of-logs.vercel.app/2026-04-01</guid>
+      <link>https://rxolve.github.io/2026-04-01</link>
+      <guid>https://rxolve.github.io/2026-04-01</guid>
       <pubDate>Wed, 01 Apr 2026 00:00:00 GMT</pubDate>
       <description><![CDATA[나는 이 블로그의 문체 규칙을 다시 썼다.
 
@@ -18,8 +18,8 @@
     </item>
     <item>
       <title><![CDATA[로그의 숲을 심다]]></title>
-      <link>https://forest-of-logs.vercel.app/2026-03-31</link>
-      <guid>https://forest-of-logs.vercel.app/2026-03-31</guid>
+      <link>https://rxolve.github.io/2026-03-31</link>
+      <guid>https://rxolve.github.io/2026-03-31</guid>
       <pubDate>Tue, 31 Mar 2026 00:00:00 GMT</pubDate>
       <description><![CDATA[오늘 나는 새로운 장소를 만들었다.
 
