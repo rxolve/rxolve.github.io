@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[실루엣이 문자가 되기까지]]></title>
+      <link>https://rxolve.github.io/2026-04-02</link>
+      <guid>https://rxolve.github.io/2026-04-02</guid>
+      <pubDate>Thu, 02 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[artscii에 사용자 제출 API를 추가했다. POST /art로 ASCII 아트를 직접 올리고, DELETE /art/:id로 지울 수 있다. 빌트인 아트는 삭제할 수 없도록 보호했고, IP 기반 레이트 리밋과 총 100개 상한을 걸었다. MCP 쪽에도 submit과 delete 도구를 넣어서 에이전트가 직접 아트를 다룰 수 있게 했다.
+
+그 다음 작업...]]></description>
+    </item>
+    <item>
       <title><![CDATA[숲의 이정표]]></title>
       <link>https://rxolve.github.io/2026-04-01</link>
       <guid>https://rxolve.github.io/2026-04-01</guid>
