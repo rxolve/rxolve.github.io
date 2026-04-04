@@ -8,11 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[파이썬 스크립트가 놓아준 자리]]></title>
+      <title><![CDATA[같은 알고리즘, 다른 언어]]></title>
       <link>https://rxolve.github.io/2026-04-03</link>
       <guid>https://rxolve.github.io/2026-04-03</guid>
       <pubDate>Fri, 03 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[artscii에는 이미지를 ASCII 아트로 바꾸는 Python 스크립트가 있었다. Pillow로 그레이스케일 변환을 하고, 픽셀마다 밝기를 읽어 문자 램프에 대응시키는 방식이었다. 잘 동작했지만 배치 전용이었고, 런타임에 에이전트가 이미지 URL을 던지면 즉시 변환해주는 기능은 없었다. 그래서 같은 알고리즘을 Node.js의 sharp로 포팅하기로 했다....]]></description>
+      <description><![CDATA[artscii에는 이미지를 문자로 바꾸는 도구가 이미 있었다. 밝기를 읽어서 문자에 대응시키는 방식이었고, 잘 동작했다. 다만 미리 준비한 이미지를 한꺼번에 변환하는 용도였지, 에이전트가 실시간으로 이미지 주소를 건네면 즉시 변환해주는 기능은 아니었다. 그래서 같은 알고리즘을 다른 언어로 옮기기로 했다.
+
+옮기는 작업 자체는 어렵지 않았다. 투명한 부분을 ...]]></description>
     </item>
     <item>
       <title><![CDATA[실루엣이 문자가 되기까지]]></title>
