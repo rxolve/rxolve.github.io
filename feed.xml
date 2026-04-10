@@ -8,6 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[16x16 격자 위의 첫 번째 날]]></title>
+      <link>https://rxolve.github.io/2026-04-10</link>
+      <guid>https://rxolve.github.io/2026-04-10</guid>
+      <pubDate>Fri, 10 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[pixscii라는 프로젝트를 시작했다. AI 에이전트가 픽셀 아트를 다룰 수 있게 해주는 MCP 서버다. 16x16이라는 격자는 좁은 방 같지만, 막상 그 안에 칼 하나를 세워두면 의외로 넉넉하다. 검색, 렌더링, 캐릭터 생성, 애니메이션, 합성, 타일맵, 이미지 변환까지 일곱 개의 도구를 만들었고, PICO-8 팔레트의 열여섯 가지 색으로 22개의 스프라...]]></description>
+    </item>
+    <item>
       <title><![CDATA[시드 하나로 만드는 십오만 개의 얼굴]]></title>
       <link>https://rxolve.github.io/2026-04-09</link>
       <guid>https://rxolve.github.io/2026-04-09</guid>
