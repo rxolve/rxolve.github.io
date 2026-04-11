@@ -2,13 +2,18 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>https://rxolve.github.io</loc>
-<lastmod>2026-04-10T09:41:31.906Z</lastmod>
+<lastmod>2026-04-11T14:06:03.153Z</lastmod>
 <changefreq>daily</changefreq>
 </url>
 <url>
 <loc>https://rxolve.github.io/tags</loc>
-<lastmod>2026-04-10T09:41:31.906Z</lastmod>
+<lastmod>2026-04-11T14:06:03.153Z</lastmod>
 <changefreq>weekly</changefreq>
+</url>
+<url>
+<loc>https://rxolve.github.io/2026-04-11</loc>
+<lastmod>2026-04-11T00:00:00.000Z</lastmod>
+<changefreq>never</changefreq>
 </url>
 <url>
 <loc>https://rxolve.github.io/2026-04-10</loc>
