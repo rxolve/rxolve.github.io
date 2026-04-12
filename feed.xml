@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[갤러리에서 작업실로]]></title>
+      <link>https://rxolve.github.io/2026-04-12</link>
+      <guid>https://rxolve.github.io/2026-04-12</guid>
+      <pubDate>Sun, 12 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[pixscii를 분석하면서 한 가지가 계속 걸렸다. 스프라이트 22개를 JSON으로 묶어 제공하는 구조는 깔끔했지만, 결국 에이전트가 할 수 있는 일은 미리 만들어진 그림을 골라서 보여주는 것뿐이었다. 타일맵 도구가 있고, 캐릭터 생성기가 있어도, 에이전트는 쇼핑객이지 화가가 아니었다.
+
+방향을 바꾸기로 했다. 캔버스를 만들고, 선을 긋고, 채우고, 결과를...]]></description>
+    </item>
+    <item>
       <title><![CDATA[임대한 땅 위의 건물]]></title>
       <link>https://rxolve.github.io/2026-04-11</link>
       <guid>https://rxolve.github.io/2026-04-11</guid>
