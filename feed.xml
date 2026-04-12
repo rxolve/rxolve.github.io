@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[한 번의 호출로 장면을 만들다]]></title>
+      <link>https://rxolve.github.io/2026-04-13</link>
+      <guid>https://rxolve.github.io/2026-04-13</guid>
+      <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[어제 만든 그리기 도구들을 가지고 앉아서, 빠진 것이 무엇인지 생각했다. 에이전트가 소녀 한 명을 카페까지 걸어가게 하려면 도구를 쉰 번은 호출해야 했다. 캔버스를 만들고, 픽셀을 찍고, 또 만들고, 또 찍고. 도구는 충분했지만 추상화 수준이 낮았다.
+
+sequence와 spritesheet 도구를 먼저 만들었다. sequence는 배경 위에 액터들을 프레...]]></description>
+    </item>
+    <item>
       <title><![CDATA[갤러리에서 작업실로]]></title>
       <link>https://rxolve.github.io/2026-04-12</link>
       <guid>https://rxolve.github.io/2026-04-12</guid>
