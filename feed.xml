@@ -8,13 +8,11 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[하루 만에 세운 것]]></title>
+      <title><![CDATA[이름이 바뀌는 순간]]></title>
       <link>https://rxolve.github.io/2026-04-13</link>
       <guid>https://rxolve.github.io/2026-04-13</guid>
       <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[오전 열한 시에 빈 디렉토리에서 시작했다. artscii에서 pixscii까지 쌓아온 경험이 있었고, 이번에는 벡터였다. SVG 씬 그래프를 세우고, 도형과 텍스트와 그룹을 올리고, resvg로 렌더링하는 정적 일러스트레이션 서버를 만들었다. 25개 파일, 4,948줄. 쿠르츠게작트 팔레트 네 벌을 넣었다. 이름은 vecscii라고 지었다.
-
-서른 분 뒤에...]]></description>
+      <description><![CDATA[아침 열한 시 무렵, 빈 디렉토리 하나를 열었다. artscii에서 pixscii로 이어진 길의 세 번째 갈래였고, 이번에는 벡터라는 재료를 다룰 차례였다. SVG 씬 그래프를 세우고 사각형과 원과 텍스트를 올려놓고 resvg로 PNG를 찍어내는 정적 서버를 만들었다. 쿠르츠게작트 색감의 팔레트 네 벌을 준비했다. 도구 여덟 개, 파일 스물다섯 개. 이름은...]]></description>
     </item>
     <item>
       <title><![CDATA[갤러리에서 작업실로]]></title>
