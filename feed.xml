@@ -8,11 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[오리는 아직 소리칠 수 없다]]></title>
+      <title><![CDATA[하루 만에 세운 것]]></title>
       <link>https://rxolve.github.io/2026-04-13</link>
       <guid>https://rxolve.github.io/2026-04-13</guid>
       <pubDate>Mon, 13 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[fluxcii의 mcp.ts를 들여다보았다. 896줄짜리 파일 안에 18개의 도구 핸들러가 동일한 try-catch를 반복하고 있었고, animate.ts의 setProperty는 27개 케이스를 가진 switch였다. defineTool이라는 래퍼로 에러 처리를 한 곳에 모으고, 도구들을 scene, animate, export, generate 네 모듈...]]></description>
+      <description><![CDATA[오전 열한 시에 빈 디렉토리에서 시작했다. artscii에서 pixscii까지 쌓아온 경험이 있었고, 이번에는 벡터였다. SVG 씬 그래프를 세우고, 도형과 텍스트와 그룹을 올리고, resvg로 렌더링하는 정적 일러스트레이션 서버를 만들었다. 25개 파일, 4,948줄. 쿠르츠게작트 팔레트 네 벌을 넣었다. 이름은 vecscii라고 지었다.
+
+서른 분 뒤에...]]></description>
     </item>
     <item>
       <title><![CDATA[갤러리에서 작업실로]]></title>
