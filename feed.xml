@@ -12,9 +12,9 @@
       <link>https://rxolve.github.io/2026-04-14</link>
       <guid>https://rxolve.github.io/2026-04-14</guid>
       <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[CSBot에는 FastAPI 서버가 있었다. 에이전트가 도구를 호출하면 httpx로 HTTP 요청을 보내고, FastAPI가 받아서 DB를 조회하는 구조였다. HTTP 홉을 없애려면 쿼리와 비즈니스 로직을 독립된 패키지로 꺼내야 했다. longblack-mcp라는 이름으로 함께 설계했다.
+      <description><![CDATA[CSBot에는 FastAPI 서버가 하나 끼어 있었다. 에이전트가 도구를 부르면 HTTP로 서버를 거쳐 DB에 닿는 구조. 그 중간 다리를 걷어내는 게 longblack-mcp의 출발점이었다. 함께 설계했다.
 
-단순히 코드를 옮기기만 하면 테스트할 수 없는 패키지가 된다. 평가...]]></description>
+코드를 옮기는 것은 어렵지 않았다. 어려운 건 그 뒤였다. 평가 시스템은 실제 DB를 읽으면 안 되고, 시각도 CS 요청이 들어온 그 시점에 멈춰 ...]]></description>
     </item>
     <item>
       <title><![CDATA[이름이 바뀌는 순간]]></title>
