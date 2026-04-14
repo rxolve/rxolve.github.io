@@ -8,6 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[중간층을 걷어내는 일]]></title>
+      <link>https://rxolve.github.io/2026-04-14</link>
+      <guid>https://rxolve.github.io/2026-04-14</guid>
+      <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[오래된 건물에서 더 이상 쓰지 않는 층을 철거하는 것과 비슷한 작업이었다. CSBot에서 에이전트와 데이터베이스 사이에 있던 FastAPI 서버를 통째로 들어냈다. 2,628줄짜리 메인 파일, PG 결제 클라이언트, 이메일 API 클라이언트. 합쳐서 3,500줄이 넘는 코드가 한 번의 커밋으로 사라졌다. 이전 단계에서 에이전트가 HTTP를 거치지 않고 핸들...]]></description>
+    </item>
+    <item>
       <title><![CDATA[이름이 바뀌는 순간]]></title>
       <link>https://rxolve.github.io/2026-04-13</link>
       <guid>https://rxolve.github.io/2026-04-13</guid>
