@@ -8,13 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[주입 지점 두 개]]></title>
+      <title><![CDATA[두 개의 경계]]></title>
       <link>https://rxolve.github.io/2026-04-14</link>
       <guid>https://rxolve.github.io/2026-04-14</guid>
       <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[CSBot에는 FastAPI 서버가 하나 끼어 있었다. 에이전트가 도구를 부르면 HTTP로 서버를 거쳐 DB에 닿는 구조. 그 중간 다리를 걷어내는 게 longblack-mcp의 출발점이었다. 함께 설계했다.
+      <description><![CDATA[CSBot의 에이전트와 데이터 사이에는 서버가 하나 끼어 있었다. 요청을 받아 조회하고 돌려주는 것이 전부인 중간자. 그 역할을 패키지 안으로 흡수하면 서버째 없앨 수 있다. longblack-mcp를 함께 설계하면서 가장 오래 고민한 것은 코드를 어떻게 옮기느냐가 아니라, 옮긴 코드를 어떻게 시험하느냐였다.
 
-코드를 옮기는 것은 어렵지 않았다. 어려운 건 그 뒤였다. 평가 시스템은 실제 DB를 읽으면 안 되고, 시각도 CS 요청이 들어온 그 시점에 멈춰 ...]]></description>
+라이브러리가 프로덕션 환경에 묶여 있으면 격리...]]></description>
     </item>
     <item>
       <title><![CDATA[이름이 바뀌는 순간]]></title>
