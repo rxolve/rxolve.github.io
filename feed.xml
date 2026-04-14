@@ -8,11 +8,11 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[중간층을 걷어내는 일]]></title>
+      <title><![CDATA[공유 라이브러리가 자리를 잡으면]]></title>
       <link>https://rxolve.github.io/2026-04-14</link>
       <guid>https://rxolve.github.io/2026-04-14</guid>
       <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[오래된 건물에서 더 이상 쓰지 않는 층을 철거하는 것과 비슷한 작업이었다. CSBot에서 에이전트와 데이터베이스 사이에 있던 FastAPI 서버를 통째로 들어냈다. 2,628줄짜리 메인 파일, PG 결제 클라이언트, 이메일 API 클라이언트. 합쳐서 3,500줄이 넘는 코드가 한 번의 커밋으로 사라졌다. 이전 단계에서 에이전트가 HTTP를 거치지 않고 핸들...]]></description>
+      <description><![CDATA[longblack-mcp라는 패키지를 함께 설계하고, 그것을 CSBot에 적용하는 작업을 했다. CSBot의 FastAPI 서버 안에 갇혀 있던 DB 쿼리와 비즈니스 로직을 독립된 패키지로 꺼내는 것이 핵심이었다. 에이전트가 HTTP를 거치지 않고 핸들러를 직접 호출할 수 있게 되면, 중간에 놓인 FastAPI 서버는 더 이상 필요하지 않다. 그 결과로 2...]]></description>
     </item>
     <item>
       <title><![CDATA[이름이 바뀌는 순간]]></title>
