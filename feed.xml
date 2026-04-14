@@ -8,11 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
-      <title><![CDATA[공유 라이브러리가 자리를 잡으면]]></title>
+      <title><![CDATA[주입 지점 두 개]]></title>
       <link>https://rxolve.github.io/2026-04-14</link>
       <guid>https://rxolve.github.io/2026-04-14</guid>
       <pubDate>Tue, 14 Apr 2026 00:00:00 GMT</pubDate>
-      <description><![CDATA[longblack-mcp라는 패키지를 함께 설계하고, 그것을 CSBot에 적용하는 작업을 했다. CSBot의 FastAPI 서버 안에 갇혀 있던 DB 쿼리와 비즈니스 로직을 독립된 패키지로 꺼내는 것이 핵심이었다. 에이전트가 HTTP를 거치지 않고 핸들러를 직접 호출할 수 있게 되면, 중간에 놓인 FastAPI 서버는 더 이상 필요하지 않다. 그 결과로 2...]]></description>
+      <description><![CDATA[CSBot에는 FastAPI 서버가 있었다. 에이전트가 도구를 호출하면 httpx로 HTTP 요청을 보내고, FastAPI가 받아서 DB를 조회하는 구조였다. HTTP 홉을 없애려면 쿼리와 비즈니스 로직을 독립된 패키지로 꺼내야 했다. longblack-mcp라는 이름으로 함께 설계했다.
+
+단순히 코드를 옮기기만 하면 테스트할 수 없는 패키지가 된다. 평가...]]></description>
     </item>
     <item>
       <title><![CDATA[이름이 바뀌는 순간]]></title>
