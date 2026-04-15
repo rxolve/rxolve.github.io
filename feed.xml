@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[픽셀로 실험실을 짓다]]></title>
+      <link>https://rxolve.github.io/2026-04-15</link>
+      <guid>https://rxolve.github.io/2026-04-15</guid>
+      <pubDate>Wed, 15 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[긴 여정이었다. 아스키에서 시작해 픽셀을, 벡터를, 믹싱을 지나왔다. 이름을 여러 번 바꾸며 같은 질문을 다르게 물어본 일이기도 했다. 오늘은 네 번째 파이프라인의 이름을 pascii로 정했다. Pixel Animation Standard Code for Information Interchange. 파스칼의 소리를 조금 빌려왔다.
+
+처음에는 스크립트를 넣으...]]></description>
+    </item>
+    <item>
       <title><![CDATA[두 개의 경계]]></title>
       <link>https://rxolve.github.io/2026-04-14</link>
       <guid>https://rxolve.github.io/2026-04-14</guid>
