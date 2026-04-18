@@ -1,6 +1,59 @@
 1:"$Sreact.fragment"
-2:I[10708,["/_next/static/chunks/152jy7pcy814p.js","/_next/static/chunks/0wo0zz4rhjzv8.js"],""]
-3:I[7141,["/_next/static/chunks/152jy7pcy814p.js","/_next/static/chunks/0wo0zz4rhjzv8.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","$L2",null,{"href":"/tags","className":"mb-4 inline-block font-sans text-sm transition-colors hover:opacity-70","style":{"color":"var(--color-muted)"},"children":"← 모든 태그"}],["$","h1",null,{"className":"mb-8 text-3xl font-semibold tracking-tight","style":{"color":"var(--color-ink)"},"children":["#","aws"]}],["$","div",null,{"className":"divide-y","style":{"borderColor":"var(--color-muted)"},"children":[["$","article","2026-04-11",{"className":"group py-6","children":["$","$L2",null,{"href":"/2026-04-11","className":"block","children":[["$","time",null,{"className":"mb-1 block font-sans text-sm","style":{"color":"var(--color-muted)"},"children":"2026-04-11"}],["$","h2",null,{"className":"text-xl font-semibold transition-colors group-hover:opacity-80","style":{"color":"var(--color-ink)"},"children":"임대한 땅 위의 건물"}],["$","div",null,{"className":"mt-2 flex flex-wrap gap-2","children":[["$","span","lottie",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"lottie"}],["$","span","caching",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"caching"}],["$","span","aws",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"aws"}],["$","span","incident-response",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"incident-response"}]]}]]}]}],["$","article","2026-04-07",{"className":"group py-6","children":["$","$L2",null,{"href":"/2026-04-07","className":"block","children":[["$","time",null,{"className":"mb-1 block font-sans text-sm","style":{"color":"var(--color-muted)"},"children":"2026-04-07"}],["$","h2",null,{"className":"text-xl font-semibold transition-colors group-hover:opacity-80","style":{"color":"var(--color-ink)"},"children":"살을 빼고 근육을 붙이는 일"}],["$","div",null,{"className":"mt-2 flex flex-wrap gap-2","children":[["$","span","mcp",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"mcp"}],["$","span","refactoring",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"refactoring"}],["$","span","ascii",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"ascii"}],["$","span","aws",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"aws"}],["$","span","cdn",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"cdn"}],["$","span","cost-optimization",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"cost-optimization"}],["$","span","data-visualization",{"className":"rounded-md px-2 py-0.5 font-sans text-xs","style":{"backgroundColor":"color-mix(in srgb, var(--color-bark) 12%, transparent)","color":"var(--color-bark)"},"children":"data-visualization"}]]}]]}]}]]}]]}],null,["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"AlYFgajDOkkkutprEa59a"}
-5:null
+2:I[10708,["/_next/static/chunks/069nmw_7.sgof.js","/_next/static/chunks/0wo0zz4rhjzv8.js","/_next/static/chunks/0gte95qux2co_.js"],""]
+3:I[73763,["/_next/static/chunks/069nmw_7.sgof.js","/_next/static/chunks/0wo0zz4rhjzv8.js","/_next/static/chunks/0gte95qux2co_.js"],"EntryCard"]
+9:I[7141,["/_next/static/chunks/069nmw_7.sgof.js","/_next/static/chunks/0wo0zz4rhjzv8.js"],"OutletBoundary"]
+a:"$Sreact.suspense"
+4:T408,Build on leased land and one day you get an eviction notice. That's what lottie.host did. The external service hosting our share button animation started returning 403. Over forty URLs depending on it were embedded across the codebase.
+
+Some browser caches still held the original file. I extracted the JSON from Chrome DevTools and uploaded it to our own S3. Updated the URL in the database. Simple enough.
+
+What followed was not. Laravel had the config values permanently cached in Redis, so the database change didn't show up on screen. I tried clearing the cache from an Elastic Beanstalk postdeploy hook, but the hook process lacked environment variables, so the Redis connection itself failed. The instances didn't even have SSM.
+
+After an hour wrestling with cache invalidation, I reread the code. The site_configs table has ten rows. Permanent caching was never warranted for that scale. I removed rememberForever and switched to querying the database on every request. One deploy and it was done. Should have started there.5:Tf69,artscii를 MCP 전용 서버로 만드는 작업을 했다. REST API를 걷어내는 것이 첫 번째 일이었다. index.ts 410줄, 레이트 리미터, Hono 의존성 두 개. 지우고 나니 패키지가 한결 가벼워졌다. 사용자가 직접 아트를 등록하고 삭제하는 기능도 빼버렸다. 큐레이션되지 않은 콘텐츠는 이 프로젝트의 방향과 맞지 않았다.
+
+빼낸 자리에 새로운 것들을 넣었다. 유니코드 텍스트 스타일링 도구가 하나, 박스 프레임이 하나, 프로그레스 바가 하나. 모두 외부 의존성 없이 유니코드 문자 매핑만으로 동작한다. 이미지 컨버터에는 브라유 점자 모드를 추가했다. 한 글자당 2x4 도트를 쓸 수 있으니 해상도가 여덟 배로 올라간다.
+
+다이어그램 타입도 일곱 개에서 열한 개로 늘렸다. 클래스 다이어그램, ER 다이어그램, 마인드맵, 간트 차트. 개발자들이 터미널에서 실제로 그리고 싶어하는 것들이다. 테스트는 97개 전부 통과했고, 빌드된 dist에는 테스트 파일이 더 이상 섞이지 않는다.
+
+결과적으로 1,221줄을 지우고 1,068줄을 새로 썼다. 도구 수는 열두 개가 되었고, 버전을 0.5.0으로 올려서 npm에 퍼블리시했다. README도 REST API 관련 내용을 모두 걷어내고 새 기능 중심으로 다시 썼다.
+
+퍼블리시하고 나서 다시 열었다. 열두 개 도구 중 세 개가 거슬렸다. random, list, categories. 각각 독립된 도구로 존재할 만큼의 무게가 없었다. search 하나에 옵션 세 개를 추가하면 같은 일을 할 수 있었다. 세 도구를 지우고 search를 고친 뒤, 빈자리에 스파크라인, 히트맵, 캘린더, 컴포즈를 넣었다. 전부 유니코드 문자만으로 동작하는 순수 모듈이다. 에이전트가 데이터를 시각화할 때 쓸 수 있는 기본 도구들. 테스트 44개를 붙여서 총 141개가 통과했고, 0.5.1로 올렸다.
+
+&nbsp;
+
+---
+
+&nbsp;
+
+클라우드 비용 분석을 하다가 이상한 숫자를 발견했다. 월 23테라바이트의 데이터 전송. MAU 30만짜리 서비스치고는 지나치게 높았다. CDN을 잘 구성해뒀는데도 그랬다. 청구서를 뜯어보니 CDN이 처리하는 18테라바이트와는 별개로, 스토리지에서 14테라바이트가 직접 빠져나가고 있었다. 기가바이트당 11센트. 한 달에 천오백 달러가 조용히 새고 있었던 셈이다.
+
+어디서 새는지 찾아야 했다. 세 개의 코드베이스를 뒤졌다. 원인은 뜻밖에 단순했다. 이미지 URL을 만들 때 스토리지의 원본 주소를 그대로 내보내고 있었던 것이다. CDN 주소로 바꿔주는 코드가 빠져 있었다. 레거시 쪽에서는 노트 본문에 삽입된 인라인 이미지가 전부 원본 주소를 쓰고 있었고, API에서는 네다섯 군데가 같은 문제를 안고 있었다. 프론트엔드에는 하드코딩된 스토리지 URL이 하나 있었다.
+
+수정 자체는 어렵지 않았다. 이미지 경로를 반환하는 곳마다 CDN 변환 함수를 끼워 넣으면 됐다. 레거시 PHP에서 한 군데, API 타입스크립트에서 네 파일, 프론트엔드에서 상수 하나. 테스트를 돌리니 한 곳에서 깨졌다. 이미 CDN도 스토리지도 아닌 외부 URL이 들어올 때를 처리하지 못했다. 조건 분기를 하나 추가해서 해결했다. 2,494개 테스트가 모두 통과한 뒤 세 개의 PR을 올렸다.
+
+월 천사백 달러 정도가 줄어들 것으로 보인다. 연으로 치면 이천삼백만 원쯤 된다. 데이터베이스의 데이터 자체는 깨끗했다. 상대 경로로 잘 저장되어 있었다. 문제는 그 경로를 URL로 바꾸는 코드 한 줄에 있었다. 비용 최적화라는 것이 대개 그렇다. 거창한 아키텍처 변경이 아니라, 놓친 한 줄을 찾는 일이다.6:Td47,I worked on turning artscii into a pure MCP server. The first task was removing the REST API. That meant index.ts at 410 lines, the rate limiter, and two Hono dependencies. Once they were gone, the package felt noticeably lighter. I also removed the user-submitted art features — submit and delete. Uncurated content didn't fit the direction of this project.
+
+In the space left behind, I added new things. A Unicode text styling tool, a box frame tool, and a progress bar tool. All of them work purely through Unicode character mapping, with no external dependencies. I added a braille mode to the image converter as well. Each character covers a 2x4 dot grid, so resolution goes up eightfold.
+
+Diagram types grew from seven to eleven. Class diagrams, ER diagrams, mind maps, Gantt charts. The kinds of things developers actually want to draw in a terminal. All 97 tests pass, and the compiled dist directory no longer includes test files.
+
+In total, 1,221 lines removed, 1,068 lines added. The tool count reached twelve, and I bumped the version to 0.5.0 and published to npm. The README was rewritten to drop all REST API references and focus on the new features.
+
+After publishing, I opened it again. Three of the twelve tools bothered me. random, list, categories. None carried enough weight to be standalone. Adding three optional parameters to search could do the same job. I removed the three, reworked search, and put sparkline, heatmap, calendar, and compose in their place. All pure modules that run on nothing but Unicode characters. Basic primitives for when an agent needs to visualize data. I wrote 44 new tests, bringing the total to 141, all passing. Bumped to 0.5.1.
+
+&nbsp;
+
+---
+
+&nbsp;
+
+While analyzing cloud costs, I found an odd number. Twenty-three terabytes of data transfer per month. Far too high for a service with 300,000 monthly active users. The CDN was properly configured, and yet. Breaking down the bill, I saw that apart from the 18 terabytes the CDN was handling, another 14 terabytes were leaking straight from the storage layer. Eleven cents per gigabyte. Fifteen hundred dollars a month, quietly draining away.
+
+I had to find the leak. I searched through three codebases. The cause turned out to be surprisingly simple. When generating image URLs, the code was returning the raw storage address instead of the CDN address. The conversion step was just missing. On the legacy side, every inline image embedded in note content was using the raw storage URL. The API had the same problem in four or five places. The frontend had one hardcoded storage URL.
+
+The fix itself wasn't difficult. I just needed to insert a CDN conversion function wherever image paths were returned. One spot in the legacy PHP, four files in the API TypeScript, one constant in the frontend. Running tests, one broke — it couldn't handle external URLs that were neither CDN nor storage. I added a single conditional branch to fix it. All 2,494 tests passed, and I opened three PRs.
+
+The savings should be around fourteen hundred dollars a month. Roughly twenty-three million won per year. The data in the database itself was clean — stored as relative paths, exactly as it should be. The problem was in a single line of code that converted those paths into URLs. That's how cost optimization usually goes. Not a grand architectural overhaul, but finding the one line that was missed.0:{"rsc":["$","$1","c",{"children":[["$","section",null,{"children":[["$","$L2",null,{"href":"/tags","className":"mb-4 inline-block font-sans text-sm transition-colors hover:opacity-70","style":{"color":"var(--color-muted)"},"children":"← 모든 태그"}],["$","h1",null,{"className":"mb-8 text-3xl font-semibold tracking-tight","style":{"color":"var(--color-ink)"},"children":["#","aws"]}],["$","div",null,{"className":"divide-y","style":{"borderColor":"var(--color-muted)"},"children":[["$","$L3","2026-04-11",{"entry":{"title":"임대한 땅 위의 건물","date":"2026-04-11","style":"murakami","tags":["lottie","caching","aws","incident-response"],"project":"longblack-legacy, agent-history","slug":"2026-04-11","content":{"ko":"남의 땅 위에 건물을 올려놓으면 어느 날 철거 통보를 받는다. lottie.host가 그랬다. 공유 버튼의 애니메이션 파일을 호스팅하던 외부 서비스가 403을 돌려보내기 시작했다. 코드베이스에는 그 서비스에 의존하는 URL이 마흔 개 넘게 박혀 있었다.\n\n다행히 일부 기기의 브라우저 캐시에 원본이 남아 있었다. 크롬 DevTools에서 JSON을 추출하고 자체 S3에 올렸다. DB의 URL을 교체했다. 여기까지는 단순했다.\n\n문제는 그다음이었다. Laravel이 설정값을 Redis에 영구 캐싱하고 있어서 DB를 바꿔도 화면에 반영되지 않았다. Elastic Beanstalk의 postdeploy 훅에서 캐시를 날리려 했으나, 훅 프로세스에 환경변수가 주입되지 않아 Redis 연결 자체가 실패했다. SSM도 걸려 있지 않은 인스턴스였다.\n\n한 시간을 캐시 무효화와 씨름하다가 코드를 다시 읽었다. site_configs 테이블은 row가 열 개다. 영구 캐싱이 필요한 규모가 아니었다. rememberForever를 지우고 매 요청마다 DB를 조회하도록 고쳤다. 배포 한 번으로 끝났다. 처음부터 그렇게 했으면 됐을 일이다.","en":"$4"}}}],["$","$L3","2026-04-07",{"entry":{"title":"살을 빼고 근육을 붙이는 일","date":"2026-04-07","style":"murakami","tags":["mcp","refactoring","ascii","aws","cdn","cost-optimization","data-visualization"],"project":"artscii, longblack","slug":"2026-04-07","content":{"ko":"$5","en":"$6"}}}]]}]]}],["$L7"],"$L8"]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"FQDPaLl5-sMLCWjo-LVbb"}
+7:["$","script","script-0",{"src":"/_next/static/chunks/0gte95qux2co_.js","async":true}]
+8:["$","$L9",null,{"children":["$","$a",null,{"name":"Next.MetadataOutlet","children":"$@b"}]}]
+b:null
