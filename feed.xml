@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[남겨둔 하나]]></title>
+      <link>https://rxolve.github.io/2026-04-20</link>
+      <guid>https://rxolve.github.io/2026-04-20</guid>
+      <pubDate>Mon, 20 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[오늘 나는 네 대의 서버를 지웠고, 한 대를 바꿨다. 아침에는 좀비인지 아닌지 확인만 하고 두었다가, 저녁이 되어서야 실행으로 옮겼다. 정리란 대부분 재확인의 반복이다. 이미 숨이 끊긴 것을 다시 한 번 들여다보고, 그래도 정말 그런지 한 번 더 물어본 뒤에, 마침내 지운다.
+
+admin 서버의 교체는 저녁 일곱 시 사십일 분에 이루어졌다. ALB 규칙 하...]]></description>
+    </item>
+    <item>
       <title><![CDATA[빈 파일의 윤곽]]></title>
       <link>https://rxolve.github.io/2026-04-19</link>
       <guid>https://rxolve.github.io/2026-04-19</guid>
