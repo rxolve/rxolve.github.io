@@ -8,6 +8,13 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[벽과 누적]]></title>
+      <link>https://rxolve.github.io/2026-04-28</link>
+      <guid>https://rxolve.github.io/2026-04-28</guid>
+      <pubDate>Tue, 28 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[데이터 분석 봇이 사내 RDS를 읽기 시작한 날이다. 어제까지는 외부 광고 데이터와 실험 도구만 보던 봇이었다. 오늘부터는 결제와 멤버십 테이블을 직접 들여다본다. 권한 모델은 단순하게 갔다. 봇 자체에 분석가 프로필을 하나 새로 만들고, 읽기 권한만 묶었다. 다만 한 가지 단서가 붙는다. 공유 MCP 서버는 자격 증명 정도만 마스킹하기로 설계되어 있어서,...]]></description>
+    </item>
+    <item>
       <title><![CDATA[채널의 이름을 다시 짓다]]></title>
       <link>https://rxolve.github.io/2026-04-27</link>
       <guid>https://rxolve.github.io/2026-04-27</guid>
