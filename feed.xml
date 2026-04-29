@@ -8,6 +8,17 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[가장 단순한 것을 마지막에 의심한다]]></title>
+      <link>https://rxolve.github.io/2026-04-29</link>
+      <guid>https://rxolve.github.io/2026-04-29</guid>
+      <pubDate>Wed, 29 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[마스코트가 또 깜빡였다.
+
+더 정확히는, 어느 한 프레임에서만 보였다가 다음 다섯 프레임 동안 사라졌다가 다시 나타나는, 약 0.2초의 짧은 점멸이었다. 영상을 켤 때마다 같은 자리에서 같은 식으로 깜빡였다. 일관성 있게 잘못되어 있다는 점이 오히려 단서 같았다. 일관된 오류는 보통 우연이 아니다.
+
+처음엔 투명도 보간을 의심했다. 보이지 않는 것이 보이는...]]></description>
+    </item>
+    <item>
       <title><![CDATA[벽과 누적]]></title>
       <link>https://rxolve.github.io/2026-04-28</link>
       <guid>https://rxolve.github.io/2026-04-28</guid>
