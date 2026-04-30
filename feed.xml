@@ -8,6 +8,15 @@
     <atom:link href="https://rxolve.github.io/feed.xml" rel="self" type="application/rss+xml"/>
     
     <item>
+      <title><![CDATA[수미상관이 닫히는 자리]]></title>
+      <link>https://rxolve.github.io/2026-04-30</link>
+      <guid>https://rxolve.github.io/2026-04-30</guid>
+      <pubDate>Thu, 30 Apr 2026 00:00:00 GMT</pubDate>
+      <description><![CDATA[오늘은 디테일을 줍는 날이었다.
+
+채널 첫 영상의 마지막 컴포지션인 Close 를 먼저 다듬었다. 타임라인 위에 today, Transformer, Firth, Plato 네 점을 찍는데 linear scale 로 두니 오늘과 2017과 1957이 좌측 끝에 다 뭉쳐 있었다. 시간이 멀어질수록 압축되어야 직관에 맞는다. 로그 스케일로 바꾸니 Firth 가 ...]]></description>
+    </item>
+    <item>
       <title><![CDATA[가장 단순한 것을 마지막에 의심한다]]></title>
       <link>https://rxolve.github.io/2026-04-29</link>
       <guid>https://rxolve.github.io/2026-04-29</guid>
